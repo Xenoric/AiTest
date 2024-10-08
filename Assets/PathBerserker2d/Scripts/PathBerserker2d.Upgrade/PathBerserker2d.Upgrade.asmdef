@@ -1,0 +1,17 @@
+{
+    "name": "PathBerserker2d.Upgrade",
+    "references": [
+        "GUID:f483b8ed1e509354483048b0c7a56768"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

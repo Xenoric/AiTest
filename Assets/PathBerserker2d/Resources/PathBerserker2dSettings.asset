@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393b1ec75130eb047bc70f7635277936, type: 3}
+  m_Name: PathBerserker2dSettings
+  m_EditorClassIdentifier: 
+  pointMappingDistance: 0.2
+  pathfinderThreadCount: 4
+  initiateUpdateInterval: 0.1
+  closestToSegmentMaxDistance: 20
+  navLinkTypeNames:
+  - corner
+  - jump
+  - fall
+  - teleport
+  - climb
+  - elevator
+  navLinkTypeColors:
+  - {r: 0, g: 0, b: 0, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0, g: 0.51575685, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 0, g: 0.03320258, b: 0.49803922, a: 1}
+  - {r: 1, g: 0, b: 1, a: 1}
+  navTags:
+  - default
+  - water
+  - lava
+  - grass
+  - concrete
+  - dirt
+  navTagColors:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0.5736413, b: 1, a: 1}
+  - {r: 1, g: 0.19613811, b: 0, a: 1}
+  - {r: 0.03921567, g: 0.99607843, b: 0.124506705, a: 1}
+  - {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 1}
+  - {r: 0.4339623, g: 0.2691755, b: 0, a: 1}
+  drawUnselectedLinks: 1
+  drawUnselectedSurfaces: 1
+  drawUnselectedSubstractors: 1
+  drawUnselectedAreaMarkers: 1
+  drawGraphWhilePlaying: 1
+  navSurfaceLineWidth: 0.04
+  navAreaMarkerLineWidth: 0.2
+  usePolygonCollider2dPathsForBaking: 0

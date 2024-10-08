@@ -1,0 +1,1147 @@
+fileFormatVersion: 2
+guid: fee10258c5e73e844b93fb16ac6959d9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 21300000
+    second: Character_01_body
+  - first:
+      213: 21300002
+    second: Character_01_hand_1
+  - first:
+      213: 21300004
+    second: Character_01_hand_2
+  - first:
+      213: 21300006
+    second: Character_01_hand_3
+  - first:
+      213: 21300008
+    second: Character_01_hand_4
+  - first:
+      213: 21300010
+    second: Character_01_head
+  - first:
+      213: 21300012
+    second: Character_02_body
+  - first:
+      213: 21300014
+    second: Character_02_hand_1
+  - first:
+      213: 21300016
+    second: Character_02_hand_2
+  - first:
+      213: 21300018
+    second: Character_02_hand_3
+  - first:
+      213: 21300020
+    second: Character_02_hand_4
+  - first:
+      213: 21300022
+    second: Character_02_head
+  - first:
+      213: 21300024
+    second: Character_03_body
+  - first:
+      213: 21300026
+    second: Character_03_hand_1
+  - first:
+      213: 21300028
+    second: Character_03_hand_2
+  - first:
+      213: 21300030
+    second: Character_03_hand_3
+  - first:
+      213: 21300032
+    second: Character_03_hand_4
+  - first:
+      213: 21300034
+    second: Character_03_head
+  - first:
+      213: 21300036
+    second: Character_04_body
+  - first:
+      213: 21300038
+    second: Character_04_hand_1
+  - first:
+      213: 21300040
+    second: Character_04_hand_2
+  - first:
+      213: 21300042
+    second: Character_04_hand_3
+  - first:
+      213: 21300044
+    second: Character_04_hand_4
+  - first:
+      213: 21300046
+    second: Character_04_head
+  - first:
+      213: 21300048
+    second: Character_05_body
+  - first:
+      213: 21300050
+    second: Character_05_hand_1
+  - first:
+      213: 21300052
+    second: Character_05_hand_2
+  - first:
+      213: 21300054
+    second: Character_05_hand_3
+  - first:
+      213: 21300056
+    second: Character_05_hand_4
+  - first:
+      213: 21300058
+    second: Character_05_head
+  - first:
+      213: 21300060
+    second: Character_06_body
+  - first:
+      213: 21300062
+    second: Character_06_hand_1
+  - first:
+      213: 21300064
+    second: Character_06_hand_2
+  - first:
+      213: 21300066
+    second: Character_06_hand_3
+  - first:
+      213: 21300068
+    second: Character_06_hand_4
+  - first:
+      213: 21300070
+    second: Character_06_head
+  - first:
+      213: 21300072
+    second: leg left bottom1
+  - first:
+      213: 21300074
+    second: leg left top1
+  - first:
+      213: 21300076
+    second: leg right bottom1
+  - first:
+      213: 21300078
+    second: leg right top2
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 1024
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 2
+    aniso: 16
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 2
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 1
+  cookieLightType: 1
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
+    buildTarget: Server
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Character_01_body
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1717
+        width: 421
+        height: 330
+      alignment: 9
+      pivot: {x: 0.5011876, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02305410000000000800000000000000
+      internalID: 21300000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_01_hand_1
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 1213
+        width: 152
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22305410000000000800000000000000
+      internalID: 21300002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_01_hand_2
+      rect:
+        serializedVersion: 2
+        x: 1773
+        y: 1135
+        width: 143
+        height: 153
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42305410000000000800000000000000
+      internalID: 21300004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_01_hand_3
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1216
+        width: 190
+        height: 119
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62305410000000000800000000000000
+      internalID: 21300006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_01_hand_4
+      rect:
+        serializedVersion: 2
+        x: 1578
+        y: 931
+        width: 136
+        height: 151
+      alignment: 9
+      pivot: {x: 0.5257353, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82305410000000000800000000000000
+      internalID: 21300008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_01_head
+      rect:
+        serializedVersion: 2
+        x: 1632
+        y: 1290
+        width: 380
+        height: 377
+      alignment: 9
+      pivot: {x: 0.5, y: 0.49867374}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2305410000000000800000000000000
+      internalID: 21300010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_02_body
+      rect:
+        serializedVersion: 2
+        x: 1246
+        y: 1386
+        width: 384
+        height: 330
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2305410000000000800000000000000
+      internalID: 21300012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_02_hand_1
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 1089
+        width: 152
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2305410000000000800000000000000
+      internalID: 21300014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_02_hand_2
+      rect:
+        serializedVersion: 2
+        x: 1773
+        y: 980
+        width: 143
+        height: 153
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03305410000000000800000000000000
+      internalID: 21300016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_02_hand_3
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1095
+        width: 190
+        height: 119
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23305410000000000800000000000000
+      internalID: 21300018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_02_hand_4
+      rect:
+        serializedVersion: 2
+        x: 1240
+        y: 1112
+        width: 143
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43305410000000000800000000000000
+      internalID: 21300020
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_02_head
+      rect:
+        serializedVersion: 2
+        x: 1680
+        y: 1669
+        width: 353
+        height: 378
+      alignment: 9
+      pivot: {x: 0.53257793, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63305410000000000800000000000000
+      internalID: 21300022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_03_body
+      rect:
+        serializedVersion: 2
+        x: 844
+        y: 1389
+        width: 400
+        height: 327
+      alignment: 9
+      pivot: {x: 0.5275, y: 0.5045872}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83305410000000000800000000000000
+      internalID: 21300024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_03_hand_1
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 965
+        width: 152
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3305410000000000800000000000000
+      internalID: 21300026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_03_hand_2
+      rect:
+        serializedVersion: 2
+        x: 1773
+        y: 980
+        width: 143
+        height: 153
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3305410000000000800000000000000
+      internalID: 21300028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_03_hand_3
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 974
+        width: 190
+        height: 119
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3305410000000000800000000000000
+      internalID: 21300030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_03_hand_4
+      rect:
+        serializedVersion: 2
+        x: 1385
+        y: 1112
+        width: 143
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04305410000000000800000000000000
+      internalID: 21300032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_03_head
+      rect:
+        serializedVersion: 2
+        x: 763
+        y: 1010
+        width: 378
+        height: 377
+      alignment: 9
+      pivot: {x: 0.5, y: 0.49867374}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24305410000000000800000000000000
+      internalID: 21300034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_04_body
+      rect:
+        serializedVersion: 2
+        x: 844
+        y: 1718
+        width: 416
+        height: 329
+      alignment: 9
+      pivot: {x: 0.5048077, y: 0.50151974}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44305410000000000800000000000000
+      internalID: 21300036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_04_hand_1
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 965
+        width: 152
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64305410000000000800000000000000
+      internalID: 21300038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_04_hand_2
+      rect:
+        serializedVersion: 2
+        x: 1773
+        y: 980
+        width: 143
+        height: 153
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84305410000000000800000000000000
+      internalID: 21300040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_04_hand_3
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 853
+        width: 190
+        height: 119
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4305410000000000800000000000000
+      internalID: 21300042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_04_hand_4
+      rect:
+        serializedVersion: 2
+        x: 1143
+        y: 959
+        width: 143
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4305410000000000800000000000000
+      internalID: 21300044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_04_head
+      rect:
+        serializedVersion: 2
+        x: 382
+        y: 985
+        width: 378
+        height: 369
+      alignment: 9
+      pivot: {x: 0.5, y: 0.4878049}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4305410000000000800000000000000
+      internalID: 21300046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_05_body
+      rect:
+        serializedVersion: 2
+        x: 424
+        y: 1717
+        width: 418
+        height: 330
+      alignment: 9
+      pivot: {x: 0.5047847, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05305410000000000800000000000000
+      internalID: 21300048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_05_hand_1
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 965
+        width: 152
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25305410000000000800000000000000
+      internalID: 21300050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_05_hand_2
+      rect:
+        serializedVersion: 2
+        x: 1773
+        y: 980
+        width: 143
+        height: 153
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45305410000000000800000000000000
+      internalID: 21300052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_05_hand_3
+      rect:
+        serializedVersion: 2
+        x: 1240
+        y: 1265
+        width: 190
+        height: 119
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65305410000000000800000000000000
+      internalID: 21300054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_05_hand_4
+      rect:
+        serializedVersion: 2
+        x: 1288
+        y: 959
+        width: 143
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85305410000000000800000000000000
+      internalID: 21300056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_05_head
+      rect:
+        serializedVersion: 2
+        x: 382
+        y: 1356
+        width: 379
+        height: 359
+      alignment: 9
+      pivot: {x: 0.5013193, y: 0.49860725}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5305410000000000800000000000000
+      internalID: 21300058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_06_body
+      rect:
+        serializedVersion: 2
+        x: 1262
+        y: 1718
+        width: 416
+        height: 329
+      alignment: 9
+      pivot: {x: 0.49759614, y: 0.49848023}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5305410000000000800000000000000
+      internalID: 21300060
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_06_hand_1
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 965
+        width: 152
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5305410000000000800000000000000
+      internalID: 21300062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_06_hand_2
+      rect:
+        serializedVersion: 2
+        x: 1773
+        y: 980
+        width: 143
+        height: 153
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06305410000000000800000000000000
+      internalID: 21300064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_06_hand_3
+      rect:
+        serializedVersion: 2
+        x: 1432
+        y: 1265
+        width: 190
+        height: 119
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26305410000000000800000000000000
+      internalID: 21300066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_06_hand_4
+      rect:
+        serializedVersion: 2
+        x: 1433
+        y: 959
+        width: 143
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46305410000000000800000000000000
+      internalID: 21300068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Character_06_head
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1337
+        width: 379
+        height: 378
+      alignment: 9
+      pivot: {x: 0.49868074, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66305410000000000800000000000000
+      internalID: 21300070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: leg left bottom1
+      rect:
+        serializedVersion: 2
+        x: 1918
+        y: 1111
+        width: 109
+        height: 177
+      alignment: 9
+      pivot: {x: 0.5229358, y: 0.519774}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86305410000000000800000000000000
+      internalID: 21300072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: leg left top1
+      rect:
+        serializedVersion: 2
+        x: 1624
+        y: 1084
+        width: 147
+        height: 204
+      alignment: 9
+      pivot: {x: 0.5272109, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6305410000000000800000000000000
+      internalID: 21300074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: leg right bottom1
+      rect:
+        serializedVersion: 2
+        x: 1143
+        y: 1213
+        width: 95
+        height: 174
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6305410000000000800000000000000
+      internalID: 21300076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: leg right top2
+      rect:
+        serializedVersion: 2
+        x: 1716
+        y: 777
+        width: 134
+        height: 201
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6305410000000000800000000000000
+      internalID: 21300078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Character_01_body: 21300000
+      Character_01_hand_1: 21300002
+      Character_01_hand_2: 21300004
+      Character_01_hand_3: 21300006
+      Character_01_hand_4: 21300008
+      Character_01_head: 21300010
+      Character_02_body: 21300012
+      Character_02_hand_1: 21300014
+      Character_02_hand_2: 21300016
+      Character_02_hand_3: 21300018
+      Character_02_hand_4: 21300020
+      Character_02_head: 21300022
+      Character_03_body: 21300024
+      Character_03_hand_1: 21300026
+      Character_03_hand_2: 21300028
+      Character_03_hand_3: 21300030
+      Character_03_hand_4: 21300032
+      Character_03_head: 21300034
+      Character_04_body: 21300036
+      Character_04_hand_1: 21300038
+      Character_04_hand_2: 21300040
+      Character_04_hand_3: 21300042
+      Character_04_hand_4: 21300044
+      Character_04_head: 21300046
+      Character_05_body: 21300048
+      Character_05_hand_1: 21300050
+      Character_05_hand_2: 21300052
+      Character_05_hand_3: 21300054
+      Character_05_hand_4: 21300056
+      Character_05_head: 21300058
+      Character_06_body: 21300060
+      Character_06_hand_1: 21300062
+      Character_06_hand_2: 21300064
+      Character_06_hand_3: 21300066
+      Character_06_hand_4: 21300068
+      Character_06_head: 21300070
+      leg left bottom1: 21300072
+      leg left top1: 21300074
+      leg right bottom1: 21300076
+      leg right top2: 21300078
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
