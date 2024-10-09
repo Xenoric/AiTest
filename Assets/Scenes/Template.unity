@@ -15685,7 +15685,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!70 &392934265
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -15754,10 +15754,11 @@ MonoBehaviour:
   ELC: {fileID: 411677378}
   enemiesList: []
   _myTeam: 1
-  _health: 1000
+  _health: 300
   _bulletPrefab: {fileID: 821310765582701999, guid: 5ab0ed3194e8c924abdb6e155b08ca96, type: 3}
   _currentStatus: 0
-  _attackRadius: 50
+  _attackRadius: 30
+  _minRadius: 15
   _bulletPool: {fileID: 392934266}
 --- !u!114 &392934268
 MonoBehaviour:
@@ -47819,6 +47820,7 @@ MonoBehaviour:
   _bulletPrefab: {fileID: 821310765582701999, guid: 5ab0ed3194e8c924abdb6e155b08ca96, type: 3}
   _currentStatus: 0
   _attackRadius: 50
+  _minRadius: 5
   _bulletPool: {fileID: 1332215837}
 --- !u!114 &1332215839
 MonoBehaviour:
@@ -60365,7 +60367,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1691974339}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cdc0928e0ec731b4d8e3d7a3ec2018d2, type: 3}
   m_Name: 
@@ -60380,7 +60382,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1691974339}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35e3414322ab35d448eab962f376869d, type: 3}
   m_Name: 
@@ -60391,10 +60393,11 @@ MonoBehaviour:
   ELC: {fileID: 411677378}
   enemiesList: []
   _myTeam: 1
-  _health: 1000
+  _health: 300
   _bulletPrefab: {fileID: 821310765582701999, guid: 5ab0ed3194e8c924abdb6e155b08ca96, type: 3}
   _currentStatus: 0
-  _attackRadius: 50
+  _attackRadius: 30
+  _minRadius: 15
   _bulletPool: {fileID: 1691974341}
 --- !u!114 &1691974343
 MonoBehaviour:
@@ -60403,7 +60406,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1691974339}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 77030faff3812a7429edeaca91e9c873, type: 3}
   m_Name: 
@@ -60422,7 +60425,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1691974339}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3864fd1487d130847b11b82f276d11b6, type: 3}
   m_Name: 
@@ -98820,10 +98823,11 @@ MonoBehaviour:
   ELC: {fileID: 411677378}
   enemiesList: []
   _myTeam: 1
-  _health: 1000
+  _health: 300
   _bulletPrefab: {fileID: 821310765582701999, guid: 5ab0ed3194e8c924abdb6e155b08ca96, type: 3}
   _currentStatus: 0
-  _attackRadius: 50
+  _attackRadius: 30
+  _minRadius: 15
   _bulletPool: {fileID: 3374897540141626579}
 --- !u!1 &6799111226186518029
 GameObject:

@@ -23,8 +23,9 @@ namespace PathBerserker2d
         private bool _isStopped = true;
         private bool _canShoot = true;
         private bool _canEditPath = true;
-        private float _shootCooldown = 0.5f;
-        [SerializeField] private float _attackRadius = 10f;
+        private float _shootCooldown = 1f;
+        [SerializeField] private float _attackRadius = 20f;
+        [SerializeField] private float _minRadius = 10;
         private bool _isAlive = true;
 
         private bool _listFlag = true;
@@ -144,14 +145,17 @@ namespace PathBerserker2d
                     float distance = Vector2.Distance(transform.position, enemy.transform.position);
                     if (distance < minDistance)
                     {
-                        if(distance <= 3){
+                        if(distance <= _minRadius){
                             //if(transform.position == enemy.transform.position){
+                            //bool Boolean  = (Random.value > 0.5f);
+                            _isFacingRight = _enemyTransform.position.x > transform.position.x;
                             if(enemy.GetComponent<GoalWalker>() != null){
-                                enemy.GetComponent<GoalWalker>().GoTo(false);
-                                GoTo(true);
+                                enemy.GetComponent<GoalWalker>().GoTo(_isFacingRight);
+                                //nemy.GetComponent<GoalWalker>().StopBot();
+                                GoTo(!_isFacingRight);
                             }else{
-                                bool Boolean  = (Random.value > 0.5f);
-                                GoTo(Boolean);
+                                
+                                GoTo(!_isFacingRight);
                                 //minDistance = distance;
                                 //nearestEnemy = enemy; 
                             }
@@ -167,7 +171,7 @@ namespace PathBerserker2d
                 return nearestEnemy;
             }
 
-            if(minDistance <= 3){
+            if(minDistance <= _minRadius){
                 _currentStatus = 0;
                 //nearestEnemy.transform.position = new Vector3(nearestEnemy.transform.position.x + 3, nearestEnemy.transform.position.y, nearestEnemy.transform.position.z);
                 //_enemyTransform.position = new Vector3(_enemyTransform.position.x + 3, _enemyTransform.position.y, _enemyTransform.position.z);
@@ -212,30 +216,32 @@ namespace PathBerserker2d
         return false;
     }
 
-    // public void StopBot(){
-    //     StartCoroutine(StopCoroutine());
-    // }
+     // public void StopBot(){
+     //     StartCoroutine(StopCoroutine());
+     // }
 
     private void GoTo(bool a){
         StartCoroutine(ClearStatusCoroutine());
-        int i = a ? 5 : -5;
+        float i = a ? _minRadius : _minRadius * -1f;
         pos = new Vector3(transform.position.x + i, transform.position.y, transform.position.z);
         _navAgent.UpdatePath(pos);
     }
 
     IEnumerator ClearStatusCoroutine(){
         _currentStatus = 999;
-        yield return new WaitForSeconds(0.5f);
-        _currentStatus = 0;
+        yield return new WaitForSeconds(0.7f);
+        //_currentStatus = 0;
+        _currentStatus = 1;
     }
 
-    // IEnumerator StopCoroutine(){
-    //     _currentGoal = null;
-    //     _navAgent.UpdatePath(transform.position);
-    //     _currentStatus = 999;
-    //     yield return new WaitForSeconds(0.5f);
-    //     _currentStatus = 0;
-    // }
+     // IEnumerator StopCoroutine(){
+     //     _currentGoal = null;
+     //     _navAgent.UpdatePath(transform.position);
+     //     //_currentStatus = 999;
+     //     _currentStatus = 1;
+     //     yield return new WaitForSeconds(0.4f);
+     //     _currentStatus = 0;
+     // }
 
         IEnumerator SearchCoroutine()
         {
