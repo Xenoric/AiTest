@@ -69,6 +69,7 @@ namespace PathBerserker2d
         IEnumerator ReturnCoroutine(){
             yield return new WaitForSeconds(1);
             _pool.ReturnObject(this.gameObject);
+            _shooter.GetComponent<GoalWalker>().MinusBullet(1);
         }
 
         // Метод для получения точки с случайным смещением по оси Y от центра
@@ -106,6 +107,7 @@ namespace PathBerserker2d
                          //this.gameObject.SetActive(false);
                          //PoolClass _pool = FindObjectOfType<PoolClass>();
                          _pool.ReturnObject(this.gameObject);
+                         _shooter.GetComponent<GoalWalker>().MinusBullet(1);
                          _shootFlag = true;
                     }
 
@@ -115,6 +117,7 @@ namespace PathBerserker2d
                         // сюда запишите имя скрипта игрока(где его хп должны быть)(вместо GoalWalker)
                         other.gameObject.GetComponent<GoalWalker>().DoDamage(_damage);
                         _pool.ReturnObject(this.gameObject);
+                        _shooter.GetComponent<GoalWalker>().MinusBullet(1);
                          _shootFlag = true;
                     }
                 }
@@ -123,11 +126,13 @@ namespace PathBerserker2d
                     if(other.gameObject.GetComponent<GoalWalker>() != null){
                          other.gameObject.GetComponent<GoalWalker>().DoDamage(_damage);
                          _pool.ReturnObject(this.gameObject);
+                         _shooter.GetComponent<GoalWalker>().MinusBullet(1);
                          _shootFlag = true;
                  }else{
                         // сюда запишите имя скрипта игрока(где его хп должны быть)(вместо GoalWalker)
                         other.gameObject.GetComponent<GoalWalker>().DoDamage(_damage);
                         _pool.ReturnObject(this.gameObject);
+                        _shooter.GetComponent<GoalWalker>().MinusBullet(1);
                          _shootFlag = true;                }
                 }
             }

@@ -37,6 +37,16 @@ namespace PathBerserker2d
 
         public void SetShootCooldown(float cooldown) => _shootCooldown = cooldown;
 
+        // да прстит меня Бог за такие костыли 
+        [SerializeField] private int _bulletsForAtTime = 3;
+        private int _bulletAtNow = 0;
+        // да прстит меня Бог за такие костыли
+        // отче наш, сущий на небесах, да святится имя твоё...пусть этот скрипт как-нибудь, с помощью божьей уже заработает
+
+        public void MinusBullet(int i){
+            _bulletAtNow -= i;
+        }
+
         private void Start()
         {
             // enemiesList = new List<GameObject>(GameObject.FindGameObjectsWithTag("player"));
@@ -86,7 +96,7 @@ namespace PathBerserker2d
                     StartCoroutine(SearchCoroutine());
                     _isSearching = false;
                 } 
-                if (_canShoot)
+                if (_canShoot && _bulletAtNow <= _bulletsForAtTime)
                 {
                     StartCoroutine(ShootCoroutine2());
                     _isFacingRight = _enemyTransform.position.x > transform.position.x;
@@ -138,6 +148,11 @@ namespace PathBerserker2d
                 float minDistance = Mathf.Infinity;
             GameObject nearestEnemy = null;
 
+            if(_health <= 0){
+                _currentStatus = 2;
+                return nearestEnemy;
+            }
+
             foreach (GameObject enemy in enemyList)
             {
                 if (enemy != null)
@@ -166,10 +181,7 @@ namespace PathBerserker2d
                     }
                 }
             }
-            if(_health <= 0){
-                _currentStatus = 2;
-                return nearestEnemy;
-            }
+            
 
             if(minDistance <= _minRadius){
                 _currentStatus = 0;
@@ -265,6 +277,8 @@ namespace PathBerserker2d
 
         IEnumerator ShootCoroutine2()
         {
+            _bulletAtNow += 1;
+
             Vector2 bulletSpawnPosition = transform.position;
             bulletSpawnPosition.x += _isFacingRight ? 2 : -2;
             bulletSpawnPosition.y += 1;

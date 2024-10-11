@@ -11,6 +11,8 @@ public class PoolClass : MonoBehaviour
     // собственно, сам пул 0-0
     [SerializeField] private List<GameObject> _pool;
 
+    private int _poolIndex = 0;
+
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +37,24 @@ public class PoolClass : MonoBehaviour
         Debug.Log("Пул исчерпан!");
         return null;
     }
+
+    // public GameObject GetObject(){
+    //     if(!_pool[_poolIndex].activeInHierarchy){
+    //         GameObject obj = _pool[_poolIndex];
+    //         ++_poolIndex;
+    //         if(_poolIndex+1 > _poolSize){
+    //             _poolIndex = 0;
+    //         }
+    //         obj.SetActive(true);
+    //         return obj;
+    //     }
+
+    //     return
+    //     // for(int i=0; i<_poolSize; ++i){
+    //     //     if(_pool[i].enabled == false){
+    //     //     }
+    //     // }
+    // }
 
 
 
