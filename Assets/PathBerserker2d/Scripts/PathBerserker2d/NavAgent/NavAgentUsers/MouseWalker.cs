@@ -8,7 +8,7 @@ namespace PathBerserker2d
     /// <summary>
     /// Let the NavAgent walk to a mouse click.
     /// </summary>
-    public class MouseWalker : MonoBehaviour
+    class MouseWalker : MonoBehaviour
     {
         [SerializeField]
         public NavAgent navAgent;
