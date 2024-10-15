@@ -826,7 +826,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -839,7 +839,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &31534526
 GameObject:
   m_ObjectHideFlags: 0
@@ -1409,7 +1409,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -1422,7 +1422,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &61598670
 GameObject:
   m_ObjectHideFlags: 0
@@ -2416,7 +2416,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -2429,7 +2429,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &87544738
 GameObject:
   m_ObjectHideFlags: 0
@@ -4295,20 +4295,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: 7.1935005, y: -4.822256}
-  goal: {x: 6.755764, y: -4.9468374}
+  start: {x: 7.491894, y: -4.795434}
+  goal: {x: 6.192524, y: -5.248576}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &177148383
 GameObject:
   m_ObjectHideFlags: 0
@@ -4710,7 +4710,7 @@ Transform:
   m_GameObject: {fileID: 205233989}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 82.1, y: 2.16, z: 0}
+  m_LocalPosition: {x: 101.476, y: -5.522, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4728,20 +4728,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: 20.466873, y: -7.3453484}
-  goal: {x: 18.309029, y: -7.9858847}
+  start: {x: 1.0789261, y: 0.32026815}
+  goal: {x: -1.0789185, y: -0.32026815}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -39.21795, y: 10.665617}
 --- !u!1 &205543388
 GameObject:
   m_ObjectHideFlags: 0
@@ -5525,7 +5525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -5533,12 +5533,12 @@ MonoBehaviour:
   maxTraversableDistance: 0
   autoMap: 1
   start: {x: 42.9476, y: -18.563374}
-  goal: {x: 37.164764, y: -2.643427}
+  goal: {x: 37.395844, y: -2.5278873}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &249118506
 GameObject:
   m_ObjectHideFlags: 0
@@ -6195,7 +6195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -6208,7 +6208,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &260524026
 GameObject:
   m_ObjectHideFlags: 0
@@ -6550,7 +6550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -6563,7 +6563,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &272690627
 GameObject:
   m_ObjectHideFlags: 0
@@ -8158,7 +8158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -8171,7 +8171,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &328838901
 GameObject:
   m_ObjectHideFlags: 0
@@ -8822,7 +8822,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -8835,7 +8835,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &366120581
 GameObject:
   m_ObjectHideFlags: 0
@@ -14380,8 +14380,8 @@ MonoBehaviour:
     prevSegIndex: -1
     nextSegIndex: -1
     owner: {fileID: 371229450}
-  - start: {x: 129.8239, y: 4.5002}
-    length: 17.855698
+  - start: {x: 129.7796, y: 4.5188}
+    length: 17.9003
     dirNorm: {x: 1, y: 0}
     cellClearances:
     - 1.8
@@ -15403,9 +15403,9 @@ MonoBehaviour:
     y: -27.4774
     width: 348.04028
     height: 106.52995
-  totalLineLength: 613.8991
+  totalLineLength: 613.9437
   bakeVersion: 2
-  bakeIteration: 14
+  bakeIteration: 24
 --- !u!1 &374736993
 GameObject:
   m_ObjectHideFlags: 0
@@ -15481,7 +15481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -15494,7 +15494,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &388162822
 GameObject:
   m_ObjectHideFlags: 0
@@ -15677,7 +15677,9 @@ GameObject:
   - component: {fileID: 392934270}
   - component: {fileID: 392934265}
   - component: {fileID: 392934273}
-  - component: {fileID: 392934272}
+  - component: {fileID: 392934275}
+  - component: {fileID: 392934274}
+  - component: {fileID: 392934276}
   m_Layer: 0
   m_Name: Character (2)
   m_TagString: Enemy
@@ -15750,7 +15752,7 @@ Transform:
   m_GameObject: {fileID: 392934264}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 148.6, y: -6.5, z: -0.36606267}
+  m_LocalPosition: {x: -143.05, y: 4.53, z: -0.36606267}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -15759,7 +15761,80 @@ Transform:
   - {fileID: 1876014551}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &392934272
+--- !u!114 &392934273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392934264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3864fd1487d130847b11b82f276d11b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 1
+  maxSlopeAngle: 125
+  autoRepathIntervall: 1
+  maximumDistanceToPathStart: 0.7
+  linkTraversalCostMultipliers:
+  - 1
+  - 1
+  - 0
+  - 1
+  - 0
+  - 0
+  allowCloseEnoughPath: 0
+  movementSpeed: 5
+  cornerSpeed: 100
+  jumpSpeed: 5
+  fallSpeed: 5
+  climbSpeed: 5
+  enableDebugMessages: 0
+  navTagTraversalCostMultipliers:
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  status: 0
+  navTagMask: -63
+--- !u!114 &392934274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392934264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77030faff3812a7429edeaca91e9c873, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementSpeed: 30
+  cornerSpeed: 40
+  jumpSpeed: 30
+  fallSpeed: 5
+  climbSpeed: 5
+  enableAgentRotation: 0
+  enabledFeatures: 27
+--- !u!114 &392934275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392934264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc605c0d97145a45be2755ef52445e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  navAgent: {fileID: 392934273}
+  retryCount: 1
+  keepWalkingRandomly: 1
+--- !u!50 &392934276
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -15786,45 +15861,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &392934273
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 392934264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3864fd1487d130847b11b82f276d11b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  height: 1
-  maxSlopeAngle: 125
-  autoRepathIntervall: 1
-  maximumDistanceToPathStart: 0.7
-  linkTraversalCostMultipliers:
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  allowCloseEnoughPath: 0
-  movementSpeed: 5
-  cornerSpeed: 100
-  jumpSpeed: 5
-  fallSpeed: 5
-  climbSpeed: 5
-  enableDebugMessages: 0
-  navTagTraversalCostMultipliers:
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  status: 0
-  navTagMask: -1
 --- !u!1 &398135354
 GameObject:
   m_ObjectHideFlags: 0
@@ -15985,7 +16021,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -15998,7 +16034,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &402526658
 GameObject:
   m_ObjectHideFlags: 0
@@ -20409,20 +20445,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: 22.909027, y: 0.60303307}
-  goal: {x: 13.822296, y: -9.5082035}
+  start: {x: 22.892365, y: 0.56974363}
+  goal: {x: 13.848999, y: -9.748512}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &549278698
 GameObject:
   m_ObjectHideFlags: 0
@@ -21431,7 +21467,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -21444,7 +21480,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &588928293
 GameObject:
   m_ObjectHideFlags: 0
@@ -31853,20 +31889,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -5.375366, y: -18.6924}
+  start: {x: -4.9234314, y: -18.660118}
   goal: {x: 0.90060425, y: -2.7169533}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &975907955
 GameObject:
   m_ObjectHideFlags: 0
@@ -34279,7 +34315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -34287,12 +34323,12 @@ MonoBehaviour:
   maxTraversableDistance: 0
   autoMap: 1
   start: {x: 0.14697266, y: -14.248285}
-  goal: {x: 19.913864, y: 2.5152302}
+  goal: {x: 19.892342, y: 2.4775686}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1043212883
 GameObject:
   m_ObjectHideFlags: 0
@@ -36968,7 +37004,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -36981,7 +37017,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1115483371
 GameObject:
   m_ObjectHideFlags: 0
@@ -42904,7 +42940,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -42917,7 +42953,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1164914993
 GameObject:
   m_ObjectHideFlags: 0
@@ -44610,6 +44646,64 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1261018481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1261018482}
+  - component: {fileID: 1261018483}
+  m_Layer: 0
+  m_Name: link (30)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1261018482
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261018481}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 180.72, y: 35.65, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2083377499}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1261018483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261018481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  costOverride: 1
+  linkType: 1
+  clearance: 2
+  navTag: 0
+  avgWaitTime: 0
+  maxTraversableDistance: 0
+  autoMap: 1
+  start: {x: 0.58213806, y: -8.588654}
+  goal: {x: 22.78508, y: -41.45513}
+  isBidirectional: 1
+  visualizationType: 5
+  traversalAngle: 0
+  horizontalSpeed: 1
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1265565520
 GameObject:
   m_ObjectHideFlags: 0
@@ -45731,7 +45825,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -45744,7 +45838,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1277218803
 GameObject:
   m_ObjectHideFlags: 0
@@ -46701,7 +46795,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -46714,7 +46808,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1309765033
 GameObject:
   m_ObjectHideFlags: 0
@@ -47450,7 +47544,7 @@ Transform:
   m_GameObject: {fileID: 1325719387}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 100.28, y: 10.97, z: 0}
+  m_LocalPosition: {x: 116.54274, y: 3.0056643, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -47468,20 +47562,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: 16.639725, y: -7.7843223}
-  goal: {x: 15.599571, y: -8.175701}
+  start: {x: 0.67881775, y: 0.19035363}
+  goal: {x: -0.6788101, y: -0.19035387}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -36.108383, y: 10.985348}
 --- !u!1 &1329315229
 GameObject:
   m_ObjectHideFlags: 0
@@ -47660,7 +47754,9 @@ GameObject:
   - component: {fileID: 1332215841}
   - component: {fileID: 1332215836}
   - component: {fileID: 1332215844}
-  - component: {fileID: 1332215843}
+  - component: {fileID: 1332215845}
+  - component: {fileID: 1332215847}
+  - component: {fileID: 1332215848}
   m_Layer: 0
   m_Name: Character (3)
   m_TagString: Enemy
@@ -47733,7 +47829,7 @@ Transform:
   m_GameObject: {fileID: 1332215835}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 145.8, y: -17.1, z: 0}
+  m_LocalPosition: {x: 145.76, y: -16.86, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -47742,7 +47838,65 @@ Transform:
   - {fileID: 739587748}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &1332215843
+--- !u!114 &1332215844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332215835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3864fd1487d130847b11b82f276d11b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 1
+  maxSlopeAngle: 125
+  autoRepathIntervall: 1
+  maximumDistanceToPathStart: 0.7
+  linkTraversalCostMultipliers:
+  - 1
+  - 1
+  - 0
+  - 1
+  - 0
+  - 0
+  allowCloseEnoughPath: 0
+  movementSpeed: 5
+  cornerSpeed: 100
+  jumpSpeed: 5
+  fallSpeed: 5
+  climbSpeed: 5
+  enableDebugMessages: 0
+  navTagTraversalCostMultipliers:
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  status: 0
+  navTagMask: -63
+--- !u!114 &1332215845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332215835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77030faff3812a7429edeaca91e9c873, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementSpeed: 30
+  cornerSpeed: 40
+  jumpSpeed: 30
+  fallSpeed: 5
+  climbSpeed: 5
+  enableAgentRotation: 0
+  enabledFeatures: 27
+--- !u!50 &1332215847
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -47769,7 +47923,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &1332215844
+--- !u!114 &1332215848
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -47778,36 +47932,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1332215835}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3864fd1487d130847b11b82f276d11b6, type: 3}
+  m_Script: {fileID: 11500000, guid: 9fc605c0d97145a45be2755ef52445e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 1
-  maxSlopeAngle: 125
-  autoRepathIntervall: 1
-  maximumDistanceToPathStart: 0.7
-  linkTraversalCostMultipliers:
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  allowCloseEnoughPath: 0
-  movementSpeed: 5
-  cornerSpeed: 100
-  jumpSpeed: 5
-  fallSpeed: 5
-  climbSpeed: 5
-  enableDebugMessages: 0
-  navTagTraversalCostMultipliers:
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  status: 0
-  navTagMask: -1
+  navAgent: {fileID: 1332215844}
+  retryCount: 10
+  keepWalkingRandomly: 1
 --- !u!1 &1333536100
 GameObject:
   m_ObjectHideFlags: 0
@@ -49406,7 +49536,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -49419,7 +49549,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1381292818
 GameObject:
   m_ObjectHideFlags: 0
@@ -51054,7 +51184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -51067,7 +51197,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1475770975
 GameObject:
   m_ObjectHideFlags: 0
@@ -53369,7 +53499,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -53382,7 +53512,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1586941572
 GameObject:
   m_ObjectHideFlags: 0
@@ -53835,7 +53965,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -53843,12 +53973,12 @@ MonoBehaviour:
   maxTraversableDistance: 0
   autoMap: 1
   start: {x: -8.736008, y: -4.6480055}
-  goal: {x: 2.9421082, y: -14.733866}
+  goal: {x: 2.9421082, y: -14.880308}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1612276312
 GameObject:
   m_ObjectHideFlags: 0
@@ -60134,6 +60264,64 @@ Transform:
   - {fileID: 1541894414}
   m_Father: {fileID: 506960510}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -7.9330006}
+--- !u!1 &1682939165
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1682939166}
+  - component: {fileID: 1682939167}
+  m_Layer: 0
+  m_Name: link (32)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1682939166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682939165}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 126.96, y: 23.01, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2083377499}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1682939167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682939165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  costOverride: 1
+  linkType: 1
+  clearance: 2
+  navTag: 0
+  avgWaitTime: 0
+  maxTraversableDistance: 0
+  autoMap: 1
+  start: {x: 0.93562317, y: 13.855379}
+  goal: {x: -3.528801, y: -8.586819}
+  isBidirectional: 1
+  visualizationType: 5
+  traversalAngle: 0
+  horizontalSpeed: 1
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1688669607
 GameObject:
   m_ObjectHideFlags: 0
@@ -60178,7 +60366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -60191,7 +60379,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1691974339
 GameObject:
   m_ObjectHideFlags: 0
@@ -60204,7 +60392,9 @@ GameObject:
   - component: {fileID: 1691974345}
   - component: {fileID: 1691974340}
   - component: {fileID: 1691974348}
-  - component: {fileID: 1691974347}
+  - component: {fileID: 1691974350}
+  - component: {fileID: 1691974349}
+  - component: {fileID: 1691974351}
   m_Layer: 0
   m_Name: Character (1)
   m_TagString: Enemy
@@ -60277,7 +60467,7 @@ Transform:
   m_GameObject: {fileID: 1691974339}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 138.1, y: 4, z: 0}
+  m_LocalPosition: {x: -21.8, y: 45, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -60286,7 +60476,80 @@ Transform:
   - {fileID: 564044692}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &1691974347
+--- !u!114 &1691974348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691974339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3864fd1487d130847b11b82f276d11b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 1
+  maxSlopeAngle: 125
+  autoRepathIntervall: 1
+  maximumDistanceToPathStart: 0.7
+  linkTraversalCostMultipliers:
+  - 1
+  - 1
+  - 0
+  - 1
+  - 0
+  - 0
+  allowCloseEnoughPath: 0
+  movementSpeed: 5
+  cornerSpeed: 100
+  jumpSpeed: 5
+  fallSpeed: 5
+  climbSpeed: 5
+  enableDebugMessages: 0
+  navTagTraversalCostMultipliers:
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  status: 0
+  navTagMask: -63
+--- !u!114 &1691974349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691974339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77030faff3812a7429edeaca91e9c873, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementSpeed: 30
+  cornerSpeed: 40
+  jumpSpeed: 30
+  fallSpeed: 5
+  climbSpeed: 5
+  enableAgentRotation: 0
+  enabledFeatures: 27
+--- !u!114 &1691974350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691974339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc605c0d97145a45be2755ef52445e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  navAgent: {fileID: 1691974348}
+  retryCount: 1
+  keepWalkingRandomly: 1
+--- !u!50 &1691974351
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -60313,45 +60576,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &1691974348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1691974339}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3864fd1487d130847b11b82f276d11b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  height: 1
-  maxSlopeAngle: 125
-  autoRepathIntervall: 1
-  maximumDistanceToPathStart: 0.7
-  linkTraversalCostMultipliers:
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  allowCloseEnoughPath: 0
-  movementSpeed: 5
-  cornerSpeed: 100
-  jumpSpeed: 5
-  fallSpeed: 5
-  climbSpeed: 5
-  enableDebugMessages: 0
-  navTagTraversalCostMultipliers:
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  - 1
-  status: 0
-  navTagMask: -1
 --- !u!1 &1696805752
 GameObject:
   m_ObjectHideFlags: 0
@@ -61072,20 +61296,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -7.9926796, y: -13.827803}
-  goal: {x: -8.437511, y: -13.973551}
+  start: {x: -7.3372307, y: -13.4262905}
+  goal: {x: -9.109791, y: -13.926146}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1727547377
 GameObject:
   m_ObjectHideFlags: 0
@@ -64345,7 +64569,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -64358,7 +64582,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1855814967
 GameObject:
   m_ObjectHideFlags: 0
@@ -65228,7 +65452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -65241,7 +65465,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1883222191
 GameObject:
   m_ObjectHideFlags: 0
@@ -65946,6 +66170,64 @@ Transform:
   - {fileID: 33015968}
   m_Father: {fileID: 705780259}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1916303251
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1916303252}
+  - component: {fileID: 1916303253}
+  m_Layer: 0
+  m_Name: link (31)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1916303252
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916303251}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2083377499}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1916303253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916303251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  costOverride: 1
+  linkType: 1
+  clearance: 2
+  navTag: 0
+  avgWaitTime: 0
+  maxTraversableDistance: 0
+  autoMap: 1
+  start: {x: 8.143799, y: 6.47436}
+  goal: {x: 51.779503, y: -9.734431}
+  isBidirectional: 1
+  visualizationType: 5
+  traversalAngle: 0
+  horizontalSpeed: 1
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &1919927506
 GameObject:
   m_ObjectHideFlags: 0
@@ -74419,6 +74701,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1852580454}
+  - {fileID: 1916303252}
   - {fileID: 1608751289}
   - {fileID: 267583413}
   - {fileID: 1726286389}
@@ -74441,8 +74724,10 @@ Transform:
   - {fileID: 1307900077}
   - {fileID: 362520940}
   - {fileID: 1688669608}
+  - {fileID: 1261018482}
   - {fileID: 1277193916}
   - {fileID: 1163115657}
+  - {fileID: 1682939166}
   - {fileID: 1474610486}
   - {fileID: 29699422}
   - {fileID: 1379625018}
@@ -74526,7 +74811,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 0
+  costOverride: 1
   linkType: 1
   clearance: 2
   navTag: 0
@@ -74539,7 +74824,7 @@ MonoBehaviour:
   visualizationType: 5
   traversalAngle: 0
   horizontalSpeed: 1
-  bezierControlPoint: {x: 0, y: 3}
+  bezierControlPoint: {x: -19.83, y: 3}
 --- !u!1 &2089050331
 GameObject:
   m_ObjectHideFlags: 0
@@ -75305,8 +75590,8 @@ Transform:
   m_GameObject: {fileID: 2130110916}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 138.7518, y: 3.2413, z: 0}
-  m_LocalScale: {x: 17.855751, y: 2.4750495, z: 1}
+  m_LocalPosition: {x: 138.7298, y: 3.2613, z: 0}
+  m_LocalScale: {x: 17.90039, y: 2.5150583, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 371229449}
@@ -75395,7 +75680,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.0043355525}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -75406,7 +75691,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1.008671}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!1 &2131011438
 GameObject:
@@ -99787,7 +100072,7 @@ MonoBehaviour:
   fallSpeed: 5
   climbSpeed: 5
   enableAgentRotation: 0
-  enabledFeatures: -1
+  enabledFeatures: 23
 --- !u!114 &7280169148446927979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99805,11 +100090,11 @@ MonoBehaviour:
   - {fileID: 1691974346}
   - {fileID: 392934271}
   - {fileID: 1332215842}
-  closeEnoughRadius: 100
-  travelStopRadius: 50
+  closeEnoughRadius: 20
+  travelStopRadius: 20
   targetPredictionTime: 0
   targetUpdateInterval: 1
-  shootingRange: 50
+  shootingRange: 20
 --- !u!114 &7280169148446927980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99823,11 +100108,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 4614621822784255301, guid: b824d0fb500638243a308d80386ffe14, type: 3}
-  bulletSpeed: 10
-  fireRate: 1
+  bulletSpeed: 40
+  fireRate: 0.1
   weaponTransform: {fileID: 1202397452646236080}
   firePoint: {fileID: 7275214286273553620}
   maxSpreadAngle: 5
+  fireSpreadAngleRange: 5
 --- !u!212 &7287014032424480885
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -20,6 +20,9 @@ public class Shooter : MonoBehaviour
     [SerializeField, Tooltip("Maximum spread angle in degrees")]
     public float maxSpreadAngle = 5f;
 
+    [SerializeField, Tooltip("Range of fire spread angle")]
+    public float fireSpreadAngleRange = 5f;
+
     private float lastShotTime;
 
     private void Awake()
@@ -57,9 +60,13 @@ public class Shooter : MonoBehaviour
         {
             Vector2 direction = (targetPosition - (Vector2)firePoint.position).normalized;
             
-            // Add spread
+            // Добавляем рандомное отклонение ствола оружия
             float spreadAngle = Random.Range(-maxSpreadAngle, maxSpreadAngle);
             direction = Quaternion.Euler(0, 0, spreadAngle) * direction;
+
+            // Добавляем рандомное отклонение ствола оружия при стрельбе
+            float fireSpreadAngle = Random.Range(-fireSpreadAngleRange, fireSpreadAngleRange);
+            direction = Quaternion.Euler(0, 0, fireSpreadAngle) * direction;
 
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
