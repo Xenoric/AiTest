@@ -29,12 +29,15 @@ namespace Scripts.Bot
         [SerializeField, Range(0.25f, 3f)] private float _timeToUpdatePath;
         [SerializeField] private float _yAssumption;
         [SerializeField] private float _gravity;
+        [SerializeField] private float _avoidanceDistance;
         [Space] 
         [SerializeField] private LayerMask _obstacleLayer;
+        [SerializeField] private LayerMask _enemyLayer;
         [SerializeField] private Grid.Grid _grid;
         [SerializeField] private Transform _enemy;
         [SerializeField] private EnemiesPool _enemiesPool;
         [SerializeField] private bool _debug;
+        [SerializeField] private EntitiesTracer _entitiesTracer;
         private int _startScaleX;
         public Transform Enemy => _enemy;
         private Vector3 _target;
@@ -60,6 +63,7 @@ namespace Scripts.Bot
             if (!_enemy)
                 return;
             _path = _grid.SetPoints(transform.position, _enemy.position);
+            _entitiesTracer.Trace(this);
             if (_path == null || _path.Count == 0)
                 return;
             _target = _path[0].Position;
@@ -79,19 +83,36 @@ namespace Scripts.Bot
 
         private void FixedUpdate()
         {
+            if (!_enemy || _path != null && Vector3.Distance(transform.position, _enemy.position) <= _avoidanceDistance && _path.Count < 3)
+                return;
+            
             if(CheckIfReachedNode())
                 GetNextNode();
 
-            if (_enemy)
-                ScaleX = (_enemy.position - transform.position).x > 0 ? 1 : -1;
-            else ScaleX = 1;
-            
+            ScaleX = (_enemy.position - transform.position).x > 0 ? 1 : -1;
             ScaleX *= _startScaleX;
             
             transform.localScale = new Vector3(ScaleX, 1, 1);
             
+            //HoldDistance(_target, out var endPosition);
             Rigidbody.position = Vector2.MoveTowards(Rigidbody.position, _target, _speed);
         }
+
+        /*private void HoldDistance(Vector2 initialPosition, out Vector2 outPosition)
+        {
+            var checkVector = Rigidbody.velocity.normalized == Vector2.zero ? Vector2.right
+                                  : Rigidbody.velocity.normalized;
+            RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.right * 15, checkVector, _avoidanceDistance, _enemyLayer);
+            outPosition = initialPosition;
+            if (hit.collider != null)
+            {
+                Vector2 avoidanceDirection = (transform.position - hit.collider.transform.position).normalized;
+                outPosition = initialPosition - avoidanceDirection * (_speed * 150);
+            
+                if(_debug)
+                    Debug.Log($"{initialPosition}   {outPosition}  {checkVector}");
+            }
+        }*/
 
         private float CheckRoof()
         {

@@ -12,6 +12,9 @@ namespace Scripts.Bot.Grid
         [SerializeField, Range(0.1f, 5)] private float _nodeSize;
         [SerializeField] private Node[,] _nodes;
         [SerializeField] private float _nodePrecision;
+        [SerializeField] private EntitiesTracer _entitiesTracer;
+        [SerializeField] private bool _debug;
+        public EntitiesTracer EntitiesTracer => _entitiesTracer;
         public List<Node> Path { get; set; }
         private Pathfinding _pathfinding;
 
@@ -52,16 +55,15 @@ namespace Scripts.Bot.Grid
             return path;
         }
 
-        /*private void Update()
+        public Vector2Int WorldToGridPoint(Vector3 worldPoint)
         {
-            if (Input.GetKeyDown(KeyCode.F))
-                _pathfinding.FindPath(_nodes[5, 1], _nodes[50, 15]);
-        }*/
+            var gridScale = (worldPoint - _leftBottomAnchor.position) / _nodeSize;
+            return new Vector2Int(Mathf.RoundToInt(gridScale.x), Mathf.RoundToInt(gridScale.y));
+        }
 
         public Node TryConvertWorldPointToNode(Vector3 worldPoint)
         {
-            var gridScale = (worldPoint - _leftBottomAnchor.position) / _nodeSize;
-            var gridPosition = new Vector2Int(Mathf.RoundToInt(gridScale.x), Mathf.RoundToInt(gridScale.y));
+            var gridPosition = WorldToGridPoint(worldPoint);
 
             if (!CheckInBounds(gridPosition))
                 return null;
@@ -70,8 +72,8 @@ namespace Scripts.Bot.Grid
         }
 
         private bool CheckInBounds(Vector2 position) => position is { x: >= 0, y: >= 0 } &&
-                                                     position.x < _nodes.GetLength(0) &&
-                                                     position.y < _nodes.GetLength(1);
+                                                        position.x < _nodes.GetLength(0) &&
+                                                        position.y < _nodes.GetLength(1);
 
         private void Awake()
         {
@@ -94,19 +96,19 @@ namespace Scripts.Bot.Grid
                     new Node(!Physics2D.OverlapCircle(nodePosition, _nodeSize / _nodePrecision, _obstacle),
                         nodePosition, x, y);
             }
-            
-            _pathfinding.FindPath(_nodes[5, 1], _nodes[50, 15]);
         }
 
         private void OnDrawGizmos()
         {
-            /*if (_nodes == null)
+            if (!_debug)
+                return;
+            if (_nodes == null)
                 return;
             foreach (var node in _nodes)
             {
                 Gizmos.color = node.IsWalkable ? Color.green : Color.red;
                 Gizmos.DrawSphere(node.Position, _nodeSize / 2);
-            }*/
+            }
             
             /*if (Path == null)
                 return;

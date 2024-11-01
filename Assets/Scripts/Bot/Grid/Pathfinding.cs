@@ -14,6 +14,7 @@ namespace Scripts.Bot.Grid
             Heap<Node> openSet = new ((int)(_grid.Size.x * _grid.Size.y));
             HashSet<Node> closedSet = new();
             openSet.Add(startNode);
+            //var botsDictionary = _grid.EntitiesTracer.Bots;
 
             while (openSet.Count > 0)
             {
@@ -26,7 +27,10 @@ namespace Scripts.Bot.Grid
 
                 foreach (var neighbour in _grid.GetNeighbours(currentNode))
                 {
-                    if (!neighbour.IsWalkable || closedSet.Contains(neighbour))
+                    if (!neighbour.IsWalkable || 
+                        closedSet.Contains(neighbour)/* || 
+                        // TODO: figure out how to properly avoid bots while finding path
+                        botsDictionary.ContainsValue(new Vector2Int(neighbour.GridX, neighbour.GridY))*/)
                         continue;
 
                     var newMovementCost = currentNode.GCost + GetDistance(currentNode, neighbour);
