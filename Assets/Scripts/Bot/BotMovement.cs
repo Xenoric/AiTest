@@ -89,13 +89,22 @@ namespace Scripts.Bot
             if(CheckIfReachedNode())
                 GetNextNode();
 
+            var move = (_target - transform.position).normalized;
             ScaleX = (_enemy.position - transform.position).x > 0 ? 1 : -1;
             ScaleX *= _startScaleX;
             
             transform.localScale = new Vector3(ScaleX, 1, 1);
+
+            var enemyYDistance = Math.Abs((_enemy.transform.position - transform.position).y);
+            move.x *= _speed;
+            move.y *= _thrust;
+            //move.y = enemyYDistance >= _yAssumption ? _thrust * move.y : _gravity;
+            //move.y = move.y < _yAssumption ? _gravity : _thrust;
             
             //HoldDistance(_target, out var endPosition);
-            Rigidbody.position = Vector2.MoveTowards(Rigidbody.position, _target, _speed);
+            Rigidbody.AddForce(move);
+            //Rigidbody.velocity = move * _speed;
+            //Rigidbody.position = Vector2.MoveTowards(Rigidbody.position, _target, _speed);
         }
 
         /*private void HoldDistance(Vector2 initialPosition, out Vector2 outPosition)
