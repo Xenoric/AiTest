@@ -480,7 +480,7 @@ GameObject:
   - component: {fileID: 141563863}
   - component: {fileID: 141563859}
   - component: {fileID: 141563862}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: BotT1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -500,23 +500,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 2048
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
-  _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
+  _debug: 0
 --- !u!50 &141563859
 Rigidbody2D:
   serializedVersion: 4
@@ -631,7 +635,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 142043907}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -663,7 +667,7 @@ GameObject:
   m_Component:
   - component: {fileID: 144644801}
   - component: {fileID: 144644802}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -718,7 +722,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 169211723}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -754,7 +758,7 @@ GameObject:
   - component: {fileID: 175202573}
   - component: {fileID: 175202572}
   - component: {fileID: 175202575}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: BotT2 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -792,23 +796,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 1024
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
+  _debug: 0
 --- !u!50 &175202572
 Rigidbody2D:
   serializedVersion: 4
@@ -906,7 +914,7 @@ GameObject:
   m_Component:
   - component: {fileID: 178833159}
   - component: {fileID: 178833160}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -1226,7 +1234,7 @@ GameObject:
   - component: {fileID: 245015890}
   - component: {fileID: 245015888}
   - component: {fileID: 245015891}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: BotT1 (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1264,23 +1272,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 2048
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
   _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
 --- !u!50 &245015888
 Rigidbody2D:
   serializedVersion: 4
@@ -1378,7 +1390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 263107808}
   - component: {fileID: 263107809}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1554,7 +1566,7 @@ GameObject:
   m_Component:
   - component: {fileID: 292041859}
   - component: {fileID: 292041860}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -1870,7 +1882,7 @@ GameObject:
   m_Component:
   - component: {fileID: 326463593}
   - component: {fileID: 326463594}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1954,7 +1966,7 @@ GameObject:
   m_Component:
   - component: {fileID: 334058518}
   - component: {fileID: 334058519}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2447,7 +2459,7 @@ GameObject:
   - component: {fileID: 460928407}
   - component: {fileID: 460928406}
   - component: {fileID: 460928409}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: BotT2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2485,23 +2497,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 1024
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
+  _debug: 0
 --- !u!50 &460928406
 Rigidbody2D:
   serializedVersion: 4
@@ -2599,7 +2615,7 @@ GameObject:
   m_Component:
   - component: {fileID: 470413511}
   - component: {fileID: 470413512}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2839,7 +2855,6 @@ MonoBehaviour:
   _rightTopAnchor: {fileID: 1551405995}
   _nodeSize: 3.5
   _nodePrecision: 2.11
-  _entitiesTracer: {fileID: 1737104366}
   _debug: 0
 --- !u!4 &487720707
 Transform:
@@ -3126,7 +3141,7 @@ GameObject:
   m_Component:
   - component: {fileID: 573824478}
   - component: {fileID: 573824479}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -3333,7 +3348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 607019272}
   - component: {fileID: 607019273}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3775,7 +3790,7 @@ GameObject:
   - component: {fileID: 692105690}
   - component: {fileID: 692105688}
   - component: {fileID: 692105691}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: BotT1 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3813,23 +3828,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 2048
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
-  _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
+  _debug: 0
 --- !u!50 &692105688
 Rigidbody2D:
   serializedVersion: 4
@@ -3927,7 +3946,7 @@ GameObject:
   m_Component:
   - component: {fileID: 732150669}
   - component: {fileID: 732150670}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -4113,7 +4132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 782492833}
   - component: {fileID: 782492834}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4197,7 +4216,7 @@ GameObject:
   m_Component:
   - component: {fileID: 798335310}
   - component: {fileID: 798335311}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4280,7 +4299,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 830245874}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -4312,7 +4331,7 @@ GameObject:
   m_Component:
   - component: {fileID: 842433076}
   - component: {fileID: 842433077}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4480,7 +4499,7 @@ GameObject:
   m_Component:
   - component: {fileID: 907958687}
   - component: {fileID: 907958688}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4564,7 +4583,7 @@ GameObject:
   m_Component:
   - component: {fileID: 934647488}
   - component: {fileID: 934647489}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5217,7 +5236,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1000240265}
   - component: {fileID: 1000240266}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5301,7 +5320,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1000322072}
   - component: {fileID: 1000322073}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5645,7 +5664,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1030033099}
   - component: {fileID: 1030033100}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5729,7 +5748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1035951827}
   - component: {fileID: 1035951828}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -6045,7 +6064,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1110735274}
   - component: {fileID: 1110735275}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6133,7 +6152,7 @@ GameObject:
   - component: {fileID: 1177361985}
   - component: {fileID: 1177361984}
   - component: {fileID: 1177361987}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: BotT2 (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6171,23 +6190,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 1024
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
+  _debug: 0
 --- !u!50 &1177361984
 Rigidbody2D:
   serializedVersion: 4
@@ -6284,7 +6307,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1192025477}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -6316,7 +6339,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1194633909}
   - component: {fileID: 1194633910}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6400,7 +6423,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1227571234}
   - component: {fileID: 1227571235}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6488,7 +6511,7 @@ GameObject:
   - component: {fileID: 1284002658}
   - component: {fileID: 1284002657}
   - component: {fileID: 1284002660}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: BotT2 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6526,23 +6549,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 1024
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
+  _debug: 0
 --- !u!50 &1284002657
 Rigidbody2D:
   serializedVersion: 4
@@ -6770,7 +6797,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1312526457}
   - component: {fileID: 1312526458}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6853,7 +6880,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1326056608}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -6885,7 +6912,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1402802071}
   - component: {fileID: 1402802072}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6968,7 +6995,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1417407996}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -7000,7 +7027,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1436978647}
   - component: {fileID: 1436978648}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7672,7 +7699,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1581554203}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -7704,7 +7731,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1597899228}
   - component: {fileID: 1597899229}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7792,7 +7819,7 @@ GameObject:
   - component: {fileID: 1690819078}
   - component: {fileID: 1690819076}
   - component: {fileID: 1690819079}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: BotT1 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7830,23 +7857,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 50
-  _thrust: 47
-  _nodeDistance: 2
+  _damperSpeed: 35
+  _thrust: 60
+  _nodeDistance: 3
   _timeToUpdatePath: 1
   _yAssumption: 2
-  _gravity: -0.2
-  _avoidanceDistance: 25
+  _pathNodexAssumption: 5
+  _avoidanceDistance: 15
+  _teammateAvoidanceDistance: 2
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 2048
+  _teammateLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _grid: {fileID: 487720706}
   _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
-  _debug: 1
-  _entitiesTracer: {fileID: 1737104366}
+  _debug: 0
 --- !u!50 &1690819076
 Rigidbody2D:
   serializedVersion: 4
@@ -7944,7 +7975,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1720961286}
   - component: {fileID: 1720961287}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8018,51 +8049,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &1737104365
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1737104367}
-  - component: {fileID: 1737104366}
-  m_Layer: 0
-  m_Name: EntityTracer
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1737104366
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1737104365}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 385fbad017ea4f608d579decd4c3345a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _grid: {fileID: 487720706}
---- !u!4 &1737104367
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1737104365}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -58.63667, y: 19.374538, z: -0.33714524}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1754478996
 GameObject:
   m_ObjectHideFlags: 0
@@ -8073,7 +8059,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1754478997}
   - component: {fileID: 1754478998}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8156,7 +8142,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1766287383}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: ShotPoint
   m_TagString: Untagged
   m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
@@ -8609,7 +8595,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1862064460}
   - component: {fileID: 1862064461}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -8665,7 +8651,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1927026845}
   - component: {fileID: 1927026846}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9046,7 +9032,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2096506097}
   - component: {fileID: 2096506098}
-  m_Layer: 9
+  m_Layer: 11
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9477,7 +9463,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2146160874}
   - component: {fileID: 2146160875}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
@@ -17826,4 +17812,3 @@ SceneRoots:
   - {fileID: 2126328885}
   - {fileID: 952497032}
   - {fileID: 284787230}
-  - {fileID: 1737104367}

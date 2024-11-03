@@ -12,9 +12,7 @@ namespace Scripts.Bot.Grid
         [SerializeField, Range(0.1f, 5)] private float _nodeSize;
         [SerializeField] private Node[,] _nodes;
         [SerializeField] private float _nodePrecision;
-        [SerializeField] private EntitiesTracer _entitiesTracer;
         [SerializeField] private bool _debug;
-        public EntitiesTracer EntitiesTracer => _entitiesTracer;
         public List<Node> Path { get; set; }
         private Pathfinding _pathfinding;
 
