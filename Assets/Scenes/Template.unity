@@ -499,28 +499,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 2048
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 1024
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
-  _debug: 0
 --- !u!50 &141563859
 Rigidbody2D:
   serializedVersion: 4
@@ -536,7 +535,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -544,9 +543,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &141563860
 MonoBehaviour:
@@ -568,7 +567,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 141563856}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -104.3, y: -6, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -576,7 +575,7 @@ Transform:
   - {fileID: 1720961286}
   - {fileID: 263107808}
   - {fileID: 2146160874}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &141563862
 CapsuleCollider2D:
@@ -706,9 +705,12 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _botMovement: {fileID: 1177361982}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 144644801}
@@ -773,7 +775,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 175202568}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 138.5, y: 12.2, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -781,7 +783,7 @@ Transform:
   - {fileID: 1927026845}
   - {fileID: 1402802071}
   - {fileID: 573824478}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &175202570
 MonoBehaviour:
@@ -795,28 +797,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 1024
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 2048
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 0
 --- !u!50 &175202572
 Rigidbody2D:
   serializedVersion: 4
@@ -832,7 +833,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -840,9 +841,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &175202573
 MonoBehaviour:
@@ -953,13 +954,55 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _botMovement: {fileID: 460928404}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 178833159}
   _shotPosition: {fileID: 1326056608}
+--- !u!1 &200893060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 200893061}
+  m_Layer: 0
+  m_Name: Bots
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &200893061
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200893060}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 141563861}
+  - {fileID: 692105685}
+  - {fileID: 1690819073}
+  - {fileID: 245015885}
+  - {fileID: 460928403}
+  - {fileID: 1284002654}
+  - {fileID: 175202569}
+  - {fileID: 1177361981}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &227702137
 GameObject:
   m_ObjectHideFlags: 0
@@ -1249,7 +1292,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 245015884}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -50.1, y: 14.7, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1257,7 +1300,7 @@ Transform:
   - {fileID: 1312526457}
   - {fileID: 842433076}
   - {fileID: 732150669}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &245015886
 MonoBehaviour:
@@ -1271,28 +1314,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 2048
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 1024
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
-  _debug: 1
 --- !u!50 &245015888
 Rigidbody2D:
   serializedVersion: 4
@@ -1308,7 +1350,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -1316,9 +1358,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &245015889
 MonoBehaviour:
@@ -1605,9 +1647,12 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _botMovement: {fileID: 692105686}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 292041859}
@@ -2474,7 +2519,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 460928402}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 39.8, y: 31, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2482,7 +2527,7 @@ Transform:
   - {fileID: 607019272}
   - {fileID: 1000322072}
   - {fileID: 178833159}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &460928404
 MonoBehaviour:
@@ -2496,28 +2541,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 1024
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 2048
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 0
 --- !u!50 &460928406
 Rigidbody2D:
   serializedVersion: 4
@@ -2533,7 +2577,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -2541,9 +2585,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &460928407
 MonoBehaviour:
@@ -3180,9 +3224,12 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _botMovement: {fileID: 175202570}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 573824478}
@@ -3805,7 +3852,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 692105684}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -151.5, y: -0.2, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3813,7 +3860,7 @@ Transform:
   - {fileID: 1227571234}
   - {fileID: 1110735274}
   - {fileID: 292041859}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &692105686
 MonoBehaviour:
@@ -3827,28 +3874,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 2048
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 1024
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
-  _debug: 0
 --- !u!50 &692105688
 Rigidbody2D:
   serializedVersion: 4
@@ -3864,7 +3910,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -3872,9 +3918,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &692105689
 MonoBehaviour:
@@ -3985,9 +4031,12 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _botMovement: {fileID: 245015886}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 732150669}
@@ -5787,9 +5836,12 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _botMovement: {fileID: 1690819074}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 1035951827}
@@ -6167,7 +6219,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1177361980}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 140.9, y: -10.2, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6175,7 +6227,7 @@ Transform:
   - {fileID: 1754478997}
   - {fileID: 1030033099}
   - {fileID: 144644801}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1177361982
 MonoBehaviour:
@@ -6189,28 +6241,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 1024
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 2048
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 0
 --- !u!50 &1177361984
 Rigidbody2D:
   serializedVersion: 4
@@ -6226,7 +6277,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -6234,9 +6285,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &1177361985
 MonoBehaviour:
@@ -6526,7 +6577,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1284002653}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 94.4, y: -3.4, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6534,7 +6585,7 @@ Transform:
   - {fileID: 782492833}
   - {fileID: 2096506097}
   - {fileID: 1862064460}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1284002655
 MonoBehaviour:
@@ -6548,28 +6599,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 1024
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 2048
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 952497031}
-  _debug: 0
 --- !u!50 &1284002657
 Rigidbody2D:
   serializedVersion: 4
@@ -6585,7 +6635,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -6593,9 +6643,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &1284002658
 MonoBehaviour:
@@ -7834,7 +7884,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1690819072}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -142.6, y: 8.7, z: -0.10452099}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -7842,7 +7892,7 @@ Transform:
   - {fileID: 470413511}
   - {fileID: 798335310}
   - {fileID: 1035951827}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 200893061}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1690819074
 MonoBehaviour:
@@ -7856,28 +7906,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf210447d944a5c85ba441ba2e27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 50
+  _baseSpeed: 70
   _damperSpeed: 35
-  _thrust: 60
-  _nodeDistance: 3
-  _timeToUpdatePath: 1
-  _yAssumption: 2
-  _pathNodexAssumption: 5
-  _avoidanceDistance: 15
-  _teammateAvoidanceDistance: 2
-  _obstacleLayer:
+  _flyForce: 50
+  _maxFlyHeight: 100
+  _groundCheckDistance: 0.1
+  _landingForce: 20
+  _optimalCombatDistance: 20
+  _minCombatDistance: 15
+  _teammateAvoidanceRadius: 5
+  _pathUpdateInterval: 0.5
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 2048
+  _groundedThreshold: 0.1
+  _slopeCheckDistance: 1
+  _maxSlopeAngle: 45
   _teammateLayer:
     serializedVersion: 2
     m_Bits: 1024
   _grid: {fileID: 487720706}
-  _enemy: {fileID: 0}
   _enemiesPool: {fileID: 2126328884}
-  _debug: 0
 --- !u!50 &1690819076
 Rigidbody2D:
   serializedVersion: 4
@@ -7893,7 +7942,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 553da4fccd6fa544497cfc1bdf0716b0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -7901,9 +7950,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!114 &1690819077
 MonoBehaviour:
@@ -8634,9 +8683,12 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   _botMovement: {fileID: 1284002655}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 1862064460}
@@ -9502,9 +9554,12 @@ MonoBehaviour:
   _shootingDistance: 35
   _shotPeriod: 0.1
   _focusSpeed: 2
-  _player:
+  _obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   _botMovement: {fileID: 141563858}
   _bullet: {fileID: 5242841232067504859, guid: 1e7a4823536b13c43b544259fc59d213, type: 3}
   _gun: {fileID: 2146160874}
@@ -17798,17 +17853,10 @@ SceneRoots:
   - {fileID: 2087691561}
   - {fileID: 370902672}
   - {fileID: 605199566}
-  - {fileID: 141563861}
-  - {fileID: 692105685}
-  - {fileID: 1690819073}
-  - {fileID: 245015885}
-  - {fileID: 460928403}
-  - {fileID: 1284002654}
-  - {fileID: 175202569}
-  - {fileID: 1177361981}
   - {fileID: 487720707}
   - {fileID: 1780716804}
   - {fileID: 1551405995}
   - {fileID: 2126328885}
   - {fileID: 952497032}
   - {fileID: 284787230}
+  - {fileID: 200893061}

@@ -8,7 +8,8 @@ namespace Scripts.Bot
         [SerializeField] private float _shootingDistance;
         [SerializeField] private float _shotPeriod;
         [SerializeField] private float _focusSpeed;
-        [SerializeField] private LayerMask _player;
+        [SerializeField] private LayerMask _obstacleLayer; // Слой для препятствий
+        [SerializeField] private LayerMask _enemyLayer; // Слой для врагов
         private float _timeToShoot;
         [Space]
         [SerializeField] private BotMovement _botMovement;
@@ -21,11 +22,16 @@ namespace Scripts.Bot
             if(!_botMovement.Enemy)
                 return;
             
-            var hit = Physics2D.Raycast(_shotPosition.position,
-                (_botMovement.Enemy.position - _shotPosition.position).normalized,
-                Mathf.Infinity);
+            Vector2 direction = (_botMovement.Enemy.position - _shotPosition.position).normalized;
+            float distanceToEnemy = Vector2.Distance(_shotPosition.position, _botMovement.Enemy.position);
             
-            if(!hit || hit.collider.gameObject.transform != _botMovement.Enemy)
+            // Проверяем наличие препятствий, игнорируя слой союзных ботов
+            RaycastHit2D obstacleHit = Physics2D.Raycast(_shotPosition.position, direction, distanceToEnemy, _obstacleLayer);
+            
+            // Проверяем попадание во врага
+            RaycastHit2D enemyHit = Physics2D.Raycast(_shotPosition.position, direction, distanceToEnemy, _enemyLayer);
+
+            if (obstacleHit.collider != null || enemyHit.collider == null || enemyHit.collider.transform != _botMovement.Enemy)
                 return;
             
             var instancedBullet = Instantiate(_bullet, _shotPosition.position, Quaternion.identity);
