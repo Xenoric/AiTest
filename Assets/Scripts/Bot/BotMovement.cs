@@ -32,6 +32,10 @@ public class BotMovement : MonoBehaviour
     [SerializeField] private float _slopeCheckDistance = 1f;
     [SerializeField] private float _maxSlopeAngle = 45f;
     
+    [Header("Smoothing")]
+    [SerializeField] private float _movementSmoothTime = 0.1f;
+    [SerializeField] private float _avoidanceSmoothTime = 0.2f;
+    
     [Header("References")]
     [SerializeField] private LayerMask _teammateLayer;
     [SerializeField] private Grid _grid;
@@ -51,6 +55,9 @@ public class BotMovement : MonoBehaviour
     private float _optimalCombatDistanceSqr;
     private readonly Collider2D[] _teammateResults = new Collider2D[10];
     private JobHandle _avoidanceJobHandle;
+    private Vector2 _currentVelocity;
+    private Vector2 _smoothedAvoidanceForce;
+    private Vector2 _avoidanceVelocity;
     
     public float EnemyDistance => _enemy ? Vector2.Distance(_position, _enemy.position) : Mathf.Infinity;
     public Transform Enemy => _enemy;
@@ -125,19 +132,23 @@ public class BotMovement : MonoBehaviour
         float sqrDistanceToEnemy = toEnemy.sqrMagnitude;
         _shouldFly = ShouldFly();
 
+        Vector2 targetVelocity;
         if (sqrDistanceToEnemy < _minCombatDistanceSqr)
         {
             _moveDirection = -toEnemy.normalized;
-            Move(_moveDirection * _baseSpeed);
+            targetVelocity = _moveDirection * _baseSpeed;
         }
         else if (sqrDistanceToEnemy > _optimalCombatDistanceSqr)
         {
-            FollowPath();
+            targetVelocity = FollowPath();
         }
         else
         {
-            StabilizePosition();
+            targetVelocity = Vector2.zero;
         }
+
+        _currentVelocity = Vector2.SmoothDamp(_currentVelocity, targetVelocity, ref _avoidanceVelocity, _movementSmoothTime);
+        _rigidbody.velocity = _currentVelocity;
 
         if (_shouldFly)
         {
@@ -149,29 +160,12 @@ public class BotMovement : MonoBehaviour
         }
     }
 
-    private void Move(Vector2 direction)
-    {
-        if (_isGrounded)
-        {
-            _rigidbody.AddForce(new Vector2(direction.x, 0) * _baseSpeed);
-        }
-        else
-        {
-            _rigidbody.AddForce(direction * (_baseSpeed * 0.5f));
-        }
-    }
-
     private void Fly()
     {
         if (_position.y < _maxFlyHeight)
         {
             _rigidbody.AddForce(Vector2.up * _flyForce);
         }
-    }
-
-    private void StabilizePosition()
-    {
-        _rigidbody.velocity *= 0.9f;
     }
 
     private bool ShouldFly()
@@ -184,9 +178,9 @@ public class BotMovement : MonoBehaviour
         return heightDifference > _groundCheckDistance * 2;
     }
 
-    private void FollowPath()
+    private Vector2 FollowPath()
     {
-        if (_path == null || _currentPathIndex >= _path.Count) return;
+        if (_path == null || _currentPathIndex >= _path.Count) return Vector2.zero;
 
         Vector2 targetPosition = _path[_currentPathIndex].Position;
         Vector2 direction = (targetPosition - _position).normalized;
@@ -196,7 +190,7 @@ public class BotMovement : MonoBehaviour
             _currentPathIndex++;
         }
 
-        Move(direction);
+        return direction * _baseSpeed;
     }
 
     private void HandleTeammateAvoidance()
@@ -227,7 +221,8 @@ public class BotMovement : MonoBehaviour
 
         if (avoidanceForce.sqrMagnitude > 0)
         {
-            _rigidbody.AddForce(avoidanceForce.normalized * _damperSpeed);
+            _smoothedAvoidanceForce = Vector2.SmoothDamp(_smoothedAvoidanceForce, avoidanceForce.normalized * _damperSpeed, ref _avoidanceVelocity, _avoidanceSmoothTime);
+            _rigidbody.AddForce(_smoothedAvoidanceForce);
         }
 
         job.TeammatePositions.Dispose();
