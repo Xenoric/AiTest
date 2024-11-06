@@ -1,10 +1,6 @@
 using UnityEngine;
-using Unity.Mathematics;
-using Unity.Burst;
-using Unity.Jobs;
-using Unity.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Collections;
 using Scripts.Bot;
 using Scripts.Bot.Grid;
 using Grid = Scripts.Bot.Grid.Grid;
@@ -53,12 +49,16 @@ public class BotMovement : MonoBehaviour
     private int _scaleX = 1;
     private float _minCombatDistanceSqr;
     private float _optimalCombatDistanceSqr;
-    private readonly Collider2D[] _teammateResults = new Collider2D[10];
-    private JobHandle _avoidanceJobHandle;
     private Vector2 _currentVelocity;
     private Vector2 _smoothedAvoidanceForce;
     private Vector2 _avoidanceVelocity;
     
+    private List<Collider2D> _cachedNearbyColliders = new List<Collider2D>();
+    private float _colliderCacheTime = 0.1f;
+    private float _colliderCacheTimer;
+    private float _enemyUpdateInterval = 0.5f;
+    private float _enemyUpdateTimer;
+
     public float EnemyDistance => _enemy ? Vector2.Distance(_position, _enemy.position) : Mathf.Infinity;
     public Transform Enemy => _enemy;
     public int ScaleX => _scaleX;
@@ -72,14 +72,10 @@ public class BotMovement : MonoBehaviour
         _optimalCombatDistanceSqr = _optimalCombatDistance * _optimalCombatDistance;
     }
 
-    private async void Start()
+    private void Start()
     {
-        await UpdatePathRoutineAsync();
-    }
-
-    private void OnDisable()
-    {
-        _avoidanceJobHandle.Complete();
+        _enemy = _enemiesPool.GetClosest(_transform.position);
+        StartCoroutine(UpdatePathRoutine());
     }
 
     private void FixedUpdate()
@@ -93,10 +89,9 @@ public class BotMovement : MonoBehaviour
 
     private void UpdateGroundedState()
     {
-        RaycastHit2D hit = Physics2D.Raycast(_position, Vector2.down, _groundCheckDistance, _groundLayer);
-        _isGrounded = hit.collider != null;
+        _isGrounded = Physics2D.OverlapCircle(_position, _groundCheckDistance, _groundLayer);
 
-        if (!_isGrounded && hit.collider != null)
+        if (!_isGrounded)
         {
             _rigidbody.AddForce(Vector2.down * _landingForce);
         }
@@ -104,10 +99,11 @@ public class BotMovement : MonoBehaviour
 
     private void UpdateEnemyTracking()
     {
-        if (_enemy == null)
+        _enemyUpdateTimer -= Time.fixedDeltaTime;
+        if (_enemyUpdateTimer <= 0)
         {
             _enemy = _enemiesPool.GetClosest(_position);
-            return;
+            _enemyUpdateTimer = _enemyUpdateInterval;
         }
 
         UpdateFacingDirection();
@@ -138,13 +134,9 @@ public class BotMovement : MonoBehaviour
             _moveDirection = -toEnemy.normalized;
             targetVelocity = _moveDirection * _baseSpeed;
         }
-        else if (sqrDistanceToEnemy > _optimalCombatDistanceSqr)
-        {
-            targetVelocity = FollowPath();
-        }
         else
         {
-            targetVelocity = Vector2.zero;
+            targetVelocity = FollowPath();
         }
 
         _currentVelocity = Vector2.SmoothDamp(_currentVelocity, targetVelocity, ref _avoidanceVelocity, _movementSmoothTime);
@@ -180,7 +172,10 @@ public class BotMovement : MonoBehaviour
 
     private Vector2 FollowPath()
     {
-        if (_path == null || _currentPathIndex >= _path.Count) return Vector2.zero;
+        if (_path == null || _currentPathIndex >= _path.Count)
+        {
+            return _enemy != null ? ((Vector2)_enemy.position - _position).normalized * _baseSpeed : Vector2.zero;
+        }
 
         Vector2 targetPosition = _path[_currentPathIndex].Position;
         Vector2 direction = (targetPosition - _position).normalized;
@@ -193,84 +188,68 @@ public class BotMovement : MonoBehaviour
         return direction * _baseSpeed;
     }
 
+    private void UpdateNearbyColliders()
+    {
+        _colliderCacheTimer -= Time.fixedDeltaTime;
+        if (_colliderCacheTimer <= 0)
+        {
+            _cachedNearbyColliders.Clear();
+            _cachedNearbyColliders.AddRange(Physics2D.OverlapCircleAll(_position, _teammateAvoidanceRadius, _teammateLayer));
+            _colliderCacheTimer = _colliderCacheTime;
+        }
+    }
+
     private void HandleTeammateAvoidance()
     {
-        int numColliders = Physics2D.OverlapCircleNonAlloc(_position, 
-            _teammateAvoidanceRadius, _teammateResults, _teammateLayer);
+        UpdateNearbyColliders();
+        Vector2 avoidanceForce = Vector2.zero;
 
-        AvoidanceJob job = new AvoidanceJob
+        foreach (Collider2D collider in _cachedNearbyColliders)
         {
-            Position = new float3(_position.x, _position.y, 0),
-            TeammatePositions = new NativeArray<float3>(numColliders, Allocator.TempJob),
-            AvoidanceRadius = _teammateAvoidanceRadius,
-            AvoidanceForce = new NativeArray<float3>(1, Allocator.TempJob)
-        };
+            if (collider.gameObject == gameObject) continue;
 
-        for (int i = 0; i < numColliders; i++)
-        {
-            if (_teammateResults[i].gameObject == gameObject) continue;
-            Vector2 teammatePos = _teammateResults[i].transform.position;
-            job.TeammatePositions[i] = new float3(teammatePos.x, teammatePos.y, 0);
+            Bounds bounds = GetColliderBounds(collider);
+            Vector2 closestPoint = bounds.ClosestPoint(_position);
+            Vector2 avoidDirection = (_position - closestPoint).normalized;
+            float distance = Vector2.Distance(_position, closestPoint);
+
+            if (distance < _teammateAvoidanceRadius)
+            {
+                float avoidanceStrength = 1 - (distance / _teammateAvoidanceRadius);
+                avoidanceForce += avoidDirection * avoidanceStrength;
+            }
         }
-
-        _avoidanceJobHandle = job.Schedule();
-        _avoidanceJobHandle.Complete();
-
-        float3 avoidanceForce3 = job.AvoidanceForce[0];
-        Vector2 avoidanceForce = new Vector2(avoidanceForce3.x, avoidanceForce3.y);
 
         if (avoidanceForce.sqrMagnitude > 0)
         {
             _smoothedAvoidanceForce = Vector2.SmoothDamp(_smoothedAvoidanceForce, avoidanceForce.normalized * _damperSpeed, ref _avoidanceVelocity, _avoidanceSmoothTime);
             _rigidbody.AddForce(_smoothedAvoidanceForce);
         }
-
-        job.TeammatePositions.Dispose();
-        job.AvoidanceForce.Dispose();
     }
 
-    [BurstCompile]
-    private struct AvoidanceJob : IJob
+    private Bounds GetColliderBounds(Collider2D collider)
     {
-        public float3 Position;
-        public NativeArray<float3> TeammatePositions;
-        public float AvoidanceRadius;
-        public NativeArray<float3> AvoidanceForce;
-
-        public void Execute()
-        {
-            float3 totalForce = float3.zero;
-
-            for (int i = 0; i < TeammatePositions.Length; i++)
-            {
-                float3 toTeammate = Position - TeammatePositions[i];
-                float sqrDistance = math.lengthsq(toTeammate);
-                if (sqrDistance > 0 && sqrDistance < AvoidanceRadius * AvoidanceRadius)
-                {
-                    float3 avoidDirection = math.normalize(toTeammate);
-                    float avoidanceStrength = 1 - (math.sqrt(sqrDistance) / AvoidanceRadius);
-                    totalForce += avoidDirection * avoidanceStrength;
-                }
-            }
-
-            AvoidanceForce[0] = totalForce;
-        }
+        return collider.bounds;
     }
 
-    private async Task UpdatePathRoutineAsync()
+    private void OnDisable()
     {
+        // Удалить эту строку
+        // _avoidanceJobHandle.Complete();
+    }
+
+    private IEnumerator UpdatePathRoutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(_pathUpdateInterval);
         while (true)
         {
-            await Task.Delay((int)(_pathUpdateInterval * 1000));
-            UpdatePath();
+            if (_enemy != null)
+            {
+                _path = _grid.SetPoints(_position, _enemy.position);
+                _currentPathIndex = 0;
+            }
+            yield return wait;
         }
     }
-
-    private void UpdatePath()
-    {
-        if (_enemy == null) return;
-
-        _path = _grid.SetPoints(_position, _enemy.position);
-        _currentPathIndex = 0;
-    }
+    
 }
