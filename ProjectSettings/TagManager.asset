@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Metal
   - Enemy
+  - Capsule
+  - Node
+  - Ally
   layers:
   - Default
   - TransparentFX
@@ -19,8 +22,8 @@ TagManager:
   - Bot
   - Team1
   - Team2
-  - 
-  - 
+  - Capsule
+  - Node
   - 
   - 
   - 
