@@ -1,0 +1,48 @@
+using AnyPath.Native;
+using AnyPath.Managed;
+using AnyPath.Managed.Finders;
+using AnyPath.Managed.Results;
+
+public interface I{Name}PathFinder<out TResult> : IPathFinder<{TGraph}, {TNode}, TResult> { }
+public interface I{Name}MultiFinder<out TResult> : IMultiFinder<{TGraph}, {TNode}, TResult> { }
+
+public class {Name}PathFinder : PathFinder<{TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}>, I{Name}PathFinder<Path<{TSeg}>> { }
+public class {Name}PathEvaluator: PathEvaluator<{TGraph}, {TNode}, {TH}, {TMod}>, I{Name}PathFinder<Eval> { }
+
+public class {Name}MultiPathFinder : MultiPathFinder<{TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}>, I{Name}MultiFinder<MultiPathResult<{TSeg}>> { }
+public class {Name}MultiPathEvaluator : MultiPathEvaluator<{TGraph}, {TNode}, {TH}, {TMod}>, I{Name}MultiFinder<MultiEvalResult>  { }
+
+public class {Name}DijkstraFinder : DijkstraFinder<{TGraph}, {TNode}, {TMod}> { }
+!
+public interface I{Name}OptionFinder<out TResult> : IOptionFinder<{TOption}, {TGraph}, {TNode}, TResult>  { }
+
+public class {Name}OptionFinder : OptionFinder<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}>, I{Name}OptionFinder<Path<{TOption}, {TSeg}>> { }
+public class {Name}OptionEvaluator : OptionEvaluator<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}>, I{Name}OptionFinder<Eval<{TOption}>> { }
+
+public class {Name}CheapestOptionFinder : CheapestOptionFinder<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}>, I{Name}OptionFinder<Path<{TOption}, {TSeg}>> { }
+public class {Name}CheapestOptionEvaluator : CheapestOptionEvaluator<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}>, I{Name}OptionFinder<Eval<{TOption}>>  { }
+
+public class {Name}PriorityOptionFinder : PriorityOptionFinder<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}>, I{Name}OptionFinder<Path<{TOption}, {TSeg}>> { }
+public class {Name}PriorityOptionEvaluator : PriorityOptionEvaluator<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}>, I{Name}OptionFinder<Eval<{TOption}>>  { }
+
+
+// No interfaces:
+
+{Namespaces}
+
+public class {Name}PathFinder : PathFinder<{TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}>  { }
+public class {Name}PathEvaluator: PathEvaluator<{TGraph}, {TNode}, {TH}, {TMod}> { }
+
+public class {Name}MultiPathFinder : MultiPathFinder<{TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}> { }
+public class {Name}MultiPathEvaluator : MultiPathEvaluator<{TGraph}, {TNode}, {TH}, {TMod}> { }
+
+public class {Name}DijkstraFinder : DijkstraFinder<{TGraph}, {TNode}, {Tmod}> { }
+!
+public class {Name}OptionFinder: OptionFinder<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}> { }
+public class {Name}OptionEvaluator : OptionEvaluator<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}> { }
+
+public class {Name}CheapestOptionFinder : CheapestOptionFinder<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}> { }
+public class {Name}CheapestOptionEvaluator : CheapestOptionEvaluator<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}> { }
+
+public class {Name}PriorityOptionFinder : PriorityOptionFinder<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}, {TProc}, {TSeg}> { }
+public class {Name}PriorityOptionEvaluator : PriorityOptionEvaluator<{TOption}, {TGraph}, {TNode}, {TH}, {TMod}> { }
