@@ -1,128 +1,107 @@
 using System;
-using System.Collections.Generic;
+using Unity.Collections;
 
-public class OptimizedPriorityQueue<T>
+public class OptimizedPriorityQueue<T> : IDisposable where T : unmanaged
 {
-    private List<(T item, float priority)> heap = new List<(T, float)>();
-    private Dictionary<T, int> itemToIndex = new Dictionary<T, int>();
+    private struct Element
+    {
+        public T Item;
+        public float Priority;
+    }
 
-    public int Count => heap.Count;
+    private NativeArray<Element> heap;
+    private int size;
+    private const int DefaultCapacity = 512;
 
-    // Добавление элемента в очередь с приоритетом
+    public OptimizedPriorityQueue(int capacity = DefaultCapacity, Allocator allocator = Allocator.Persistent)
+    {
+        heap = new NativeArray<Element>(capacity, allocator);
+        size = 0;
+    }
+
+    public int Count => size;
+
     public void Enqueue(T item, float priority)
     {
-        if (itemToIndex.ContainsKey(item))
+        if (size == heap.Length)
         {
-            // Если элемент уже существует, обновляем его приоритет
-            UpdatePriority(item, priority);
-            return;
+            Resize(heap.Length * 2);
         }
 
-        // Добавляем элемент в конец кучи
-        heap.Add((item, priority));
-        int index = heap.Count - 1;
-        itemToIndex[item] = index;
-
-        // Просеиваем вверх для восстановления свойств кучи
-        SiftUp(index);
+        heap[size] = new Element { Item = item, Priority = priority };
+        SiftUp(size);
+        size++;
     }
 
-    // Извлечение элемента с наименьшим приоритетом
     public T Dequeue()
     {
-        if (heap.Count == 0)
+        if (size == 0)
             throw new InvalidOperationException("Queue is empty");
 
-        var minItem = heap[0].item;
-        itemToIndex.Remove(minItem);
+        T result = heap[0].Item;
+        heap[0] = heap[size - 1];
+        size--;
+        SiftDown(0);
+        return result;
+    }
 
-        // Перемещаем последний элемент на место корня
-        int lastIndex = heap.Count - 1;
-        heap[0] = heap[lastIndex];
-        heap.RemoveAt(lastIndex);
-
-        if (heap.Count > 0)
+    private void Resize(int newSize)
+    {
+        NativeArray<Element> newHeap = new NativeArray<Element>(newSize, Allocator.Persistent);
+        for (int i = 0; i < size; i++)
         {
-            itemToIndex[heap[0].item] = 0;
-            // Просеиваем вниз для восстановления свойств кучи
-            SiftDown(0);
+            newHeap[i] = heap[i];
         }
-
-        return minItem;
+        heap.Dispose();
+        heap = newHeap;
     }
 
-    // Проверка наличия элемента в очереди
-    public bool Contains(T item)
-    {
-        return itemToIndex.ContainsKey(item);
-    }
-
-    // Обновление приоритета элемента
-    public void UpdatePriority(T item, float newPriority)
-    {
-        if (!itemToIndex.ContainsKey(item))
-            throw new InvalidOperationException("Item not found in queue");
-
-        int index = itemToIndex[item];
-        float oldPriority = heap[index].priority;
-        heap[index] = (item, newPriority);
-
-        // Просеиваем вверх или вниз в зависимости от изменения приоритета
-        if (newPriority < oldPriority)
-            SiftUp(index);
-        else
-            SiftDown(index);
-    }
-
-    // Просеивание вверх (восстановление свойств кучи)
     private void SiftUp(int index)
     {
+        var element = heap[index];
         while (index > 0)
         {
-            int parentIndex = (index - 1) / 2;
-
-            if (heap[index].priority >= heap[parentIndex].priority)
+            int parentIndex = (index - 1) >> 1;
+            if (heap[parentIndex].Priority <= element.Priority)
                 break;
 
-            Swap(index, parentIndex);
+            heap[index] = heap[parentIndex];
             index = parentIndex;
         }
+        heap[index] = element;
     }
 
-    // Просеивание вниз (восстановление свойств кучи)
     private void SiftDown(int index)
     {
-        int lastIndex = heap.Count - 1;
+        var element = heap[index];
+        int halfSize = size >> 1;
 
-        while (true)
+        while (index < halfSize)
         {
-            int leftChildIndex = 2 * index + 1;
-            int rightChildIndex = 2 * index + 2;
-            int smallestIndex = index;
+            int leftChild = (index << 1) + 1;
+            int rightChild = leftChild + 1;
+            int smallestChild = leftChild;
 
-            if (leftChildIndex <= lastIndex && heap[leftChildIndex].priority < heap[smallestIndex].priority)
-                smallestIndex = leftChildIndex;
+            if (rightChild < size && heap[rightChild].Priority < heap[leftChild].Priority)
+                smallestChild = rightChild;
 
-            if (rightChildIndex <= lastIndex && heap[rightChildIndex].priority < heap[smallestIndex].priority)
-                smallestIndex = rightChildIndex;
-
-            if (smallestIndex == index)
+            if (heap[smallestChild].Priority >= element.Priority)
                 break;
 
-            Swap(index, smallestIndex);
-            index = smallestIndex;
+            heap[index] = heap[smallestChild];
+            index = smallestChild;
         }
+        heap[index] = element;
     }
 
-    // Обмен элементов в куче
-    private void Swap(int indexA, int indexB)
+    public void Clear()
     {
-        var temp = heap[indexA];
-        heap[indexA] = heap[indexB];
-        heap[indexB] = temp;
+        size = 0;
+    }
 
-        // Обновляем индексы в словаре
-        itemToIndex[heap[indexA].item] = indexA;
-        itemToIndex[heap[indexB].item] = indexB;
+    public void Dispose()
+    {
+        if (heap.IsCreated)
+            heap.Dispose();
     }
 }

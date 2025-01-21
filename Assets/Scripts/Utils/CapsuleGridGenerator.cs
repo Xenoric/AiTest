@@ -267,7 +267,7 @@ public class CapsuleGridGenerator : MonoBehaviour
                 nodesWithNeighbors.Add(nodeNeighborsData);
             }
 
-            string filePath = Path.Combine(Application.dataPath, "nodes_neighbors.json");
+            string filePath = Path.Combine(Application.dataPath, "Scripts", "nodes_neighbors.json");
             string jsonData = JsonConvert.SerializeObject(nodesWithNeighbors, Formatting.Indented);
             File.WriteAllText(filePath, jsonData);
 

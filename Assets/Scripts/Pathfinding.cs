@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
+using Unity.Collections;
 
 public class Pathfinding
 {
-    private Graph graph = new();
-    private string neighborsFilePath => Path.Combine(Application.dataPath, "nodes_neighbors.json");
+    private static Graph graph = new();
+    private string neighborsFilePath => System.IO.Path.Combine(Application.dataPath, "Scripts", "nodes_neighbors.json");
 
     [Header("Pathfinding Settings")]
     public float borderNodePriority = 0.5f;
@@ -19,80 +19,71 @@ public class Pathfinding
 
     public List<Vector2> GetPath(Vector2 start, Vector2 goal)
     {
-       
         float startTime = Time.time;
         
-            start = SnapToNearestNode(start);
-            goal = SnapToNearestNode(goal);
+        start = SnapToNearestNode(start);
+        goal = SnapToNearestNode(goal);
 
-
-        var openSet = new OptimizedPriorityQueue<Vector2>();
-        var cameFrom = new Dictionary<Vector2, Vector2>();
-        var gScore = new Dictionary<Vector2, float>();
-        var fScore = new Dictionary<Vector2, float>();
-
-        foreach (var node in graph.GetAllNodes())
+        using (var openSet = new PriorityQueue(2000))
         {
-            gScore[node] = float.MaxValue;
-            fScore[node] = float.MaxValue;
-        }
+            var cameFrom = new Dictionary<Vector2, Vector2>();
+            var gScore = new Dictionary<Vector2, float>();
+            var fScore = new Dictionary<Vector2, float>();
 
-        gScore[start] = 0;
-        fScore[start] = CombinedHeuristic(start, goal);
-        openSet.Enqueue(start, fScore[start]);
-
-        while (openSet.Count > 0)
-        {
-            if (Time.time - startTime > maxPathfindingTime)
+            foreach (var node in graph.GetAllNodes())
             {
-                //Debug.LogWarning("Path finding timeout");
-                return null;
+                gScore[node] = float.MaxValue;
+                fScore[node] = float.MaxValue;
             }
 
-            var current = openSet.Dequeue();
+            gScore[start] = 0;
+            fScore[start] = CombinedHeuristic(start, goal);
+            openSet.Enqueue(start, fScore[start]);
 
-            if (current == goal)
+            while (openSet.Count > 0)
             {
-                //Debug.Log($"Path found to goal: {current}");
-                return ReconstructPath(cameFrom, current);// Отладка
-            }
-
-            // Получаем соседей через новый метод GetNeighbors
-            foreach (var neighbor in graph.GetNeighbors(current))
-            {
-                float movementCost = CalculateMovementCost(current, neighbor);
-                float tentativeGScore = gScore[current] + movementCost;
-
-                if (tentativeGScore < gScore[neighbor])
+                if (Time.time - startTime > maxPathfindingTime)
                 {
-                    cameFrom[neighbor] = current;
-                    gScore[neighbor] = tentativeGScore;
-                    fScore[neighbor] = gScore[neighbor] + CombinedHeuristic(neighbor, goal);
+                    Debug.LogWarning("Path finding timeout");
+                    return null;
+                }
 
-                    if (!openSet.Contains(neighbor))
+                var current = openSet.Dequeue();
+
+                if (current == goal)
+                {
+                    return ReconstructPath(cameFrom, current);
+                }
+
+                foreach (var neighbor in graph.GetNeighbors(current))
+                {
+                    float movementCost = CalculateMovementCost(current, neighbor);
+                    float tentativeGScore = gScore[current] + movementCost;
+
+                    if (tentativeGScore < gScore[neighbor])
                     {
+                        cameFrom[neighbor] = current;
+                        gScore[neighbor] = tentativeGScore;
+                        fScore[neighbor] = gScore[neighbor] + CombinedHeuristic(neighbor, goal);
+
                         openSet.Enqueue(neighbor, fScore[neighbor]);
                     }
                 }
             }
-        }
 
-        Debug.LogWarning("No path found.");
-        return null;
+            Debug.LogWarning("No path found.");
+            return null;
+        }
     }
 
-    // Обновленный метод расчета стоимости движения
     private float CalculateMovementCost(Vector2 current, Vector2 neighbor)
     {
         float baseCost = Vector2.Distance(current, neighbor);
-        
-        // Учитываем пограничность узла с помощью нового метода
         float borderNodeCost = graph.IsBorderNode(neighbor) ? borderNodePriority : 1.0f;
         
         return baseCost * borderNodeCost;
     }
 
-    // Остальные методы остаются без изменений
     private float CombinedHeuristic(Vector2 a, Vector2 b)
     {
         return Mathf.Min(ManhattanDistance(a, b), DiagonalDistance(a, b));
@@ -122,27 +113,25 @@ public class Pathfinding
         return totalPath;
     }
 
-    // Обновленный метод поиска ближайшего узла
-public Vector2 SnapToNearestNode(Vector2 position)
-{
-    // Если точная позиция существует - возвращаем ее
-    if (graph.ContainsNode(position))
-        return position;
-
-    // Находим ближайший узел по координатам
-    Vector2 nearestNode = Vector2.zero;
-    float minDistanceSquared = float.MaxValue;
-
-    foreach (var node in graph.GetAllNodes())
+    public Vector2 SnapToNearestNode(Vector2 position)
     {
-        float distanceSquared = (node.x - position.x) * (node.x - position.x) + (node.y - position.y) * (node.y - position.y);
-        if (distanceSquared < minDistanceSquared)
-        {
-            minDistanceSquared = distanceSquared;
-            nearestNode = node;
-        }
-    }
+        if (graph.ContainsNode(position))
+            return position;
 
-    return nearestNode;
-}
+        Vector2 nearestNode = Vector2.zero;
+        float minDistanceSquared = float.MaxValue;
+
+        foreach (var node in graph.GetAllNodes())
+        {
+            float distanceSquared = (node.x - position.x) * (node.x - position.x) + 
+                                    (node.y - position.y) * (node.y - position.y);
+            if (distanceSquared < minDistanceSquared)
+            {
+                minDistanceSquared = distanceSquared;
+                nearestNode = node;
+            }
+        }
+
+        return nearestNode;
+    }
 }

@@ -10137,7 +10137,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 175202568}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -10177,8 +10177,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &176407607
 GameObject:
@@ -14178,7 +14178,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 245015884}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -14218,8 +14218,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &246037775
 GameObject:
@@ -15566,7 +15566,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 264515248}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -15624,8 +15624,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &270422085
 GameObject:
@@ -16885,7 +16885,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 100
+  far clip plane: 11.27
   field of view: 60
   orthographic: 1
   orthographic size: 80
@@ -28440,7 +28440,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 460928402}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -28480,8 +28480,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &462462480
 GameObject:
@@ -41688,7 +41688,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 692105684}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -41728,8 +41728,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &692899804
 GameObject:
@@ -71436,7 +71436,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1177361980}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -71476,8 +71476,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &1177963138
 GameObject:
@@ -77361,7 +77361,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1284002653}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -77401,8 +77401,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &1285408116
 GameObject:
@@ -98556,7 +98556,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1690819072}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -98596,8 +98596,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
-  waypointThreshold: 1
+  moveSpeed: 10
+  waypointThreshold: 0.1
   targetPosition: {x: 0, y: 0}
 --- !u!1 &1692862407
 GameObject:

@@ -7,64 +7,53 @@ using System.Linq;
 
 public struct NodeInfo
 {
+    [JsonProperty("currentNode")]
     public Vector2 Position;
+
+    [JsonProperty("neighborNodes")]
     public Vector2[] Neighbors;
+
+    [JsonProperty("currentNode.isBorderNode")]
     public bool IsBorderNode;
 
-    // Конструктор для создания
     public NodeInfo(Vector2 position, Vector2[] neighbors, bool isBorderNode)
     {
         Position = position;
-        Neighbors = neighbors;
+        Neighbors = neighbors ?? Array.Empty<Vector2>();
         IsBorderNode = isBorderNode;
     }
 }
 
 public class Graph
 {
-    // Словарь с новой структурой
     public Dictionary<Vector2, NodeInfo> graph = new();
 
-    public void LoadGraph(string filePath)
+    public bool LoadGraph(string filePath)
     {
         if (!File.Exists(filePath))
         {
             Debug.LogError($"Neighbors file not found: {filePath}");
-            return;
+            return false;
         }
 
         try
         {
-            // Десериализация с учетом новой структуры
+            // Прямая десериализация в NodeInfo
             string jsonData = File.ReadAllText(filePath);
-            var nodeNeighborsData = JsonConvert.DeserializeObject<List<NodeNeighborsData>>(jsonData);
+            var nodeInfoList = JsonConvert.DeserializeObject<List<NodeInfo>>(jsonData);
 
-            foreach (var nodeData in nodeNeighborsData)
-            {
-                // Преобразование данных в новую структуру
-                Vector2 currentNodePos = nodeData.currentNode.ToVector2();
-                
-                // Преобразование соседей в массив позиций
-                Vector2[] neighborPositions = nodeData
-                    .neighborNodes
-                    .Select(n => n.ToVector2())
-                    .ToArray();
+            graph = nodeInfoList.ToDictionary(
+                node => node.Position,
+                node => node
+            );
 
-                // Создание NodeInfo
-                var nodeInfo = new NodeInfo(
-                    currentNodePos, 
-                    neighborPositions, 
-                    nodeData.currentNode.isBorderNode
-                );
-
-                graph[currentNodePos] = nodeInfo;
-            }
-
-            
+            Debug.Log($"Graph loaded successfully. Total nodes: {graph.Count}");
+            return true;
         }
         catch (Exception ex)
         {
             Debug.LogError($"Error loading graph: {ex.Message}");
+            return false;
         }
     }
 
