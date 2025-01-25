@@ -6,14 +6,27 @@ public class BotManager : MonoBehaviour
     public List<BotMovement> teamOneBots; // Список ботов первой команды
     public List<BotMovement> teamTwoBots; // Список ботов второй команды
 
+    private int frameCounter = 0; // Счетчик кадров
+    public int updateTargetEveryNFrames = 2; // Обновлять цель каждые N кадров
+
     void Update()
     {
-        UpdateBots();
+        frameCounter++;
+
+        // Обновляем цели только когда счетчик кадров достигает заданного значения
+        if (frameCounter >= updateTargetEveryNFrames)
+        {
+            UpdateBotsTargets();
+            frameCounter = 0; // Сбрасываем счетчик
+        }
+
+        // Обновляем движение ботов каждый кадр
+        UpdateBotsMovement();
     }
 
-    private void UpdateBots()
+    private void UpdateBotsTargets()
     {
-        // Обновляем всех ботов первой команды
+        // Обновляем цели для ботов первой команды
         foreach (var bot in teamOneBots)
         {
             Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamTwoBots);
@@ -23,10 +36,8 @@ public class BotManager : MonoBehaviour
             {
                 bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
             }
-            
-            bot.UpdateBot(); // Обновляем движение бота
         }
-        // Обновляем всех ботов второй команды
+        // Обновляем цели для ботов второй команды
         foreach (var bot in teamTwoBots)
         {
             Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamOneBots);
@@ -36,8 +47,19 @@ public class BotManager : MonoBehaviour
             {
                 bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
             }
-            
-            bot.UpdateBot(); // Обновляем движение бота
+        }
+    }
+
+    private void UpdateBotsMovement()
+    {
+        // Обновляем движение всех ботов
+        foreach (var bot in teamOneBots)
+        {
+            bot.UpdateBot();
+        }
+        foreach (var bot in teamTwoBots)
+        {
+            bot.UpdateBot();
         }
     }
 
@@ -58,40 +80,5 @@ public class BotManager : MonoBehaviour
         }
         return nearestPosition; // Возвращаем позицию ближайшего противника
     }
-
-    // Метод для установки новой цели для первой команды
-    public void SetTargetsForTeamOne(Vector2 newTarget)
-    {
-        foreach (var bot in teamOneBots)
-        {
-            bot.SetTarget(newTarget);
-        }
-    }
-
-    // Метод для установки новой цели для второй команды
-    public void SetTargetsForTeamTwo(Vector2 newTarget)
-    {
-        foreach (var bot in teamTwoBots)
-        {
-            bot.SetTarget(newTarget);
-        }
-    }
-
-    // Метод для остановки всех ботов первой команды
-    public void StopAllTeamOneBots()
-    {
-        foreach (var bot in teamOneBots)
-        {
-            bot.SetTarget(bot.transform.position); // Устанавливаем текущую позицию как цель
-        }
-    }
-
-    // Метод для остановки всех ботов второй команды
-    public void StopAllTeamTwoBots()
-    {
-        foreach (var bot in teamTwoBots)
-        {
-            bot.SetTarget(bot.transform.position); // Устанавливаем текущую позицию как цель
-        }
-    }
 }
+

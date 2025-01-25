@@ -1,12 +1,11 @@
 using Unity.Collections;
-using Unity.Mathematics;
-using UnityEngine;
 using System;
+using UnityEngine;
 
 public struct PriorityQueueItem : IComparable<PriorityQueueItem>
 {
-    public int ItemId;  // Используем int вместо generic
     public float Priority;
+    public Vector2 Item;
 
     public int CompareTo(PriorityQueueItem other)
     {
@@ -18,30 +17,24 @@ public class PriorityQueue : IDisposable
 {
     private NativeList<PriorityQueueItem> heap;
     private Allocator allocatorType;
-    private NativeHashMap<int, Vector2> itemMap;  // Для маппинга ID к Vector2
 
     public PriorityQueue(int initialCapacity, Allocator allocator = Allocator.Temp)
     {
         allocatorType = allocator;
         heap = new NativeList<PriorityQueueItem>(initialCapacity, allocator);
-        itemMap = new NativeHashMap<int, Vector2>(initialCapacity, allocator);
     }
-
-    private int currentItemId = 0;
 
     public int Count => heap.Length;
 
     public void Enqueue(Vector2 item, float priority)
     {
-        currentItemId++;
         var newItem = new PriorityQueueItem 
         { 
-            ItemId = currentItemId, 
+            Item = item, 
             Priority = priority 
         };
         
         heap.Add(newItem);
-        itemMap.Add(currentItemId, item);
         SiftUp(heap.Length - 1);
     }
 
@@ -50,12 +43,9 @@ public class PriorityQueue : IDisposable
         if (heap.Length == 0)
             throw new InvalidOperationException("Queue is empty");
 
-        int itemId = heap[0].ItemId;
-        Vector2 result = itemMap[itemId];
-        
-        // Удаляем из мэппинга
-        itemMap.Remove(itemId);
+        Vector2 result = heap[0].Item;
 
+        // Перемещаем последний элемент на верхушку
         heap[0] = heap[heap.Length - 1];
         heap.RemoveAt(heap.Length - 1);
 
@@ -111,18 +101,14 @@ public class PriorityQueue : IDisposable
         (heap[indexA], heap[indexB]) = (heap[indexB], heap[indexA]);
     }
 
+    public void Clear()
+    {
+        heap.Clear();
+    }
+
     public void Dispose()
     {
         if (heap.IsCreated)
             heap.Dispose();
-        
-        if (itemMap.IsCreated)
-            itemMap.Dispose();
-    }
-
-    public void Clear()
-    {
-        heap.Clear();
-        itemMap.Clear();
     }
 }

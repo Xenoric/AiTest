@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 using Newtonsoft.Json;
 using System.Linq;
 
@@ -28,18 +27,11 @@ public class Graph
 {
     public Dictionary<Vector2, NodeInfo> graph = new();
 
-    public bool LoadGraph(string filePath)
+    public bool LoadGraph(string jsonData)
     {
-        if (!File.Exists(filePath))
-        {
-            Debug.LogError($"Neighbors file not found: {filePath}");
-            return false;
-        }
-
         try
         {
-            // Прямая десериализация в NodeInfo
-            string jsonData = File.ReadAllText(filePath);
+            // Десериализация JSON-строки
             var nodeInfoList = JsonConvert.DeserializeObject<List<NodeInfo>>(jsonData);
 
             graph = nodeInfoList.ToDictionary(

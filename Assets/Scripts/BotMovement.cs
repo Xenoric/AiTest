@@ -3,13 +3,22 @@ using UnityEngine;
 
 public class BotMovement : MonoBehaviour
 {
-    private static Pathfinding pathfinding = new(); // Используем общий экземпляр
+    private static Pathfinding pathfinding;
     private List<Vector2> path = new();
     
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float waypointThreshold = 0.1f;
     public Vector2 targetPosition;
+
+    void Awake()
+    {
+        // Безопасная инициализация Pathfinding
+        if (pathfinding == null)
+        {
+            pathfinding = new Pathfinding();
+        }
+    }
 
     public void UpdateBot()
     {
@@ -19,7 +28,7 @@ public class BotMovement : MonoBehaviour
     private void MoveTowardsTarget()
     {
         // Проверяем, что в пути больше одной ноды
-        if (path.Count > 1)
+        if (path != null && path.Count > 1)
         {
             Vector2 target = path[1];
             

@@ -6,7 +6,7 @@ using Unity.Collections;
 public class Pathfinding
 {
     private static Graph graph = new();
-    private string neighborsFilePath => System.IO.Path.Combine(Application.dataPath, "Scripts", "nodes_neighbors.json");
+    private const string neighborsFileName = "nodes_neighbors";
 
     [Header("Pathfinding Settings")]
     public float borderNodePriority = 0.5f;
@@ -14,7 +14,27 @@ public class Pathfinding
 
     public Pathfinding()
     {
-        graph.LoadGraph(neighborsFilePath);
+        LoadGraphFromResources();
+    }
+    
+    private void LoadGraphFromResources()
+    {
+        try 
+        {
+            TextAsset jsonFile = Resources.Load<TextAsset>(neighborsFileName);
+            
+            if (jsonFile == null)
+            {
+                Debug.LogError($"Graph file {neighborsFileName} not found in Resources folder");
+                return;
+            }
+
+            graph.LoadGraph(jsonFile.text);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error loading graph: {e.Message}");
+        }
     }
 
     public List<Vector2> GetPath(Vector2 start, Vector2 goal)
@@ -24,7 +44,7 @@ public class Pathfinding
         start = SnapToNearestNode(start);
         goal = SnapToNearestNode(goal);
 
-        using (var openSet = new PriorityQueue(2000))
+        using (var openSet = new PriorityQueue(100))
         {
             var cameFrom = new Dictionary<Vector2, Vector2>();
             var gScore = new Dictionary<Vector2, float>();
