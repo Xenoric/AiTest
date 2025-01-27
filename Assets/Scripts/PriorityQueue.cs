@@ -1,60 +1,54 @@
-using Unity.Collections;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public struct PriorityQueueItem : IComparable<PriorityQueueItem>
+public class PriorityQueue
 {
-    public float Priority;
-    public Vector2 Item;
+    private List<(Vector2 Item, float Priority)> heap;
 
-    public int CompareTo(PriorityQueueItem other)
+    public PriorityQueue()
     {
-        return Priority.CompareTo(other.Priority);
-    }
-}
-
-public class PriorityQueue : IDisposable
-{
-    private NativeList<PriorityQueueItem> heap;
-    private Allocator allocatorType;
-
-    public PriorityQueue(int initialCapacity, Allocator allocator = Allocator.Temp)
-    {
-        allocatorType = allocator;
-        heap = new NativeList<PriorityQueueItem>(initialCapacity, allocator);
+        heap = new List<(Vector2, float)>();
     }
 
-    public int Count => heap.Length;
+    public int Count => heap.Count;
 
     public void Enqueue(Vector2 item, float priority)
     {
-        var newItem = new PriorityQueueItem 
-        { 
-            Item = item, 
-            Priority = priority 
-        };
-        
-        heap.Add(newItem);
-        SiftUp(heap.Length - 1);
+        heap.Add((item, priority));
+        SiftUp(heap.Count - 1);
     }
 
     public Vector2 Dequeue()
     {
-        if (heap.Length == 0)
+        if (heap.Count == 0)
             throw new InvalidOperationException("Queue is empty");
 
-        Vector2 result = heap[0].Item;
+        var result = heap[0].Item;
 
         // Перемещаем последний элемент на верхушку
-        heap[0] = heap[heap.Length - 1];
-        heap.RemoveAt(heap.Length - 1);
+        heap[0] = heap[heap.Count - 1];
+        heap.RemoveAt(heap.Count - 1);
 
-        if (heap.Length > 0)
+        if (heap.Count > 0)
         {
             SiftDown(0);
         }
 
         return result;
+    }
+
+    public Vector2 Peek()
+    {
+        if (heap.Count == 0)
+            throw new InvalidOperationException("Queue is empty");
+
+        return heap[0].Item;
+    }
+
+    public void Clear()
+    {
+        heap.Clear();
     }
 
     private void SiftUp(int index)
@@ -72,7 +66,7 @@ public class PriorityQueue : IDisposable
 
     private void SiftDown(int index)
     {
-        int lastIndex = heap.Length - 1;
+        int lastIndex = heap.Count - 1;
 
         while (true)
         {
@@ -80,11 +74,11 @@ public class PriorityQueue : IDisposable
             int rightChildIndex = 2 * index + 2;
             int smallestIndex = index;
 
-            if (leftChildIndex <= lastIndex && 
+            if (leftChildIndex <= lastIndex &&
                 heap[leftChildIndex].Priority < heap[smallestIndex].Priority)
                 smallestIndex = leftChildIndex;
 
-            if (rightChildIndex <= lastIndex && 
+            if (rightChildIndex <= lastIndex &&
                 heap[rightChildIndex].Priority < heap[smallestIndex].Priority)
                 smallestIndex = rightChildIndex;
 
@@ -98,17 +92,8 @@ public class PriorityQueue : IDisposable
 
     private void Swap(int indexA, int indexB)
     {
-        (heap[indexA], heap[indexB]) = (heap[indexB], heap[indexA]);
-    }
-
-    public void Clear()
-    {
-        heap.Clear();
-    }
-
-    public void Dispose()
-    {
-        if (heap.IsCreated)
-            heap.Dispose();
+        var temp = heap[indexA];
+        heap[indexA] = heap[indexB];
+        heap[indexB] = temp;
     }
 }

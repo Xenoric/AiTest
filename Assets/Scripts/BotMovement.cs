@@ -1,55 +1,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BotMovement : MonoBehaviour
+public class BotMovement : MonoBehaviour, IBotMovement
 {
-    private static Pathfinding pathfinding;
     private List<Vector2> path = new();
-    
-    [Header("Movement Settings")]
-    public float moveSpeed = 5f;
-    public float waypointThreshold = 0.1f;
-    public Vector2 targetPosition;
 
-    void Awake()
+    public float MoveSpeed { get; set; } = 5f;
+    public float WaypointThreshold { get; set; } = 0.1f;
+    public Vector2 TargetPosition { get; set; }
+
+    private IPathfinding pathfinding;
+
+    public void Initialize(IPathfinding pathfinding)
     {
-        // Безопасная инициализация Pathfinding
-        if (pathfinding == null)
-        {
-            pathfinding = new Pathfinding();
-        }
+        this.pathfinding = pathfinding;
     }
 
     public void UpdateBot()
     {
         MoveTowardsTarget();
     }
-    
+
     private void MoveTowardsTarget()
     {
-        // Проверяем, что в пути больше одной ноды
         if (path != null && path.Count > 1)
         {
             Vector2 target = path[1];
-            
-            // Плавное движение к целевой позиции
-            transform.position = Vector2.MoveTowards(
-                transform.position, 
-                target, 
-                moveSpeed * Time.deltaTime
-            ); 
+            transform.position = Vector2.MoveTowards(transform.position, target, MoveSpeed * Time.deltaTime);
 
-            // Проверяем, достигнут ли целевой пункт
-            if (Vector2.Distance(transform.position, target) < waypointThreshold)
+            if (Vector2.Distance(transform.position, target) < WaypointThreshold)
             {
-                path.RemoveAt(0); // Удаляем достигнутую ноду из пути
+                path.RemoveAt(0);
             }
         }
     }
 
     public void SetTarget(Vector2 newTarget)
     {
-        targetPosition = newTarget;
-        path = pathfinding.GetPath(transform.position, targetPosition);
+        TargetPosition = newTarget;
+        path = pathfinding.GetPath(transform.position, newTarget);
     }
 }
+

@@ -3,5 +3,7 @@ using UnityEngine;
 
 public interface IPathfinding
 {
-    List<Vector2> FindPath(Vector2 start, Vector2 goal);
+    float BorderNodePriority { get; set; }
+    float MaxPathfindingTime { get; set; }
+    List<Vector2> GetPath(Vector2 start, Vector2 goal);
 }

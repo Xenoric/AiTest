@@ -1,28 +1,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Unity.Collections;
 
-public class Pathfinding
+public class Pathfinding : IPathfinding
 {
     private static Graph graph = new();
     private const string neighborsFileName = "nodes_neighbors";
 
-    [Header("Pathfinding Settings")]
-    public float borderNodePriority = 0.5f;
-    public float maxPathfindingTime = 2f;
+    public float BorderNodePriority { get; set; } = 0.5f;
+    public float MaxPathfindingTime { get; set; } = 2f;
+
+    // Пул для словарей
+    private static readonly ObjectPool<Dictionary<Vector2, Vector2>> CameFromPool = new(() => new Dictionary<Vector2, Vector2>(100));
+    private static readonly ObjectPool<Dictionary<Vector2, float>> GScorePool = new(() => new Dictionary<Vector2, float>(100));
+    private static readonly ObjectPool<Dictionary<Vector2, float>> FScorePool = new(() => new Dictionary<Vector2, float>(100));
 
     public Pathfinding()
     {
         LoadGraphFromResources();
     }
-    
+
     private void LoadGraphFromResources()
     {
-        try 
+        try
         {
             TextAsset jsonFile = Resources.Load<TextAsset>(neighborsFileName);
-            
+
             if (jsonFile == null)
             {
                 Debug.LogError($"Graph file {neighborsFileName} not found in Resources folder");
@@ -40,67 +43,90 @@ public class Pathfinding
     public List<Vector2> GetPath(Vector2 start, Vector2 goal)
     {
         float startTime = Time.time;
-        
+
         start = SnapToNearestNode(start);
         goal = SnapToNearestNode(goal);
 
-        using (var openSet = new PriorityQueue(100))
+        // Используем пул для словарей
+        var cameFrom = CameFromPool.Get();
+        var gScore = GScorePool.Get();
+        var fScore = FScorePool.Get();
+
+        var openSet = new PriorityQueue();
+
+        // Инициализация gScore и fScore
+        var nodes = graph.GetAllNodes().ToArray();
+        for (int i = 0; i < nodes.Length; i++)
         {
-            var cameFrom = new Dictionary<Vector2, Vector2>();
-            var gScore = new Dictionary<Vector2, float>();
-            var fScore = new Dictionary<Vector2, float>();
-
-            foreach (var node in graph.GetAllNodes())
-            {
-                gScore[node] = float.MaxValue;
-                fScore[node] = float.MaxValue;
-            }
-
-            gScore[start] = 0;
-            fScore[start] = CombinedHeuristic(start, goal);
-            openSet.Enqueue(start, fScore[start]);
-
-            while (openSet.Count > 0)
-            {
-                if (Time.time - startTime > maxPathfindingTime)
-                {
-                    Debug.LogWarning("Path finding timeout");
-                    return null;
-                }
-
-                var current = openSet.Dequeue();
-
-                if (current == goal)
-                {
-                    return ReconstructPath(cameFrom, current);
-                }
-
-                foreach (var neighbor in graph.GetNeighbors(current))
-                {
-                    float movementCost = CalculateMovementCost(current, neighbor);
-                    float tentativeGScore = gScore[current] + movementCost;
-
-                    if (tentativeGScore < gScore[neighbor])
-                    {
-                        cameFrom[neighbor] = current;
-                        gScore[neighbor] = tentativeGScore;
-                        fScore[neighbor] = gScore[neighbor] + CombinedHeuristic(neighbor, goal);
-
-                        openSet.Enqueue(neighbor, fScore[neighbor]);
-                    }
-                }
-            }
-
-            Debug.LogWarning("No path found.");
-            return null;
+            gScore[nodes[i]] = float.MaxValue;
+            fScore[nodes[i]] = float.MaxValue;
         }
+
+        gScore[start] = 0;
+        fScore[start] = CombinedHeuristic(start, goal);
+        openSet.Enqueue(start, fScore[start]);
+
+        while (openSet.Count > 0)
+        {
+            if (Time.time - startTime > MaxPathfindingTime)
+            {
+                Debug.LogWarning("Path finding timeout");
+
+                // Возвращаем словари в пул перед выходом
+                CameFromPool.Release(cameFrom);
+                GScorePool.Release(gScore);
+                FScorePool.Release(fScore);
+
+                return null;
+            }
+
+            var current = openSet.Dequeue();
+
+            if (current == goal)
+            {
+                var path = ReconstructPath(cameFrom, current);
+
+                // Возвращаем словари в пул после использования
+                CameFromPool.Release(cameFrom);
+                GScorePool.Release(gScore);
+                FScorePool.Release(fScore);
+
+                return path;
+            }
+
+            var neighbors = graph.GetNeighbors(current);
+            for (int i = 0; i < neighbors.Length; i++)
+            {
+                var neighbor = neighbors[i];
+                float movementCost = CalculateMovementCost(current, neighbor);
+                float tentativeGScore = gScore[current] + movementCost;
+
+                if (tentativeGScore < gScore[neighbor])
+                {
+                    cameFrom[neighbor] = current;
+                    gScore[neighbor] = tentativeGScore;
+                    fScore[neighbor] = tentativeGScore + CombinedHeuristic(neighbor, goal);
+
+                    openSet.Enqueue(neighbor, fScore[neighbor]);
+                }
+            }
+        }
+
+        Debug.LogWarning("No path found.");
+
+        // Возвращаем словари в пул перед выходом
+        CameFromPool.Release(cameFrom);
+        GScorePool.Release(gScore);
+        FScorePool.Release(fScore);
+
+        return null;
     }
 
     private float CalculateMovementCost(Vector2 current, Vector2 neighbor)
     {
         float baseCost = Vector2.Distance(current, neighbor);
-        float borderNodeCost = graph.IsBorderNode(neighbor) ? borderNodePriority : 1.0f;
-        
+        float borderNodeCost = graph.IsBorderNode(neighbor) ? BorderNodePriority : 1.0f;
+
         return baseCost * borderNodeCost;
     }
 
@@ -123,12 +149,15 @@ public class Pathfinding
 
     private List<Vector2> ReconstructPath(Dictionary<Vector2, Vector2> cameFrom, Vector2 current)
     {
-        List<Vector2> totalPath = new List<Vector2> { current };
+        var totalPath = ListPool<Vector2>.Get();
+        totalPath.Add(current);
+
         while (cameFrom.ContainsKey(current))
         {
             current = cameFrom[current];
             totalPath.Add(current);
         }
+
         totalPath.Reverse();
         return totalPath;
     }
@@ -141,9 +170,11 @@ public class Pathfinding
         Vector2 nearestNode = Vector2.zero;
         float minDistanceSquared = float.MaxValue;
 
-        foreach (var node in graph.GetAllNodes())
+        var nodes = graph.GetAllNodes().ToArray();
+        for (int i = 0; i < nodes.Length; i++)
         {
-            float distanceSquared = (node.x - position.x) * (node.x - position.x) + 
+            var node = nodes[i];
+            float distanceSquared = (node.x - position.x) * (node.x - position.x) +
                                     (node.y - position.y) * (node.y - position.y);
             if (distanceSquared < minDistanceSquared)
             {
@@ -153,5 +184,35 @@ public class Pathfinding
         }
 
         return nearestNode;
+    }
+}
+
+// Реализация пула объектов
+public class ObjectPool<T> where T : class
+{
+    private readonly Stack<T> _pool = new();
+    private readonly System.Func<T> _createFunc;
+
+    public ObjectPool(System.Func<T> createFunc)
+    {
+        _createFunc = createFunc;
+    }
+
+    public T Get()
+    {
+        if (_pool.Count > 0)
+        {
+            return _pool.Pop();
+        }
+        return _createFunc();
+    }
+
+    public void Release(T obj)
+    {
+        if (obj is System.Collections.IDictionary dictionary)
+        {
+            dictionary.Clear();
+        }
+        _pool.Push(obj);
     }
 }

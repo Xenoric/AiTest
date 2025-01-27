@@ -10177,9 +10177,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &176407607
 GameObject:
   m_ObjectHideFlags: 0
@@ -11595,7 +11592,11 @@ MonoBehaviour:
   - {fileID: 1284002661}
   - {fileID: 175202576}
   - {fileID: 1177361988}
-  updateTargetEveryNFrames: 2
+  borderNodePriority: 10
+  maxPathfindingTime: 0.1
+  moveSpeed: 20
+  waypointThreshold: 1
+  updateTargetEveryNFrames: 1
 --- !u!1 &204602582
 GameObject:
   m_ObjectHideFlags: 0
@@ -14219,9 +14220,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &246037775
 GameObject:
   m_ObjectHideFlags: 0
@@ -15625,9 +15623,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &270422085
 GameObject:
   m_ObjectHideFlags: 0
@@ -28379,9 +28374,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &462462480
 GameObject:
   m_ObjectHideFlags: 0
@@ -42163,9 +42155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &692899804
 GameObject:
   m_ObjectHideFlags: 0
@@ -72104,9 +72093,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &1177963138
 GameObject:
   m_ObjectHideFlags: 0
@@ -78029,9 +78015,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &1285408116
 GameObject:
   m_ObjectHideFlags: 0
@@ -85771,7 +85754,7 @@ Transform:
   m_GameObject: {fileID: 1424407894}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 27.5, y: 1.9, z: 0}
+  m_LocalPosition: {x: 27.68, y: 2.25, z: 0}
   m_LocalScale: {x: 6, y: 6, z: 6}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -99630,9 +99613,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fed701a749490fba8d040eb0a24b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  waypointThreshold: 0.1
-  targetPosition: {x: 0, y: 0}
 --- !u!1 &1692862407
 GameObject:
   m_ObjectHideFlags: 0
@@ -123835,7 +123815,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -2
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: b0eb9911ebb3cee4aaf0a2d9944e2960, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -126907,7 +126887,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -2
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: b0eb9911ebb3cee4aaf0a2d9944e2960, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -127791,7 +127771,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 81c223dc0d499ce4fb0302dff08a6613, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -128201,7 +128181,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: f200b99c205d595439b21b330bde0001, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -128474,7 +128454,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -1
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: f200b99c205d595439b21b330bde0001, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1

@@ -3,11 +3,39 @@ using System.Collections.Generic;
 
 public class BotManager : MonoBehaviour
 {
+    [Header("Bot Settings")]
     public List<BotMovement> teamOneBots; // Список ботов первой команды
     public List<BotMovement> teamTwoBots; // Список ботов второй команды
 
+    [Header("Pathfinding Settings")]
+    public float borderNodePriority = 0.5f; // Приоритет пограничных узлов
+    public float maxPathfindingTime = 2f; // Максимальное время поиска пути
+
+    [Header("Bot Movement Settings")]
+    public float moveSpeed = 5f; // Скорость движения ботов
+    public float waypointThreshold = 0.1f; // Порог достижения точки пути
+
     private int frameCounter = 0; // Счетчик кадров
     public int updateTargetEveryNFrames = 2; // Обновлять цель каждые N кадров
+
+    private IPathfinding pathfinding;
+
+    void Start()
+    {
+        // Инициализация Pathfinding
+        pathfinding = new Pathfinding
+        {
+            BorderNodePriority = borderNodePriority,
+            MaxPathfindingTime = maxPathfindingTime
+        };
+
+        // Инициализация ботов
+        InitializeBots(teamOneBots);
+        InitializeBots(teamTwoBots);
+
+        // Применяем настройки ко всем ботам
+        ApplySettingsToBots();
+    }
 
     void Update()
     {
@@ -24,28 +52,66 @@ public class BotManager : MonoBehaviour
         UpdateBotsMovement();
     }
 
+    private void InitializeBots(List<BotMovement> bots)
+    {
+        foreach (var bot in bots)
+        {
+            if (bot != null)
+            {
+                bot.Initialize(pathfinding);
+            }
+        }
+    }
+
+    private void ApplySettingsToBots()
+    {
+        // Применяем настройки ко всем ботам
+        foreach (var bot in teamOneBots)
+        {
+            if (bot != null)
+            {
+                bot.MoveSpeed = moveSpeed;
+                bot.WaypointThreshold = waypointThreshold;
+            }
+        }
+        foreach (var bot in teamTwoBots)
+        {
+            if (bot != null)
+            {
+                bot.MoveSpeed = moveSpeed;
+                bot.WaypointThreshold = waypointThreshold;
+            }
+        }
+    }
+
     private void UpdateBotsTargets()
     {
         // Обновляем цели для ботов первой команды
         foreach (var bot in teamOneBots)
         {
-            Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamTwoBots);
-            
-            // Проверяем, изменилась ли цель
-            if (bot.targetPosition != nearestBotPosition)
+            if (bot != null)
             {
-                bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
+                Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamTwoBots);
+
+                // Проверяем, изменилась ли цель
+                if (bot.TargetPosition != nearestBotPosition)
+                {
+                    bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
+                }
             }
         }
         // Обновляем цели для ботов второй команды
         foreach (var bot in teamTwoBots)
         {
-            Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamOneBots);
-            
-            // Проверяем, изменилась ли цель
-            if (bot.targetPosition != nearestBotPosition)
+            if (bot != null)
             {
-                bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
+                Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamOneBots);
+
+                // Проверяем, изменилась ли цель
+                if (bot.TargetPosition != nearestBotPosition)
+                {
+                    bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
+                }
             }
         }
     }
@@ -55,11 +121,17 @@ public class BotManager : MonoBehaviour
         // Обновляем движение всех ботов
         foreach (var bot in teamOneBots)
         {
-            bot.UpdateBot();
+            if (bot != null)
+            {
+                bot.UpdateBot();
+            }
         }
         foreach (var bot in teamTwoBots)
         {
-            bot.UpdateBot();
+            if (bot != null)
+            {
+                bot.UpdateBot();
+            }
         }
     }
 
@@ -70,6 +142,8 @@ public class BotManager : MonoBehaviour
 
         foreach (var opposingBot in opposingBots)
         {
+            if (opposingBot == null) continue;
+
             float distanceSquared = (bot.transform.position.x - opposingBot.transform.position.x) * (bot.transform.position.x - opposingBot.transform.position.x) +
                                     (bot.transform.position.y - opposingBot.transform.position.y) * (bot.transform.position.y - opposingBot.transform.position.y);
             if (distanceSquared < nearestDistanceSquared)
@@ -81,4 +155,3 @@ public class BotManager : MonoBehaviour
         return nearestPosition; // Возвращаем позицию ближайшего противника
     }
 }
-
