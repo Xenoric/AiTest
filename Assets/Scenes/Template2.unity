@@ -11592,11 +11592,11 @@ MonoBehaviour:
   - {fileID: 1284002661}
   - {fileID: 175202576}
   - {fileID: 1177361988}
-  borderNodePriority: 10
-  maxPathfindingTime: 0.1
-  moveSpeed: 20
-  waypointThreshold: 1
-  updateTargetEveryNFrames: 1
+  borderNodePriority: 0.5
+  maxPathfindingTime: 2
+  moveSpeed: 10
+  waypointThreshold: 0.1
+  updateTargetEveryNFrames: 2
 --- !u!1 &204602582
 GameObject:
   m_ObjectHideFlags: 0

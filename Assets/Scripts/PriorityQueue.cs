@@ -92,8 +92,6 @@ public class PriorityQueue
 
     private void Swap(int indexA, int indexB)
     {
-        var temp = heap[indexA];
-        heap[indexA] = heap[indexB];
-        heap[indexB] = temp;
+        (heap[indexA], heap[indexB]) = (heap[indexB], heap[indexA]);
     }
 }
