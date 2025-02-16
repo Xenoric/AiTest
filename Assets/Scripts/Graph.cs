@@ -23,54 +23,56 @@ public struct NodeInfo
     }
 }
 
-public class Graph
+public static class Graph
 {
-    public Dictionary<Vector2, NodeInfo> graph = new();
+    private static Dictionary<Vector2, Vector2[]> neighbors = new();
+    private static HashSet<Vector2> borderNodes = new();
 
-    public bool LoadGraph(string jsonData)
+    public static void LoadGraph(string jsonData)
     {
         try
         {
-            // Десериализация JSON-строки
-            var nodeInfoList = JsonConvert.DeserializeObject<List<NodeInfo>>(jsonData);
+            var nodeNeighborsData = JsonConvert.DeserializeObject<List<NodeNeighborsData>>(jsonData);
 
-            graph = nodeInfoList.ToDictionary(
-                node => node.Position,
-                node => node
-            );
+            foreach (var nodeData in nodeNeighborsData)
+            {
+                Vector2 currentNode = new Vector2(nodeData.currentNode.x, nodeData.currentNode.y);
+                
+                if (nodeData.currentNode.isBorderNode)
+                {
+                    borderNodes.Add(currentNode);
+                }
 
-            Debug.Log($"Graph loaded successfully. Total nodes: {graph.Count}");
-            return true;
+                Vector2[] neighborNodes = nodeData.neighborNodes
+                    .Select(n => new Vector2(n.x, n.y))
+                    .ToArray();
+
+                neighbors[currentNode] = neighborNodes;
+            }
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Debug.LogError($"Error loading graph: {ex.Message}");
-            return false;
+            Debug.LogError($"Error loading graph: {e.Message}");
         }
     }
 
-    // Получение соседей
-    public Vector2[] GetNeighbors(Vector2 nodePosition)
+    public static Vector2[] GetNeighbors(Vector2 node)
     {
-        return graph.TryGetValue(nodePosition, out var nodeInfo) 
-            ? nodeInfo.Neighbors 
-            : Array.Empty<Vector2>();
+        return neighbors.TryGetValue(node, out var nodeNeighbors) ? nodeNeighbors : Array.Empty<Vector2>();
     }
 
-    // Проверка пограничности узла
-    public bool IsBorderNode(Vector2 nodePosition)
+    public static IEnumerable<Vector2> GetAllNodes()
     {
-        return graph.TryGetValue(nodePosition, out var nodeInfo) && nodeInfo.IsBorderNode;
+        return neighbors.Keys;
     }
 
-    // Дополнительные методы для работы с графом
-    public bool ContainsNode(Vector2 position)
+    public static bool ContainsNode(Vector2 node)
     {
-        return graph.ContainsKey(position);
+        return neighbors.ContainsKey(node);
     }
 
-    public IEnumerable<Vector2> GetAllNodes()
+    public static bool IsBorderNode(Vector2 node)
     {
-        return graph.Keys;
+        return borderNodes.Contains(node);
     }
 }

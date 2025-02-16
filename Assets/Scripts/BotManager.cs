@@ -1,37 +1,33 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class BotManager : MonoBehaviour
 {
     [Header("Bot Settings")]
-    public List<Bot> teamOneBots; // Список ботов первой команды
-    public List<Bot> teamTwoBots; // Список ботов второй команды
+    public List<Bot> teamOneBots;
+    public List<Bot> teamTwoBots;
 
     [Header("Pathfinding Settings")]
-    public float borderNodePriority = 0.5f; // Приоритет пограничных узлов
-    public float maxPathfindingTime = 2f; // Максимальное время поиска пути
+    public float borderNodePriority = 0.5f;
+    public float maxPathfindingTime = 2f;
 
     [Header("Bot Movement Settings")]
-    public float moveSpeed = 5f; // Скорость движения ботов
-    public float waypointThreshold = 0.1f; // Порог достижения точки пути
+    public float moveSpeed = 5f;
+    public float waypointThreshold = 0.1f;
 
-    private int frameCounter = 0; // Счетчик кадров
-    public int updateTargetEveryNFrames = 2; // Обновлять цель каждые N кадров
-
-    private IPathfinding pathfinding;
+    private int frameCounter = 0;
+    public int updateTargetEveryNFrames = 2;
 
     void Start()
     {
-        // Инициализация Pathfinding
-        pathfinding = new Pathfinding
-        {
-            BorderNodePriority = borderNodePriority,
-            MaxPathfindingTime = maxPathfindingTime
-        };
+        // Настройка статического Pathfinder
+        Pathfinder.BorderNodePriority = borderNodePriority;
+        Pathfinder.MaxPathfindingTime = maxPathfindingTime;
 
-        // Инициализация ботов
-        InitializeBots(teamOneBots);
-        InitializeBots(teamTwoBots);
+        // Инициализация ботов с указанием команды
+        InitializeBots(teamOneBots, 1);
+        InitializeBots(teamTwoBots, 2);
 
         // Применяем настройки ко всем ботам
         ApplySettingsToBots();
@@ -41,34 +37,29 @@ public class BotManager : MonoBehaviour
     {
         frameCounter++;
 
-        // Обновляем цели только когда счетчик кадров достигает заданного значения
         if (frameCounter >= updateTargetEveryNFrames)
         {
             UpdateBotsTargets();
-            frameCounter = 0; // Сбрасываем счетчик
+            frameCounter = 0;
         }
 
-        // Обновляем занятость узлов
         UpdateOccupiedNodes();
-
-        // Обновляем движение ботов каждый кадр
         UpdateBotsMovement();
     }
 
-    private void InitializeBots(List<Bot> bots)
+    private void InitializeBots(List<Bot> bots, int teamId)
     {
         foreach (var bot in bots)
         {
             if (bot != null)
             {
-                bot.Initialize(pathfinding);
+                bot.Team = teamId;
             }
         }
     }
 
     private void ApplySettingsToBots()
     {
-        // Применяем настройки ко всем ботам
         foreach (var bot in teamOneBots)
         {
             if (bot != null)
@@ -89,34 +80,50 @@ public class BotManager : MonoBehaviour
 
     private void UpdateBotsTargets()
     {
-        // Логика обновления целей для ботов
+        // Обновление целей для первой команды
         foreach (var bot in teamOneBots)
         {
             if (bot != null)
             {
-                // Установите новую цель для бота
-                bot.SetTarget(GetRandomTargetPosition());
+                Vector2 targetPosition = FindNearestEnemyPosition(bot, teamTwoBots);
+                bot.SetTarget(targetPosition);
             }
         }
+
+        // Обновление целей для второй команды
         foreach (var bot in teamTwoBots)
         {
             if (bot != null)
             {
-                // Установите новую цель для бота
-                bot.SetTarget(GetRandomTargetPosition());
+                Vector2 targetPosition = FindNearestEnemyPosition(bot, teamOneBots);
+                bot.SetTarget(targetPosition);
             }
         }
     }
 
-    private Vector2 GetRandomTargetPosition()
+    private Vector2 FindNearestEnemyPosition(Bot currentBot, List<Bot> enemyTeam)
     {
-        // Генерация случайной позиции цели
-        return new Vector2(Random.Range(-10f, 10f), Random.Range(-10f, 10f));
+        float minDistance = float.MaxValue;
+        Vector2 nearestEnemyPosition = currentBot.transform.position;
+
+        foreach (var enemyBot in enemyTeam)
+        {
+            if (enemyBot != null)
+            {
+                float distance = Vector2.Distance(currentBot.transform.position, enemyBot.transform.position);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestEnemyPosition = enemyBot.transform.position;
+                }
+            }
+        }
+
+        return nearestEnemyPosition;
     }
 
     private void UpdateBotsMovement()
     {
-        // Обновление движения всех ботов
         foreach (var bot in teamOneBots)
         {
             bot?.UpdateBot();
