@@ -1,11 +1,11 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class BotManager : MonoBehaviour
 {
     [Header("Bot Settings")]
-    public List<BotMovement> teamOneBots; // Список ботов первой команды
-    public List<BotMovement> teamTwoBots; // Список ботов второй команды
+    public List<Bot> teamOneBots; // Список ботов первой команды
+    public List<Bot> teamTwoBots; // Список ботов второй команды
 
     [Header("Pathfinding Settings")]
     public float borderNodePriority = 0.5f; // Приоритет пограничных узлов
@@ -48,11 +48,14 @@ public class BotManager : MonoBehaviour
             frameCounter = 0; // Сбрасываем счетчик
         }
 
+        // Обновляем занятость узлов
+        UpdateOccupiedNodes();
+
         // Обновляем движение ботов каждый кадр
         UpdateBotsMovement();
     }
 
-    private void InitializeBots(List<BotMovement> bots)
+    private void InitializeBots(List<Bot> bots)
     {
         foreach (var bot in bots)
         {
@@ -86,72 +89,78 @@ public class BotManager : MonoBehaviour
 
     private void UpdateBotsTargets()
     {
-        // Обновляем цели для ботов первой команды
+        // Логика обновления целей для ботов
         foreach (var bot in teamOneBots)
         {
             if (bot != null)
             {
-                Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamTwoBots);
-
-                // Проверяем, изменилась ли цель
-                if (bot.TargetPosition != nearestBotPosition)
-                {
-                    bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
-                }
+                // Установите новую цель для бота
+                bot.SetTarget(GetRandomTargetPosition());
             }
         }
-        // Обновляем цели для ботов второй команды
         foreach (var bot in teamTwoBots)
         {
             if (bot != null)
             {
-                Vector2 nearestBotPosition = FindNearestOpposingBot(bot, teamOneBots);
-
-                // Проверяем, изменилась ли цель
-                if (bot.TargetPosition != nearestBotPosition)
-                {
-                    bot.SetTarget(nearestBotPosition); // Устанавливаем цель на ближайшего противника
-                }
+                // Установите новую цель для бота
+                bot.SetTarget(GetRandomTargetPosition());
             }
         }
+    }
+
+    private Vector2 GetRandomTargetPosition()
+    {
+        // Генерация случайной позиции цели
+        return new Vector2(Random.Range(-10f, 10f), Random.Range(-10f, 10f));
     }
 
     private void UpdateBotsMovement()
     {
-        // Обновляем движение всех ботов
+        // Обновление движения всех ботов
+        foreach (var bot in teamOneBots)
+        {
+            bot?.UpdateBot();
+        }
+        foreach (var bot in teamTwoBots)
+        {
+            bot?.UpdateBot();
+        }
+    }
+
+    public void UpdateOccupiedNodes()
+    {
+        HashSet<Vector2> occupiedNodes = new();
+
         foreach (var bot in teamOneBots)
         {
             if (bot != null)
             {
-                bot.UpdateBot();
+                occupiedNodes.Add(bot.transform.position);
             }
         }
+
         foreach (var bot in teamTwoBots)
         {
             if (bot != null)
             {
-                bot.UpdateBot();
+                occupiedNodes.Add(bot.transform.position);
             }
         }
-    }
 
-    private Vector2 FindNearestOpposingBot(BotMovement bot, List<BotMovement> opposingBots)
-    {
-        Vector2 nearestPosition = Vector2.zero;
-        float nearestDistanceSquared = float.MaxValue;
-
-        foreach (var opposingBot in opposingBots)
+        foreach (var bot in teamOneBots)
         {
-            if (opposingBot == null) continue;
-
-            float distanceSquared = (bot.transform.position.x - opposingBot.transform.position.x) * (bot.transform.position.x - opposingBot.transform.position.x) +
-                                    (bot.transform.position.y - opposingBot.transform.position.y) * (bot.transform.position.y - opposingBot.transform.position.y);
-            if (distanceSquared < nearestDistanceSquared)
+            if (bot != null)
             {
-                nearestDistanceSquared = distanceSquared;
-                nearestPosition = opposingBot.transform.position;
+                bot.UpdateOccupiedNodes(occupiedNodes);
             }
         }
-        return nearestPosition; // Возвращаем позицию ближайшего противника
+
+        foreach (var bot in teamTwoBots)
+        {
+            if (bot != null)
+            {
+                bot.UpdateOccupiedNodes(occupiedNodes);
+            }
+        }
     }
 }

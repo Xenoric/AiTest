@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Pathfinding : IPathfinding
@@ -7,8 +7,8 @@ public class Pathfinding : IPathfinding
     private static Graph graph = new();
     private const string neighborsFileName = "nodes_neighbors";
 
-    public float BorderNodePriority { get; set; } = 0.5f;
-    public float MaxPathfindingTime { get; set; } = 2f;
+    public float BorderNodePriority { get; set; }
+    public float MaxPathfindingTime { get; set; } 
 
     // Пул для словарей
     private static readonly ObjectPool<Dictionary<Vector2, Vector2>> CameFromPool = new(() => new Dictionary<Vector2, Vector2>(100));
@@ -120,6 +120,11 @@ public class Pathfinding : IPathfinding
         FScorePool.Release(fScore);
 
         return null;
+    }
+
+    public Vector2[] GetNeighbors(Vector2 nodePosition)
+    {
+        return graph.GetNeighbors(nodePosition);
     }
 
     private float CalculateMovementCost(Vector2 current, Vector2 neighbor)

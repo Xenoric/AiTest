@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IBotMovement
+public interface IBot
 {
     float MoveSpeed { get; set; }
     float WaypointThreshold { get; set; }
