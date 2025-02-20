@@ -1,20 +1,19 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Bot : MonoBehaviour, IBot
 {
     private List<Vector2> path = new();
     private Vector2 lastPosition;
-    private Vector2 lastEnemyPosition;
-    private float enemyStationaryTimer = 0f;
-    private const float ENEMY_STATIONARY_THRESHOLD = 0.5f; // Время для определения, что враг стоит на месте
 
     public float MoveSpeed { get; set; } = 5f;
     public float WaypointThreshold { get; set; } = 0.1f;
     public Vector2 TargetPosition { get; set; }
-   
     public int Team { get; set; } = 0;
-    public float DesiredDistanceToEnemy { get; set; } = 5f; // Желаемая дистанция до врага
+
+    public int MinNodesToOtherBots { get; set; } = 3; // Минимальное количество узлов до других ботов
+    public float MinDistanceToEnemy { get; set; } = 5f; // Минимальная дистанция до врагов
 
     private void Start()
     {
@@ -25,52 +24,29 @@ public class Bot : MonoBehaviour, IBot
     public void UpdateBot()
     {
         Vector2 currentPosition = transform.position;
+
+        // Проверяем дистанцию до ближайшего врага
+        float distanceToEnemy = OccupiedNodesSystem.GetDistanceToNearestEnemy(currentPosition, Team);
         
-        // Получаем позицию ближайшего врага
-        var nearestEnemyPosition = OccupiedNodesSystem.FindNearestEnemyPosition(currentPosition, Team);
-        
-        if (nearestEnemyPosition.HasValue)
+        // Если враг слишком близко, отходим
+        if (distanceToEnemy < MinDistanceToEnemy)
         {
-            float distanceToEnemy = Vector2.Distance(currentPosition, nearestEnemyPosition.Value);
-
-            // Проверяем, двигается ли враг
-            bool isEnemyStationary = IsEnemyStationary(nearestEnemyPosition.Value);
-
-            if (distanceToEnemy > DesiredDistanceToEnemy)
+            Vector2? nearestEnemyPosition = OccupiedNodesSystem.FindNearestEnemyPosition(currentPosition, Team);
+            if (nearestEnemyPosition.HasValue)
             {
-                // Если враг далеко, приближаемся к нему
-                Vector2 directionToEnemy = (nearestEnemyPosition.Value - currentPosition).normalized;
-                Vector2 targetPosition = nearestEnemyPosition.Value - directionToEnemy * DesiredDistanceToEnemy;
-                path = FindPathAvoidingAllies(currentPosition, targetPosition);
-            }
-            else if (distanceToEnemy < DesiredDistanceToEnemy)
-            {
-                // Если враг близко, отходим
                 Vector2 retreatDirection = (currentPosition - nearestEnemyPosition.Value).normalized;
-                Vector2 retreatTarget = currentPosition + retreatDirection * (DesiredDistanceToEnemy - distanceToEnemy);
-                path = FindPathAvoidingAllies(currentPosition, retreatTarget);
+                Vector2 retreatTarget = currentPosition + retreatDirection * MinDistanceToEnemy;
+                path = Pathfinder.GetPath(currentPosition, retreatTarget, Team);
             }
-            else if (!isEnemyStationary)
-            {
-                // Если враг двигается, корректируем позицию для поддержания дистанции
-                Vector2 directionToEnemy = (nearestEnemyPosition.Value - currentPosition).normalized;
-                Vector2 targetPosition = nearestEnemyPosition.Value - directionToEnemy * DesiredDistanceToEnemy;
-                path = FindPathAvoidingAllies(currentPosition, targetPosition);
-            }
-            else
-            {
-                // Если враг стоит и мы на нужной дистанции, останавливаемся
-                path = null;
-            }
-
-            lastEnemyPosition = nearestEnemyPosition.Value;
         }
-
-        if (path != null && path.Count > 0)
+        else
         {
             MoveTowardsTarget();
         }
 
+        // Проверка на минимальное количество узлов до других ботов
+        CheckNodesToOtherBots(currentPosition);
+        
         // Обновляем позицию в системе
         if (Vector2.Distance(currentPosition, lastPosition) > WaypointThreshold)
         {
@@ -79,57 +55,48 @@ public class Bot : MonoBehaviour, IBot
         }
     }
 
-    private bool IsEnemyStationary(Vector2 currentEnemyPosition)
+    private void CheckNodesToOtherBots(Vector2 currentPosition)
     {
-        if (Vector2.Distance(currentEnemyPosition, lastEnemyPosition) < WaypointThreshold)
-        {
-            enemyStationaryTimer += Time.deltaTime;
-            return enemyStationaryTimer >= ENEMY_STATIONARY_THRESHOLD;
-        }
-        
-        enemyStationaryTimer = 0f;
-        return false;
-    }
+        Bot[] otherTeamBots = FindObjectsOfType<Bot>()
+            .Where(bot => bot != this && bot.Team == this.Team)
+            .ToArray();
 
-    private List<Vector2> FindPathAvoidingAllies(Vector2 start, Vector2 goal)
-    {
-        var path = Pathfinder.GetPath(start, goal, Team);
-        
-        // Если путь найден и следующая нода занята союзником
-        if (path != null && path.Count > 1 && OccupiedNodesSystem.IsOccupiedByTeam(path[1], Team))
+        foreach (var otherBot in otherTeamBots)
         {
-            // Ищем свободную ноду среди соседей
-            Vector2[] neighbors = Pathfinder.GetNeighbors(path[0]);
-            foreach (var neighbor in neighbors)
+            float distance = Vector2.Distance(currentPosition, otherBot.transform.position);
+            if (distance < MinNodesToOtherBots)
             {
-                if (!OccupiedNodesSystem.IsOccupiedByTeam(neighbor, Team))
-                {
-                    return Pathfinder.GetPath(start, neighbor, Team);
-                }
-            }
-
-            // Если все соседние ноды заняты, ищем среди соседей соседей
-            foreach (var neighbor in neighbors)
-            {
-                Vector2[] secondaryNeighbors = Pathfinder.GetNeighbors(neighbor);
-                foreach (var secondaryNeighbor in secondaryNeighbors)
-                {
-                    if (!OccupiedNodesSystem.IsOccupiedByTeam(secondaryNeighbor, Team))
-                    {
-                        return Pathfinder.GetPath(start, secondaryNeighbor, Team);
-                    }
-                }
+                Vector2 direction = (currentPosition - (Vector2)otherBot.transform.position).normalized;
+                Vector2 targetPosition = (Vector2)transform.position + direction * MinNodesToOtherBots;
+                path = Pathfinder.GetPath(currentPosition, targetPosition, Team);
             }
         }
-
-        return path;
     }
 
     private void MoveTowardsTarget()
     {
         if (path != null && path.Count > 1)
         {
+            Vector2 current = path[0];
             Vector2 next = path[1];
+
+            // Проверяем, не занята ли следующая нода союзником
+            if (OccupiedNodesSystem.IsOccupiedByTeam(next, Team))
+            {
+                // Ищем свободную ноду среди соседей
+                Vector2[] neighbors = Pathfinder.GetNeighbors(current);
+                foreach (var neighbor in neighbors)
+                {
+                    if (!OccupiedNodesSystem.IsOccupiedByTeam(neighbor, Team))
+                    {
+                        path = Pathfinder.GetPath(transform.position, neighbor, Team);
+                        Debug.Log($"Moving to free neighbor: {neighbor}");
+                        break;
+                    }
+                }
+                return;
+            }
+
             transform.position = Vector2.MoveTowards(transform.position, next, MoveSpeed * Time.deltaTime);
 
             if (Vector2.Distance(transform.position, next) < WaypointThreshold)
@@ -142,7 +109,7 @@ public class Bot : MonoBehaviour, IBot
     public void SetTarget(Vector2 newTarget)
     {
         TargetPosition = newTarget;
-        path = FindPathAvoidingAllies(transform.position, newTarget);
+        path = Pathfinder.GetPath(transform.position, newTarget, Team);
     }
 
     private void OnDestroy()

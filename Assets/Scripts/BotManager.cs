@@ -17,10 +17,10 @@ public class BotManager : MonoBehaviour
     public float waypointThreshold = 0.1f;
 
     [Header("Distance Settings")]
-    [Tooltip("Минимальное количество нод между ботами одной команды")]
+    [Tooltip("Минимальное количество узлов между ботами одной команды")]
     public int minNodesToAlly = 3;
-    [Tooltip("Желаемая дистанция до вражеских ботов")]
-    public float desiredDistanceToEnemy = 5f;
+    [Tooltip("Минимальная дистанция до вражеских ботов")]
+    public float minDistanceToEnemy = 5f;
 
     private int frameCounter = 0;
     public int updateTargetEveryNFrames = 2;
@@ -55,7 +55,8 @@ public class BotManager : MonoBehaviour
             if (bot != null)
             {
                 bot.Team = teamId;
-                bot.DesiredDistanceToEnemy = desiredDistanceToEnemy;
+                bot.MinNodesToOtherBots = minNodesToAlly; // Установка минимального расстояния до союзников
+                bot.MinDistanceToEnemy = minDistanceToEnemy; // Установка минимального расстояния до врагов
             }
         }
     }
