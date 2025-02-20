@@ -11469,7 +11469,9 @@ MonoBehaviour:
   borderNodePriority: 0
   maxPathfindingTime: 2
   moveSpeed: 20
-  waypointThreshold: 1
+  waypointThreshold: 0.1
+  minNodesToAlly: 20
+  desiredDistanceToEnemy: 20
   updateTargetEveryNFrames: 2
 --- !u!1 &204602582
 GameObject:

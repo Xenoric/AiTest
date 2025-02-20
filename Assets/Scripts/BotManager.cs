@@ -16,20 +16,22 @@ public class BotManager : MonoBehaviour
     public float moveSpeed = 5f;
     public float waypointThreshold = 0.1f;
 
+    [Header("Distance Settings")]
+    [Tooltip("Минимальное количество нод между ботами одной команды")]
+    public int minNodesToAlly = 3;
+    [Tooltip("Желаемая дистанция до вражеских ботов")]
+    public float desiredDistanceToEnemy = 5f;
+
     private int frameCounter = 0;
     public int updateTargetEveryNFrames = 2;
 
     void Start()
     {
-        // Настройка статического Pathfinder
         Pathfinder.BorderNodePriority = borderNodePriority;
         Pathfinder.MaxPathfindingTime = maxPathfindingTime;
 
-        // Инициализация ботов с указанием команды
         InitializeBots(teamOneBots, 1);
         InitializeBots(teamTwoBots, 2);
-
-        // Применяем настройки ко всем ботам
         ApplySettingsToBots();
     }
 
@@ -43,7 +45,6 @@ public class BotManager : MonoBehaviour
             frameCounter = 0;
         }
 
-        UpdateOccupiedNodes();
         UpdateBotsMovement();
     }
 
@@ -54,21 +55,14 @@ public class BotManager : MonoBehaviour
             if (bot != null)
             {
                 bot.Team = teamId;
+                bot.DesiredDistanceToEnemy = desiredDistanceToEnemy;
             }
         }
     }
 
     private void ApplySettingsToBots()
     {
-        foreach (var bot in teamOneBots)
-        {
-            if (bot != null)
-            {
-                bot.MoveSpeed = moveSpeed;
-                bot.WaypointThreshold = waypointThreshold;
-            }
-        }
-        foreach (var bot in teamTwoBots)
+        foreach (var bot in teamOneBots.Concat(teamTwoBots))
         {
             if (bot != null)
             {
@@ -80,7 +74,6 @@ public class BotManager : MonoBehaviour
 
     private void UpdateBotsTargets()
     {
-        // Обновление целей для первой команды
         foreach (var bot in teamOneBots)
         {
             if (bot != null)
@@ -90,7 +83,6 @@ public class BotManager : MonoBehaviour
             }
         }
 
-        // Обновление целей для второй команды
         foreach (var bot in teamTwoBots)
         {
             if (bot != null)
@@ -124,50 +116,14 @@ public class BotManager : MonoBehaviour
 
     private void UpdateBotsMovement()
     {
-        foreach (var bot in teamOneBots)
-        {
-            bot?.UpdateBot();
-        }
-        foreach (var bot in teamTwoBots)
+        foreach (var bot in teamOneBots.Concat(teamTwoBots))
         {
             bot?.UpdateBot();
         }
     }
 
-    public void UpdateOccupiedNodes()
+    private void OnDestroy()
     {
-        HashSet<Vector2> occupiedNodes = new();
-
-        foreach (var bot in teamOneBots)
-        {
-            if (bot != null)
-            {
-                occupiedNodes.Add(bot.transform.position);
-            }
-        }
-
-        foreach (var bot in teamTwoBots)
-        {
-            if (bot != null)
-            {
-                occupiedNodes.Add(bot.transform.position);
-            }
-        }
-
-        foreach (var bot in teamOneBots)
-        {
-            if (bot != null)
-            {
-                bot.UpdateOccupiedNodes(occupiedNodes);
-            }
-        }
-
-        foreach (var bot in teamTwoBots)
-        {
-            if (bot != null)
-            {
-                bot.UpdateOccupiedNodes(occupiedNodes);
-            }
-        }
+        OccupiedNodesSystem.Clear();
     }
 }

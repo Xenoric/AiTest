@@ -9,12 +9,11 @@ public static class Pathfinder
     public static float BorderNodePriority { get; set; }
     public static float MaxPathfindingTime { get; set; } 
 
-    // Пул для словарей
     private static readonly ObjectPool<Dictionary<Vector2, Vector2>> CameFromPool = new(() => new Dictionary<Vector2, Vector2>(100));
     private static readonly ObjectPool<Dictionary<Vector2, float>> GScorePool = new(() => new Dictionary<Vector2, float>(100));
     private static readonly ObjectPool<Dictionary<Vector2, float>> FScorePool = new(() => new Dictionary<Vector2, float>(100));
+    private static Vector2[] _nodes;
 
-    // Статический конструктор для инициализации
     static Pathfinder()
     {
         LoadGraphFromResources();
@@ -25,13 +24,11 @@ public static class Pathfinder
         try
         {
             TextAsset jsonFile = Resources.Load<TextAsset>(neighborsFileName);
-
             if (jsonFile == null)
             {
                 Debug.LogError($"Graph file {neighborsFileName} not found in Resources folder");
                 return;
             }
-
             Graph.LoadGraph(jsonFile.text);
         }
         catch (System.Exception e)
@@ -40,7 +37,7 @@ public static class Pathfinder
         }
     }
 
-    public static List<Vector2> GetPath(Vector2 start, Vector2 goal)
+    public static List<Vector2> GetPath(Vector2 start, Vector2 goal, int team)
     {
         float startTime = Time.time;
 
@@ -68,10 +65,7 @@ public static class Pathfinder
         {
             if (Time.time - startTime > MaxPathfindingTime)
             {
-                Debug.LogWarning("Path finding timeout");
-                CameFromPool.Release(cameFrom);
-                GScorePool.Release(gScore);
-                FScorePool.Release(fScore);
+                ReleasePools(cameFrom, gScore, fScore);
                 return null;
             }
 
@@ -80,9 +74,7 @@ public static class Pathfinder
             if (current == goal)
             {
                 var path = ReconstructPath(cameFrom, current);
-                CameFromPool.Release(cameFrom);
-                GScorePool.Release(gScore);
-                FScorePool.Release(fScore);
+                ReleasePools(cameFrom, gScore, fScore);
                 return path;
             }
 
@@ -90,6 +82,11 @@ public static class Pathfinder
             for (int i = 0; i < neighbors.Length; i++)
             {
                 var neighbor = neighbors[i];
+                
+                // Пропускаем ноды, занятые своей командой
+                if (OccupiedNodesSystem.IsOccupiedByTeam(neighbor, team))
+                    continue;
+
                 float movementCost = CalculateMovementCost(current, neighbor);
                 float tentativeGScore = gScore[current] + movementCost;
 
@@ -103,10 +100,7 @@ public static class Pathfinder
             }
         }
 
-        Debug.LogWarning("No path found.");
-        CameFromPool.Release(cameFrom);
-        GScorePool.Release(gScore);
-        FScorePool.Release(fScore);
+        ReleasePools(cameFrom, gScore, fScore);
         return null;
     }
 
@@ -154,6 +148,15 @@ public static class Pathfinder
         return totalPath;
     }
 
+    private static void ReleasePools(Dictionary<Vector2, Vector2> cameFrom, 
+                                   Dictionary<Vector2, float> gScore, 
+                                   Dictionary<Vector2, float> fScore)
+    {
+        CameFromPool.Release(cameFrom);
+        GScorePool.Release(gScore);
+        FScorePool.Release(fScore);
+    }
+
     public static Vector2 SnapToNearestNode(Vector2 position)
     {
         if (Graph.ContainsNode(position))
@@ -162,10 +165,10 @@ public static class Pathfinder
         Vector2 nearestNode = Vector2.zero;
         float minDistanceSquared = float.MaxValue;
 
-        var nodes = Graph.GetAllNodes().ToArray();
-        for (int i = 0; i < nodes.Length; i++)
+        _nodes = Graph.GetAllNodes().ToArray();
+        for (int i = 0; i < _nodes.Length; i++)
         {
-            var node = nodes[i];
+            var node = _nodes[i];
             float distanceSquared = (node.x - position.x) * (node.x - position.x) +
                                     (node.y - position.y) * (node.y - position.y);
             if (distanceSquared < minDistanceSquared)
