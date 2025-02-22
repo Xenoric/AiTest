@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public static class OccupiedNodesSystem
 {
     private static Dictionary<Vector2, int> occupiedNodes = new();
+    private static SpatialHash spatialHash = new SpatialHash(5f);
     
     public static Action<Vector2, int> NodeOccupied;
     public static Action<Vector2> NodeReleased;
@@ -14,7 +15,12 @@ public static class OccupiedNodesSystem
         return occupiedNodes.TryGetValue(node, out int occupyingTeam) && occupyingTeam == team;
     }
 
-    public static void UpdatePosition(Vector2 oldPosition, Vector2 newPosition, int team)
+    public static List<Bot> GetNearbyBots(Vector2 position, float radius)
+    {
+        return spatialHash.GetNearbyBots(position, radius);
+    }
+
+    public static void UpdatePosition(Vector2 oldPosition, Vector2 newPosition, int team, Bot bot)
     {
         if (oldPosition != newPosition)
         {
@@ -22,22 +28,25 @@ public static class OccupiedNodesSystem
             {
                 occupiedNodes.Remove(oldPosition);
                 NodeReleased?.Invoke(oldPosition);
+                spatialHash.RemoveBot(bot, oldPosition);
             }
             
             occupiedNodes[newPosition] = team;
             NodeOccupied?.Invoke(newPosition, team);
+            spatialHash.UpdatePosition(bot, oldPosition, newPosition);
         }
     }
 
     public static float GetDistanceToNearestEnemy(Vector2 position, int team)
     {
+        List<Bot> nearbyBots = spatialHash.GetNearbyBots(position, 20f);
         float minDistance = float.MaxValue;
 
-        foreach (var node in occupiedNodes)
+        foreach (var bot in nearbyBots)
         {
-            if (node.Value != team)
+            if (bot.Team != team)
             {
-                float distance = Vector2.Distance(position, node.Key);
+                float distance = Vector2.Distance(position, bot.transform.position);
                 minDistance = Mathf.Min(minDistance, distance);
             }
         }
@@ -47,18 +56,19 @@ public static class OccupiedNodesSystem
 
     public static Vector2? FindNearestEnemyPosition(Vector2 position, int team)
     {
+        List<Bot> nearbyBots = spatialHash.GetNearbyBots(position, 20f);
         float minDistance = float.MaxValue;
         Vector2? nearestEnemy = null;
 
-        foreach (var node in occupiedNodes)
+        foreach (var bot in nearbyBots)
         {
-            if (node.Value != team)
+            if (bot.Team != team)
             {
-                float distance = Vector2.Distance(position, node.Key);
+                float distance = Vector2.Distance(position, bot.transform.position);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
-                    nearestEnemy = node.Key;
+                    nearestEnemy = bot.transform.position;
                 }
             }
         }
@@ -69,5 +79,6 @@ public static class OccupiedNodesSystem
     public static void Clear()
     {
         occupiedNodes.Clear();
+        spatialHash = new SpatialHash(5f);
     }
 }

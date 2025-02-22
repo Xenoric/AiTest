@@ -18,19 +18,18 @@ public class Bot : MonoBehaviour, IBot
 
     private void Start()
     {
-        // Смещаем бота на ближайшую ноду только при инициализации
         currentNode = Pathfinder.SnapToNearestNode((Vector2)transform.position);
         transform.position = currentNode;
         lastPosition = currentNode;
-        OccupiedNodesSystem.UpdatePosition(lastPosition, lastPosition, Team);
+        OccupiedNodesSystem.UpdatePosition(lastPosition, lastPosition, Team, this);
     }
 
     public void UpdateBot()
     {
-        // Проверяем дистанцию до ближайшего врага
+        // Get distance to nearest enemy using spatial hash
         float distanceToEnemy = OccupiedNodesSystem.GetDistanceToNearestEnemy(currentNode, Team);
         
-        // Если враг слишком близко, отходим
+        // If enemy is too close, retreat
         if (distanceToEnemy < MinDistanceToEnemy)
         {
             Vector2? nearestEnemyPosition = OccupiedNodesSystem.FindNearestEnemyPosition(currentNode, Team);
@@ -47,25 +46,26 @@ public class Bot : MonoBehaviour, IBot
             MoveTowardsTarget();
         }
 
-        // Проверка на минимальное количество узлов до других ботов
+        // Check minimum distance to other friendly bots
         CheckNodesToOtherBots();
     }
 
     private void CheckNodesToOtherBots()
     {
-        Bot[] otherTeamBots = FindObjectsOfType<Bot>()
-            .Where(bot => bot != this && bot.Team == this.Team)
-            .ToArray();
-
-        foreach (var otherBot in otherTeamBots)
+        List<Bot> nearbyBots = OccupiedNodesSystem.GetNearbyBots(currentNode, MinNodesToOtherBots);
+        foreach (var otherBot in nearbyBots)
         {
-            float distance = Vector2.Distance(currentNode, otherBot.transform.position);
-            if (distance < MinNodesToOtherBots)
+            if (otherBot != this && otherBot.Team == this.Team)
             {
-                Vector2 direction = (currentNode - (Vector2)otherBot.transform.position).normalized;
-                Vector2 targetPosition = currentNode + direction * MinNodesToOtherBots;
-                Vector2 targetNode = Pathfinder.SnapToNearestNode(targetPosition);
-                path = Pathfinder.GetPath(currentNode, targetNode, Team);
+                float distance = Vector2.Distance(currentNode, otherBot.transform.position);
+                if (distance < MinNodesToOtherBots)
+                {
+                    Vector2 direction = (currentNode - (Vector2)otherBot.transform.position).normalized;
+                    Vector2 targetPosition = currentNode + direction * MinNodesToOtherBots;
+                    Vector2 targetNode = Pathfinder.SnapToNearestNode(targetPosition);
+                    path = Pathfinder.GetPath(currentNode, targetNode, Team);
+                    break;
+                }
             }
         }
     }
@@ -79,10 +79,10 @@ public class Bot : MonoBehaviour, IBot
 
         Vector2 next = path[1];
 
-        // Проверяем, не занята ли следующая нода союзником
+        // Check if next node is occupied by friendly bot
         if (OccupiedNodesSystem.IsOccupiedByTeam(next, Team))
         {
-            // Ищем свободную ноду среди соседей текущей ноды
+            // Find free node among neighbors
             Vector2[] neighbors = Pathfinder.GetNeighbors(currentNode);
             foreach (var neighbor in neighbors)
             {
@@ -95,23 +95,22 @@ public class Bot : MonoBehaviour, IBot
             return;
         }
 
-        // Плавно перемещаемся к следующей ноде
+        // Move towards next node
         Vector2 newPosition = Vector2.MoveTowards(transform.position, next, MoveSpeed * Time.deltaTime);
         transform.position = newPosition;
 
-        // Если достигли следующей ноды
+        // If reached next node
         if (Vector2.Distance(transform.position, next) < WaypointThreshold)
         {
             path.RemoveAt(0);
             lastPosition = currentNode;
             currentNode = next;
-            OccupiedNodesSystem.UpdatePosition(lastPosition, currentNode, Team);
+            OccupiedNodesSystem.UpdatePosition(lastPosition, currentNode, Team, this);
         }
     }
 
     public void SetTarget(Vector2 newTarget)
     {
-        // Находим ближайшую ноду для цели
         Vector2 targetNode = Pathfinder.SnapToNearestNode(newTarget);
         path = Pathfinder.GetPath(currentNode, targetNode, Team);
         
@@ -123,6 +122,6 @@ public class Bot : MonoBehaviour, IBot
 
     private void OnDestroy()
     {
-        OccupiedNodesSystem.UpdatePosition(lastPosition, Vector2.zero, Team);
+        OccupiedNodesSystem.UpdatePosition(lastPosition, Vector2.zero, Team, this);
     }
 }

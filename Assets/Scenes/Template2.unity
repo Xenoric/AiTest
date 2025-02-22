@@ -11466,12 +11466,12 @@ MonoBehaviour:
   - {fileID: 1284002661}
   - {fileID: 175202576}
   - {fileID: 1177361988}
-  borderNodePriority: 0
+  borderNodePriority: 2
   maxPathfindingTime: 2
   moveSpeed: 20
   waypointThreshold: 0.1
-  minNodesToAlly: 3
-  minDistanceToEnemy: 20
+  minNodesToAlly: 5
+  minDistanceToEnemy: 10
   updateTargetEveryNFrames: 2
 --- !u!1 &204602582
 GameObject:
