@@ -27,12 +27,16 @@ public static class Graph
 {
     private static Dictionary<Vector2, Vector2[]> neighbors = new();
     private static HashSet<Vector2> borderNodes = new();
+    private static Vector2[] allNodesCache;
+    private static bool isDirty = true;
 
     public static void LoadGraph(string jsonData)
     {
         try
         {
             var nodeNeighborsData = JsonConvert.DeserializeObject<List<NodeNeighborsData>>(jsonData);
+            neighbors.Clear();
+            borderNodes.Clear();
 
             foreach (var nodeData in nodeNeighborsData)
             {
@@ -43,12 +47,16 @@ public static class Graph
                     borderNodes.Add(currentNode);
                 }
 
-                Vector2[] neighborNodes = nodeData.neighborNodes
-                    .Select(n => new Vector2(n.x, n.y))
-                    .ToArray();
+                Vector2[] neighborNodes = new Vector2[nodeData.neighborNodes.Count];
+                for (int i = 0; i < nodeData.neighborNodes.Count; i++)
+                {
+                    neighborNodes[i] = new Vector2(nodeData.neighborNodes[i].x, nodeData.neighborNodes[i].y);
+                }
 
                 neighbors[currentNode] = neighborNodes;
             }
+            
+            isDirty = true;
         }
         catch (Exception e)
         {
@@ -61,9 +69,20 @@ public static class Graph
         return neighbors.TryGetValue(node, out var nodeNeighbors) ? nodeNeighbors : Array.Empty<Vector2>();
     }
 
-    public static IEnumerable<Vector2> GetAllNodes()
+    public static Vector2[] GetAllNodes()
     {
-        return neighbors.Keys;
+        if (isDirty || allNodesCache == null)
+        {
+            allNodesCache = new Vector2[neighbors.Count];
+            int index = 0;
+            foreach (var key in neighbors.Keys)
+            {
+                allNodesCache[index++] = key;
+            }
+            isDirty = false;
+        }
+        
+        return allNodesCache;
     }
 
     public static bool ContainsNode(Vector2 node)

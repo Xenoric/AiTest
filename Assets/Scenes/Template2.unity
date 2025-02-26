@@ -11466,7 +11466,7 @@ MonoBehaviour:
   - {fileID: 1284002661}
   - {fileID: 175202576}
   - {fileID: 1177361988}
-  borderNodePriority: 2
+  borderNodePriority: 1
   maxPathfindingTime: 2
   moveSpeed: 20
   waypointThreshold: 0.1

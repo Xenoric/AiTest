@@ -2,6 +2,46 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct PathNodeInfo
+{
+    public Vector2 CameFrom;
+    public float GScore;
+    public float FScore;
+    
+    public PathNodeInfo(Vector2 cameFrom, float gScore, float fScore)
+    {
+        CameFrom = cameFrom;
+        GScore = gScore;
+        FScore = fScore;
+    }
+}
+
+public struct MovementCostData
+{
+    public float BaseCost;
+    public float BorderFactor;
+    public float TotalCost;
+}
+
+public struct HeuristicResult
+{
+    public float Manhattan;
+    public float Diagonal;
+    public float Combined;
+}
+
+public struct NodeDistanceInfo
+{
+    public Vector2 Node;
+    public float DistanceSquared;
+    
+    public NodeDistanceInfo(Vector2 node, float distanceSquared)
+    {
+        Node = node;
+        DistanceSquared = distanceSquared;
+    }
+}
+
 public static class Pathfinder
 {
     private const string neighborsFileName = "nodes_neighbors";
@@ -9,14 +49,14 @@ public static class Pathfinder
     public static float BorderNodePriority { get; set; }
     public static float MaxPathfindingTime { get; set; } 
 
-    private static readonly ObjectPool<Dictionary<Vector2, Vector2>> CameFromPool = new(() => new Dictionary<Vector2, Vector2>(100));
-    private static readonly ObjectPool<Dictionary<Vector2, float>> GScorePool = new(() => new Dictionary<Vector2, float>(100));
-    private static readonly ObjectPool<Dictionary<Vector2, float>> FScorePool = new(() => new Dictionary<Vector2, float>(100));
+    private static readonly ObjectPool<Dictionary<Vector2, PathNodeInfo>> NodeInfoPool = 
+        new(() => new Dictionary<Vector2, PathNodeInfo>(50));
     private static Vector2[] _nodes;
 
     static Pathfinder()
     {
         LoadGraphFromResources();
+        _nodes = Graph.GetAllNodes().ToArray();
     }
 
     private static void LoadGraphFromResources()
@@ -44,28 +84,35 @@ public static class Pathfinder
         start = SnapToNearestNode(start);
         goal = SnapToNearestNode(goal);
 
-        var cameFrom = CameFromPool.Get();
-        var gScore = GScorePool.Get();
-        var fScore = FScorePool.Get();
-
+        var nodeInfo = NodeInfoPool.Get();
         var openSet = new PriorityQueue();
 
-        var nodes = Graph.GetAllNodes().ToArray();
-        for (int i = 0; i < nodes.Length; i++)
+        
+        for (int i = 0; i < _nodes.Length; i++)
         {
-            gScore[nodes[i]] = float.MaxValue;
-            fScore[nodes[i]] = float.MaxValue;
+            nodeInfo[_nodes[i]] = new PathNodeInfo(
+                Vector2.zero, 
+                float.MaxValue, 
+                float.MaxValue
+            );
         }
 
-        gScore[start] = 0;
-        fScore[start] = CombinedHeuristic(start, goal);
-        openSet.Enqueue(start, fScore[start]);
+        // Расчет начального эвристического расстояния
+        HeuristicResult heuristic = CalculateHeuristic(start, goal);
+        
+        nodeInfo[start] = new PathNodeInfo(
+            Vector2.zero, 
+            0f, 
+            heuristic.Combined
+        );
+        
+        openSet.Enqueue(start, nodeInfo[start].FScore);
 
         while (openSet.Count > 0)
         {
             if (Time.time - startTime > MaxPathfindingTime)
             {
-                ReleasePools(cameFrom, gScore, fScore);
+                NodeInfoPool.Release(nodeInfo);
                 return null;
             }
 
@@ -73,8 +120,8 @@ public static class Pathfinder
 
             if (current == goal)
             {
-                var path = ReconstructPath(cameFrom, current);
-                ReleasePools(cameFrom, gScore, fScore);
+                var path = ReconstructPath(nodeInfo, current);
+                NodeInfoPool.Release(nodeInfo);
                 return path;
             }
 
@@ -87,20 +134,26 @@ public static class Pathfinder
                 if (OccupiedNodesSystem.IsOccupiedByTeam(neighbor, team))
                     continue;
 
-                float movementCost = CalculateMovementCost(current, neighbor);
-                float tentativeGScore = gScore[current] + movementCost;
+                MovementCostData movementCost = CalculateMovementCost(current, neighbor);
+                float tentativeGScore = nodeInfo[current].GScore + movementCost.TotalCost;
 
-                if (tentativeGScore < gScore[neighbor])
+                if (tentativeGScore < nodeInfo[neighbor].GScore)
                 {
-                    cameFrom[neighbor] = current;
-                    gScore[neighbor] = tentativeGScore;
-                    fScore[neighbor] = tentativeGScore + CombinedHeuristic(neighbor, goal);
-                    openSet.Enqueue(neighbor, fScore[neighbor]);
+                    // Расчет эвристики
+                    HeuristicResult neighborHeuristic = CalculateHeuristic(neighbor, goal);
+                    
+                    nodeInfo[neighbor] = new PathNodeInfo(
+                        current,
+                        tentativeGScore,
+                        tentativeGScore + neighborHeuristic.Combined
+                    );
+                    
+                    openSet.Enqueue(neighbor, nodeInfo[neighbor].FScore);
                 }
             }
         }
 
-        ReleasePools(cameFrom, gScore, fScore);
+        NodeInfoPool.Release(nodeInfo);
         return null;
     }
 
@@ -109,16 +162,22 @@ public static class Pathfinder
         return Graph.GetNeighbors(nodePosition);
     }
 
-    private static float CalculateMovementCost(Vector2 current, Vector2 neighbor)
+    private static MovementCostData CalculateMovementCost(Vector2 current, Vector2 neighbor)
     {
-        float baseCost = Vector2.Distance(current, neighbor);
-        float borderNodeCost = Graph.IsBorderNode(neighbor) ? BorderNodePriority : 1.0f;
-        return baseCost * borderNodeCost;
+        MovementCostData cost = new MovementCostData();
+        cost.BaseCost = Vector2.Distance(current, neighbor);
+        cost.BorderFactor = Graph.IsBorderNode(neighbor) ? BorderNodePriority : 1.0f;
+        cost.TotalCost = cost.BaseCost * cost.BorderFactor;
+        return cost;
     }
 
-    private static float CombinedHeuristic(Vector2 a, Vector2 b)
+    private static HeuristicResult CalculateHeuristic(Vector2 a, Vector2 b)
     {
-        return Mathf.Min(ManhattanDistance(a, b), DiagonalDistance(a, b));
+        HeuristicResult result = new HeuristicResult();
+        result.Manhattan = ManhattanDistance(a, b);
+        result.Diagonal = DiagonalDistance(a, b);
+        result.Combined = Mathf.Min(result.Manhattan, result.Diagonal);
+        return result;
     }
 
     private static float ManhattanDistance(Vector2 a, Vector2 b)
@@ -133,14 +192,14 @@ public static class Pathfinder
         return Mathf.Max(dx, dy) + (Mathf.Sqrt(2) - 1) * Mathf.Min(dx, dy);
     }
 
-    private static List<Vector2> ReconstructPath(Dictionary<Vector2, Vector2> cameFrom, Vector2 current)
+    private static List<Vector2> ReconstructPath(Dictionary<Vector2, PathNodeInfo> nodeInfo, Vector2 current)
     {
         var totalPath = ListPool<Vector2>.Get();
         totalPath.Add(current);
 
-        while (cameFrom.ContainsKey(current))
+        while (nodeInfo[current].CameFrom != Vector2.zero)
         {
-            current = cameFrom[current];
+            current = nodeInfo[current].CameFrom;
             totalPath.Add(current);
         }
 
@@ -148,36 +207,26 @@ public static class Pathfinder
         return totalPath;
     }
 
-    private static void ReleasePools(Dictionary<Vector2, Vector2> cameFrom, 
-                                   Dictionary<Vector2, float> gScore, 
-                                   Dictionary<Vector2, float> fScore)
-    {
-        CameFromPool.Release(cameFrom);
-        GScorePool.Release(gScore);
-        FScorePool.Release(fScore);
-    }
-
     public static Vector2 SnapToNearestNode(Vector2 position)
     {
         if (Graph.ContainsNode(position))
             return position;
 
-        Vector2 nearestNode = Vector2.zero;
-        float minDistanceSquared = float.MaxValue;
+        NodeDistanceInfo nearest = new NodeDistanceInfo(Vector2.zero, float.MaxValue);
 
-        _nodes = Graph.GetAllNodes().ToArray();
+        
         for (int i = 0; i < _nodes.Length; i++)
         {
             var node = _nodes[i];
             float distanceSquared = (node.x - position.x) * (node.x - position.x) +
                                     (node.y - position.y) * (node.y - position.y);
-            if (distanceSquared < minDistanceSquared)
+                                    
+            if (distanceSquared < nearest.DistanceSquared)
             {
-                minDistanceSquared = distanceSquared;
-                nearestNode = node;
+                nearest = new NodeDistanceInfo(node, distanceSquared);
             }
         }
 
-        return nearestNode;
+        return nearest.Node;
     }
 }
