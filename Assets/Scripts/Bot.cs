@@ -124,4 +124,16 @@ public class Bot : MonoBehaviour, IBot
     {
         OccupiedNodesSystem.UpdatePosition(lastPosition, Vector2.zero, Team, this);
     }
+
+    void OnDrawGizmos()
+    {
+        if (path != null && path.Count > 0)
+        {
+            Gizmos.color = Color.green;
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                Gizmos.DrawLine(path[i], path[i+1]);
+            }
+        }
+    }
 }

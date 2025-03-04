@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -56,7 +57,10 @@ public static class Pathfinder
     static Pathfinder()
     {
         LoadGraphFromResources();
-        _nodes = Graph.GetAllNodes().ToArray();
+        _nodes = Graph.GetAllNodes()
+            .OrderBy(n => n.x)  // Сначала сортируем по X
+            .ThenBy(n => n.y)   // Затем по Y
+            .ToArray();
     }
 
     private static void LoadGraphFromResources()
@@ -209,18 +213,19 @@ public static class Pathfinder
 
     public static Vector2 SnapToNearestNode(Vector2 position)
     {
+        // Если точка уже узел, возвращаем её
         if (Graph.ContainsNode(position))
             return position;
 
+        // Ищем ближайший узел
         NodeDistanceInfo nearest = new NodeDistanceInfo(Vector2.zero, float.MaxValue);
-
         
         for (int i = 0; i < _nodes.Length; i++)
         {
             var node = _nodes[i];
             float distanceSquared = (node.x - position.x) * (node.x - position.x) +
                                     (node.y - position.y) * (node.y - position.y);
-                                    
+                                
             if (distanceSquared < nearest.DistanceSquared)
             {
                 nearest = new NodeDistanceInfo(node, distanceSquared);
