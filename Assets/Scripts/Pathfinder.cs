@@ -43,24 +43,51 @@ public struct NodeDistanceInfo
     }
 }
 
+
 public static class Pathfinder
 {
     private const string neighborsFileName = "nodes_neighbors";
 
     public static float BorderNodePriority { get; set; }
     public static float MaxPathfindingTime { get; set; } 
+    
+    // Радиус для привязки к нодам (по умолчанию 3.0f - значение из CapsuleGridGenerator.nodeRadius)
+    public static float NodeSnapRadius { get; set; } = 3.0f;
 
     private static readonly ObjectPool<Dictionary<Vector2, PathNodeInfo>> NodeInfoPool = 
         new(() => new Dictionary<Vector2, PathNodeInfo>(50));
     private static Vector2[] _nodes;
+    private static KDTree _kdTree;
 
     static Pathfinder()
     {
         LoadGraphFromResources();
         _nodes = Graph.GetAllNodes()
-            .OrderBy(n => n.x)  // Сначала сортируем по X
-            .ThenBy(n => n.y)   // Затем по Y
+            .OrderBy(n => n.x)
+            .ThenBy(n => n.y)
             .ToArray();
+        
+        InitializeKDTree();
+    }
+
+    private static void InitializeKDTree()
+    {
+        try
+        {
+            Dictionary<Vector2, bool> borderNodes = new Dictionary<Vector2, bool>();
+            
+            foreach (var node in _nodes)
+            {
+                borderNodes[node] = Graph.IsBorderNode(node);
+            }
+            
+            _kdTree = new KDTree(_nodes, borderNodes);
+            Debug.Log($"KD-дерево успешно инициализировано. Количество узлов: {_nodes.Length}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Ошибка при инициализации KD-дерева: {e.Message}");
+        }
     }
 
     private static void LoadGraphFromResources()
@@ -85,12 +112,20 @@ public static class Pathfinder
     {
         float startTime = Time.time;
 
-        start = SnapToNearestNode(start);
-        goal = SnapToNearestNode(goal);
+        // Привязываем исходную и целевую позиции к ближайшим нодам в рамках допустимого радиуса
+        Vector2 startNode = SnapToNearestNode(start);
+        Vector2 goalNode = SnapToNearestNode(goal);
+        
+        // Если не удалось привязать позиции к нодам, возвращаем null
+        if (startNode == start && !Graph.ContainsNode(start) || 
+            goalNode == goal && !Graph.ContainsNode(goal))
+        {
+            Debug.LogWarning($"Не удалось привязать позиции к нодам. Старт: {start}, цель: {goal}");
+            return null;
+        }
 
         var nodeInfo = NodeInfoPool.Get();
         var openSet = new PriorityQueue();
-
         
         for (int i = 0; i < _nodes.Length; i++)
         {
@@ -102,15 +137,15 @@ public static class Pathfinder
         }
 
         // Расчет начального эвристического расстояния
-        HeuristicResult heuristic = CalculateHeuristic(start, goal);
+        HeuristicResult heuristic = CalculateHeuristic(startNode, goalNode);
         
-        nodeInfo[start] = new PathNodeInfo(
+        nodeInfo[startNode] = new PathNodeInfo(
             Vector2.zero, 
             0f, 
             heuristic.Combined
         );
         
-        openSet.Enqueue(start, nodeInfo[start].FScore);
+        openSet.Enqueue(startNode, nodeInfo[startNode].FScore);
 
         while (openSet.Count > 0)
         {
@@ -122,7 +157,7 @@ public static class Pathfinder
 
             var current = openSet.Dequeue();
 
-            if (current == goal)
+            if (current == goalNode)
             {
                 var path = ReconstructPath(nodeInfo, current);
                 NodeInfoPool.Release(nodeInfo);
@@ -144,7 +179,7 @@ public static class Pathfinder
                 if (tentativeGScore < nodeInfo[neighbor].GScore)
                 {
                     // Расчет эвристики
-                    HeuristicResult neighborHeuristic = CalculateHeuristic(neighbor, goal);
+                    HeuristicResult neighborHeuristic = CalculateHeuristic(neighbor, goalNode);
                     
                     nodeInfo[neighbor] = new PathNodeInfo(
                         current,
@@ -211,27 +246,60 @@ public static class Pathfinder
         return totalPath;
     }
 
-    public static Vector2 SnapToNearestNode(Vector2 position)
+    /// <summary>
+    /// Привязывает позицию к ближайшей ноде в пределах заданного радиуса
+    /// </summary>
+    /// <param name="position">Позиция для привязки</param>
+    /// <param name="radius">Радиус поиска (если не указан, используется NodeSnapRadius)</param>
+    /// <returns>Позиция ближайшей ноды в пределах радиуса или исходная позиция, если нода не найдена</returns>
+    public static Vector2 SnapToNearestNode(Vector2 position, float radius = -1)
+    {
+        // Если граф содержит эту точку, возвращаем её как есть
+        if (Graph.ContainsNode(position))
+            return position;
+
+        // Используем заданный радиус или значение по умолчанию
+        float searchRadius = radius > 0 ? radius : NodeSnapRadius;
+
+        if (_kdTree != null)
+        {
+            // Используем KD-дерево для быстрого поиска с ограничением радиуса
+            return _kdTree.SnapToNearest(position, searchRadius);
+        }
+        else
+        {
+            // Запасной вариант с линейным поиском
+            Debug.LogWarning("KD-дерево не инициализировано, используется линейный поиск");
+            return SnapToNearestNodeLinear(position, searchRadius);
+        }
+    }
+    
+    /// <summary>
+    /// Линейный поиск ближайшего узла в заданном радиусе (запасной вариант)
+    /// </summary>
+    private static Vector2 SnapToNearestNodeLinear(Vector2 position, float radius)
     {
         // Если точка уже узел, возвращаем её
         if (Graph.ContainsNode(position))
             return position;
 
-        // Ищем ближайший узел
-        NodeDistanceInfo nearest = new NodeDistanceInfo(Vector2.zero, float.MaxValue);
+        // Максимальное расстояние для поиска
+        float maxDistSq = radius * radius;
+        NodeDistanceInfo nearest = new NodeDistanceInfo(position, maxDistSq + 1); // Изначально за пределами радиуса
         
         for (int i = 0; i < _nodes.Length; i++)
         {
             var node = _nodes[i];
             float distanceSquared = (node.x - position.x) * (node.x - position.x) +
-                                    (node.y - position.y) * (node.y - position.y);
+                                   (node.y - position.y) * (node.y - position.y);
                                 
-            if (distanceSquared < nearest.DistanceSquared)
+            if (distanceSquared < nearest.DistanceSquared && distanceSquared <= maxDistSq)
             {
                 nearest = new NodeDistanceInfo(node, distanceSquared);
             }
         }
 
-        return nearest.Node;
+        // Если нашли ноду в радиусе, возвращаем её, иначе - исходную позицию
+        return nearest.DistanceSquared <= maxDistSq ? nearest.Node : position;
     }
 }
