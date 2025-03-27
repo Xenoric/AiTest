@@ -11418,15 +11418,15 @@ MonoBehaviour:
       avoidanceOffset: 2
       maxAvoidanceTime: 3
   commonPathSettings:
-    closeEnoughRadius: 50
-    travelStopRadius: 30
+    closeEnoughRadius: 30
+    travelStopRadius: 27
     updateFrequency: 0.3
     targetPredictionTime: 0.1
   commonAvoidanceSettings:
     allyDetectionDistance: 5
     pathRecalculationInterval: 0.2
     avoidanceOffset: 4
-    maxAvoidanceTime: 3
+    maxAvoidanceTime: 0
 --- !u!1 &204602582
 GameObject:
   m_ObjectHideFlags: 0
@@ -14727,7 +14727,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 1
+  costOverride: -1
   linkType: 2
   clearance: 6
   navTag: 0
@@ -26571,6 +26571,73 @@ MonoBehaviour:
     prevSegIndex: 10
     nextSegIndex: -1
     owner: {fileID: 371229450}
+  - start: {x: -49.537758, y: 10.55651}
+    length: 6.032913
+    dirNorm: {x: 1, y: 0}
+    cellClearances:
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    - 6.1
+    prevSegIndex: -1
+    nextSegIndex: -1
+    owner: {fileID: 371229450}
   - start: {x: 43.304794, y: 10.4605}
     length: 6.1304092
     dirNorm: {x: 1, y: 0}
@@ -26639,9 +26706,9 @@ MonoBehaviour:
     prevSegIndex: -1
     nextSegIndex: -1
     owner: {fileID: 371229450}
-  - start: {x: -43.233948, y: 24.935001}
+  - start: {x: -43.233948, y: 24.935051}
     length: 26.125866
-    dirNorm: {x: 0.9999993, y: 0.0012094927}
+    dirNorm: {x: 0.9999993, y: 0.0012113908}
     cellClearances:
     - 6.1
     - 6.1
@@ -26841,76 +26908,6 @@ MonoBehaviour:
     - 6.1
     - 6.1
     - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    - 6.1
-    prevSegIndex: -1
-    nextSegIndex: -1
-    owner: {fileID: 371229450}
-  - start: {x: -49.5376, y: 10.5565}
-    length: 6.285801
-    dirNorm: {x: 1, y: 0}
-    cellClearances:
     - 6.1
     - 6.1
     - 6.1
@@ -28851,9 +28848,9 @@ MonoBehaviour:
     y: -29.6367
     width: 328.81772
     height: 116.777695
-  totalLineLength: 580.03766
+  totalLineLength: 579.7847
   bakeVersion: 2
-  bakeIteration: 42
+  bakeIteration: 49
 --- !u!1 &372870153
 GameObject:
   m_ObjectHideFlags: 0
@@ -41592,14 +41589,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   costOverride: -1
-  linkType: 1
+  linkType: 2
   clearance: 6
   navTag: 0
-  avgWaitTime: 0
-  maxTraversableDistance: 0
+  avgWaitTime: 0.1
+  maxTraversableDistance: 150
   autoMap: 1
-  start: {x: 7.511078, y: -5.572529}
-  goal: {x: -7.511093, y: 5.572529}
+  start: {x: 8.159485, y: -5.668297}
+  goal: {x: -107.27477, y: 25.897448}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -112585,7 +112582,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: 1
+  costOverride: -1
   linkType: 2
   clearance: 6
   navTag: 0

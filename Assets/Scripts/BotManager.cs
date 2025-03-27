@@ -173,22 +173,49 @@ public class BotManager : MonoBehaviour
     // Вспомогательный метод для назначения целей одной команде
     private void AssignTargetsToTeam(List<GameObject> team, List<GameObject> targetTeam)
     {
-        foreach (GameObject bot in team)
+        if (targetTeam.Count == 0 || team.Count == 0) 
+            return;
+    
+        // Создаем копию списка целевой команды, чтобы не изменять оригинал
+        List<GameObject> availableTargets = new List<GameObject>(targetTeam);
+    
+        // Перемешиваем список доступных целей для равномерности
+        ShuffleList(availableTargets);
+    
+        // Распределяем цели равномерно
+        for (int i = 0; i < team.Count; i++)
         {
-            if (targetTeam.Count == 0) break;
-            
-            // Используем CustomFollower вместо Follower
+            GameObject bot = team[i];
+        
+            // Выбираем цель по очереди, с учетом цикличности
+            int targetIndex = i % availableTargets.Count;
+            GameObject target = availableTargets[targetIndex];
+        
+            // Назначаем цель
             CustomFollower follower = bot.GetComponent<CustomFollower>();
             if (follower != null)
             {
-                // Выбираем случайного бота из целевой команды
-                GameObject target = targetTeam[Random.Range(0, targetTeam.Count)];
                 follower.target = target.transform;
-                
-                Debug.Log($"Боту {bot.name} назначена цель {target.name}");
+                Debug.Log($"Боту {bot.name} назначена цель {target.name} (индекс {targetIndex})");
             }
         }
     }
+    
+    
+
+    // Вспомогательный метод для перемешивания списка (алгоритм Фишера-Йейтса)
+     private void ShuffleList<T>(List<T> list)
+     {
+         System.Random rng = new System.Random();
+         int n = list.Count;
+     
+         while (n > 1)
+         {
+             n--;
+             int k = rng.Next(n + 1);
+             (list[k], list[n]) = (list[n], list[k]);
+         }
+     }
     
     // Метод для переназначения целей (можно вызывать при необходимости)
     public void ReassignTargets()

@@ -125,6 +125,12 @@ public class CustomFollower : MonoBehaviour
             checkTimer = 0f;
             CheckForBlockingAllies();
         }
+        
+        //для проверки близости союзников
+        if (!isAvoiding && navAgent.IsIdle)
+        {
+            CheckForTooCloseAllies();
+        }
     }
     
     private void UpdatePathToTarget()
@@ -294,6 +300,54 @@ public class CustomFollower : MonoBehaviour
         Vector2 avoidancePoint = allyPosition + avoidDir * avoidDistance;
         
         return avoidancePoint;
+    }
+    
+    // Метод для проверки и отталкивания от близких союзников
+    private void CheckForTooCloseAllies()
+    {
+        if (teammates == null || teammates.Count == 0) 
+            return;
+        
+        Vector2 myPosition = transform.position;
+        GameObject tooCloseAlly = null;
+        float closestDistance = float.MaxValue;
+    
+        // Ищем ближайшего союзника, который стоит слишком близко
+        foreach (GameObject ally in teammates)
+        {
+            if (ally == null || ally == gameObject) 
+                continue;
+            
+            float distance = Vector2.Distance(myPosition, ally.transform.position);
+        
+            // Если союзник ближе минимального расстояния
+            if (distance < allyDetectionDistance * 0.7f && distance < closestDistance)
+            {
+                tooCloseAlly = ally;
+                closestDistance = distance;
+            }
+        }
+    
+        // Если нашли слишком близкого союзника
+        if (tooCloseAlly != null)
+        {
+            Vector2 directionFromAlly = myPosition - (Vector2)tooCloseAlly.transform.position;
+        
+            // Если направление нулевое (находимся в той же точке), создаем случайное направление
+            if (directionFromAlly.magnitude < 0.1f)
+            {
+                directionFromAlly = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+            }
+        
+            directionFromAlly.Normalize();
+        
+            // Вычисляем точку отхода
+            Vector2 retreatPoint = myPosition + directionFromAlly * allyDetectionDistance * 1.5f;
+        
+            // Создаем путь отхода
+            navAgent.PathTo(retreatPoint);
+            Debug.Log($"Бот {name} отходит от слишком близкого союзника {tooCloseAlly.name}");
+        }
     }
     
     // Методы настройки
