@@ -119,7 +119,7 @@ public class BotManager : MonoBehaviour
             
             // Создание бота
             GameObject bot = Instantiate(botPrefab, spawnPoint.position, Quaternion.identity, transform);
-            bot.name = "Bot_Team" + teamID + "_" + i+1;
+            bot.name = "Bot_Team" + teamID + "_" + (i+1);
             
             // Получаем все SpriteRenderer в иерархии объекта
             SpriteRenderer[] renderers = bot.GetComponentsInChildren<SpriteRenderer>();

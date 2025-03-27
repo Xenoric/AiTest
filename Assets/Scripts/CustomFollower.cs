@@ -221,8 +221,8 @@ public class CustomFollower : MonoBehaviour
         float distanceToGoal = directionToGoal.magnitude;
         
         // Если цель очень близко, не нужно избегать
-        if (distanceToGoal < travelStopRadius * 2f) 
-            return null;
+        //if (distanceToGoal < travelStopRadius * 2f) 
+        //    return null;
             
         directionToGoal /= distanceToGoal; // Нормализация
         
@@ -244,8 +244,8 @@ public class CustomFollower : MonoBehaviour
             float projection = Vector2.Dot(allyPosition - myPosition, directionToGoal);
             
             // Игнорируем союзников позади нас или за целью
-            if (projection <= 0 || projection >= distanceToGoal * 0.95f) 
-                continue;
+            //if (projection <= 0 || projection >= distanceToGoal * 0.95f) 
+            //    continue;
                 
             // Вычисляем точку проекции на линии пути
             Vector2 projectedPoint = myPosition + directionToGoal * projection;
