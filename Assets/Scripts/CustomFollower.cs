@@ -2,399 +2,760 @@ using UnityEngine;
 using PathBerserker2d;
 using System.Collections.Generic;
 
+/// <summary>
+/// Улучшенный компонент следования с интеграцией PathBerserker2d и избеганием союзников/врагов
+/// </summary>
 [RequireComponent(typeof(NavAgent))]
 public class CustomFollower : MonoBehaviour
 {
-    [Header("Following")]
-    [SerializeField] public Transform target;
-    [SerializeField] private float closeEnoughRadius = 3.0f;
-    [SerializeField] private float travelStopRadius = 1.0f;
-    [SerializeField] private float updateFrequency = 0.3f;
-    [SerializeField] private float targetPredictionTime = 0.1f; // Предсказание движения цели
-    
-    [Header("Ally Avoidance")]
-    [SerializeField] private float allyDetectionDistance = 1.5f;
-    [SerializeField] private float avoidanceOffset = 2.0f;
-    [SerializeField] private float avoidanceCheckInterval = 0.3f;
-    [SerializeField] private float maxAvoidanceTime = 4f; // Максимальное время обхода
-    [SerializeField] private bool enableAvoidance = true;
-    
+    [Header("Target")]
+    public Transform target;
+
     // Компоненты
     private NavAgent navAgent;
-    private List<GameObject> teammates = new List<GameObject>();
-    
-    // Состояние
-    private float updateTimer = 0f;
-    private float checkTimer = 0f;
-    private float avoidanceTimer = 0f;
-    private bool isAvoiding = false;
-    private GameObject blockingAlly = null;
+    private BotManager.PathFollowingSettings pathSettings;
+    private BotManager.AvoidanceSettings avoidanceSettings;
+
+    // Кэшированные списки для оптимизации
+    private List<GameObject> teammates;
+    private List<GameObject> enemies;
+
+    // Состояние следования
     private Vector2 lastTargetPosition;
-    private int failedPathAttempts = 0;
-    
+    private Vector2 lastValidTargetPosition;
+    private bool hasValidTarget;
+
+    // Таймеры для оптимизации производительности
+    private float pathUpdateTimer;
+    private float allyCheckTimer;
+    private float enemyCheckTimer;
+
+    // Состояние избегания
+    private bool isAvoidingAlly;
+    private bool isAvoidingEnemy;
+    private float avoidanceTimer;
+    private GameObject currentObstacle;
+    private Vector2 avoidanceDestination;
+
+    // Счетчики для обработки ошибок
+    private int consecutivePathFailures;
+
     private void Awake()
     {
         navAgent = GetComponent<NavAgent>();
+        InitializeFromBotManager();
     }
-    
+
     private void Start()
     {
-        // Определяем союзников из нашей команды
-        if (BotManager.Instance != null)
+        CacheTeamLists();
+        InitializeTargetTracking();
+        SubscribeToNavAgentEvents();
+    }
+
+    /// <summary>
+    /// Инициализация настроек из BotManager
+    /// </summary>
+    private void InitializeFromBotManager()
+    {
+        if (BotManager.Instance == null)
         {
-            if (BotManager.Instance.IsInTeam1(gameObject))
-                teammates = BotManager.Instance.GetTeam1Bots();
-            else if (BotManager.Instance.IsInTeam2(gameObject))
-                teammates = BotManager.Instance.GetTeam2Bots();
+            Debug.LogError($"BotManager.Instance is null for {name}. Using default settings.");
+            return;
         }
-        
-        // Начальный путь к цели
+
+        pathSettings = BotManager.Instance.GetPathSettings(gameObject);
+        avoidanceSettings = BotManager.Instance.GetAvoidanceSettings(gameObject);
+    }
+
+    /// <summary>
+    /// Кэширование списков команд для оптимизации
+    /// </summary>
+    private void CacheTeamLists()
+    {
+        if (BotManager.Instance == null) return;
+
+        teammates = BotManager.Instance.GetTeamBots(BotManager.Instance.GetBotTeamID(gameObject));
+        enemies = BotManager.Instance.GetEnemyBots(gameObject);
+    }
+
+    /// <summary>
+    /// Инициализация отслеживания цели
+    /// </summary>
+    private void InitializeTargetTracking()
+    {
         if (target != null)
         {
             lastTargetPosition = target.position;
-            navAgent.PathTo(target.position);
+            lastValidTargetPosition = target.position;
+            hasValidTarget = true;
+
+            // Начальный путь к цели с использованием PathBerserker2d
+            if (navAgent.HasValidPosition)
+            {
+                navAgent.PathTo(target.position);
+            }
         }
-        
-        // Подписываемся на события
+    }
+
+    /// <summary>
+    /// Подписка на события NavAgent
+    /// </summary>
+    private void SubscribeToNavAgentEvents()
+    {
         navAgent.OnReachedGoal += OnReachedGoal;
         navAgent.OnFailedToFindPath += OnFailedToFindPath;
     }
-    
+
     private void OnDestroy()
     {
-        // Отписываемся от событий
+        UnsubscribeFromNavAgentEvents();
+    }
+
+    /// <summary>
+    /// Отписка от событий NavAgent
+    /// </summary>
+    private void UnsubscribeFromNavAgentEvents()
+    {
         if (navAgent != null)
         {
             navAgent.OnReachedGoal -= OnReachedGoal;
             navAgent.OnFailedToFindPath -= OnFailedToFindPath;
         }
     }
-    
+
+    /// <summary>
+    /// Обработчик достижения цели
+    /// </summary>
     private void OnReachedGoal(NavAgent agent)
     {
-        // Сбрасываем состояние избегания
-        isAvoiding = false;
-        avoidanceTimer = 0f;
-        failedPathAttempts = 0;
+        ResetAvoidanceState();
+        consecutivePathFailures = 0;
     }
-    
+
+    /// <summary>
+    /// Обработчик неудачи поиска пути
+    /// </summary>
     private void OnFailedToFindPath(NavAgent agent)
     {
-        failedPathAttempts++;
-        
-        // Если много неудачных попыток, сбрасываем состояние избегания
-        if (failedPathAttempts >= 3)
+        consecutivePathFailures++;
+
+        // При множественных неудачах сбрасываем состояние избегания
+        if (consecutivePathFailures >= 3)
         {
-            isAvoiding = false;
-            avoidanceTimer = 0f;
+            ResetAvoidanceState();
+            TryAlternativePathfinding();
         }
     }
-    
+
+    /// <summary>
+    /// Сброс состояния избегания
+    /// </summary>
+    private void ResetAvoidanceState()
+    {
+        isAvoidingAlly = false;
+        isAvoidingEnemy = false;
+        avoidanceTimer = 0f;
+        currentObstacle = null;
+    }
+
+    /// <summary>
+    /// Попытка альтернативного поиска пути при неудачах
+    /// </summary>
+    private void TryAlternativePathfinding()
+    {
+        if (!hasValidTarget) return;
+
+        // Попробуем путь к последней валидной позиции цели
+        if (navAgent.HasValidPosition)
+        {
+            navAgent.PathTo(lastValidTargetPosition);
+        }
+    }
+
     private void Update()
     {
-        if (target == null || !navAgent.enabled)
-            return;
-        
-        // Обновление таймеров
-        updateTimer += Time.deltaTime;
-        checkTimer += Time.deltaTime;
-        
-        if (isAvoiding)
+        if (!IsValidForUpdate()) return;
+
+        UpdateTimers();
+        HandleAvoidanceTimeout();
+
+        // Основные обновления с оптимизированными интервалами
+        if (ShouldUpdatePath())
         {
-            avoidanceTimer += Time.deltaTime;
-            
-            // Если обход длится слишком долго, принудительно возвращаемся к цели
-            if (avoidanceTimer > maxAvoidanceTime)
-            {
-                isAvoiding = false;
-                avoidanceTimer = 0f;
-                TryDirectPathToTarget();
-            }
-        }
-        
-        // Обновление пути к цели
-        if (updateTimer >= updateFrequency)
-        {
-            updateTimer = 0f;
             UpdatePathToTarget();
         }
-        
-        // Проверка на блокирующих союзников
-        if (checkTimer >= avoidanceCheckInterval && enableAvoidance && navAgent.IsFollowingAPath && !isAvoiding)
+
+        if (ShouldCheckForAllies())
         {
-            checkTimer = 0f;
             CheckForBlockingAllies();
         }
-        
-        //для проверки близости союзников
-        if (!isAvoiding && navAgent.IsIdle)
+
+        if (ShouldCheckForEnemies())
         {
-            CheckForTooCloseAllies();
+            CheckForNearbyEnemies();
+        }
+
+        // Проверка на слишком близких союзников когда агент простаивает
+        if (navAgent.IsIdle && !IsInAvoidanceMode())
+        {
+            HandleIdleProximityCheck();
         }
     }
-    
+
+    /// <summary>
+    /// Проверка валидности для обновления
+    /// </summary>
+    private bool IsValidForUpdate()
+    {
+        return target != null && navAgent != null && navAgent.enabled && pathSettings != null;
+    }
+
+    /// <summary>
+    /// Обновление таймеров
+    /// </summary>
+    private void UpdateTimers()
+    {
+        pathUpdateTimer += Time.deltaTime;
+        allyCheckTimer += Time.deltaTime;
+        enemyCheckTimer += Time.deltaTime;
+
+        if (IsInAvoidanceMode())
+        {
+            avoidanceTimer += Time.deltaTime;
+        }
+    }
+
+    /// <summary>
+    /// Обработка таймаута избегания
+    /// </summary>
+    private void HandleAvoidanceTimeout()
+    {
+        if (IsInAvoidanceMode() && avoidanceTimer > avoidanceSettings.maxAvoidanceTime)
+        {
+            ResetAvoidanceState();
+            TryDirectPathToTarget();
+        }
+    }
+
+    /// <summary>
+    /// Проверка необходимости обновления пути
+    /// </summary>
+    private bool ShouldUpdatePath()
+    {
+        return pathUpdateTimer >= pathSettings.updateFrequency;
+    }
+
+    /// <summary>
+    /// Проверка необходимости проверки союзников
+    /// </summary>
+    private bool ShouldCheckForAllies()
+    {
+        return allyCheckTimer >= avoidanceSettings.pathRecalculationInterval
+               && navAgent.IsFollowingAPath
+               && !IsInAvoidanceMode();
+    }
+
+    /// <summary>
+    /// Проверка необходимости проверки врагов
+    /// </summary>
+    private bool ShouldCheckForEnemies()
+    {
+        return avoidanceSettings.enableEnemyAvoidance
+               && enemyCheckTimer >= avoidanceSettings.enemyCheckInterval
+               && !isAvoidingEnemy;
+    }
+
+    /// <summary>
+    /// Проверка режима избегания
+    /// </summary>
+    private bool IsInAvoidanceMode()
+    {
+        return isAvoidingAlly || isAvoidingEnemy;
+    }
+
+    /// <summary>
+    /// Обновление пути к цели с улучшенной логикой
+    /// </summary>
     private void UpdatePathToTarget()
     {
-        if (target == null) return;
-    
-        Vector2 targetPos = target.position;
-        float distToTarget = Vector2.Distance(transform.position, targetPos);
-    
-        // Предсказываем движение цели
-        if (targetPredictionTime > 0 && Vector2.Distance(targetPos, lastTargetPosition) > 0.1f)
+        pathUpdateTimer = 0f;
+
+        if (!hasValidTarget) return;
+
+        Vector2 currentTargetPos = target.position;
+        Vector2 myPosition = transform.position;
+        float distanceToTarget = Vector2.Distance(myPosition, currentTargetPos);
+
+        // Предсказание движения цели
+        Vector2 predictedTargetPos = CalculatePredictedTargetPosition(currentTargetPos);
+
+        // Обновляем отслеживание позиции цели
+        UpdateTargetPositionTracking(currentTargetPos);
+
+        // Логика дистанции и остановки
+        if (HandleProximityLogic(distanceToTarget, predictedTargetPos))
         {
-            Vector2 targetVelocity = (targetPos - lastTargetPosition) / updateFrequency;
-            targetPos += targetVelocity * targetPredictionTime;
+            return; // Обработка завершена в методе
         }
-    
-        // Обновляем позицию цели
-        lastTargetPosition = target.position;
-    
-        // ВАЖНОЕ ИЗМЕНЕНИЕ: Улучшенная логика остановки
-        if (distToTarget < travelStopRadius)
+
+        // Обновление пути если не в режиме избегания
+        if (!IsInAvoidanceMode() && distanceToTarget > pathSettings.closeEnoughRadius)
         {
-            // Если мы слишком близко, останавливаемся
+            RequestPathToTarget(predictedTargetPos);
+        }
+    }
+
+    /// <summary>
+    /// Расчет предсказанной позиции цели
+    /// </summary>
+    private Vector2 CalculatePredictedTargetPosition(Vector2 currentPos)
+    {
+        if (pathSettings.targetPredictionTime <= 0f) return currentPos;
+
+        Vector2 targetVelocity = (currentPos - lastTargetPosition) / pathSettings.updateFrequency;
+
+        // Применяем предсказание только если цель движется достаточно быстро
+        if (targetVelocity.magnitude > 0.1f)
+        {
+            return currentPos + targetVelocity * pathSettings.targetPredictionTime;
+        }
+
+        return currentPos;
+    }
+
+    /// <summary>
+    /// Обновление отслеживания позиции цели
+    /// </summary>
+    private void UpdateTargetPositionTracking(Vector2 currentPos)
+    {
+        lastTargetPosition = currentPos;
+
+        // Обновляем последнюю валидную позицию если агент может туда добраться
+        if (navAgent.HasValidPosition)
+        {
+            lastValidTargetPosition = currentPos;
+        }
+    }
+
+    /// <summary>
+    /// Обработка логики близости к цели
+    /// </summary>
+    private bool HandleProximityLogic(float distance, Vector2 targetPos)
+    {
+        // Слишком близко - останавливаемся или отступаем
+        if (distance < pathSettings.travelStopRadius)
+        {
             navAgent.Stop();
-        
-            // Если мы ОЧЕНЬ близко, активно отходим назад
-            if (distToTarget < travelStopRadius * 0.7f) 
+
+            // Активное отступление при критической близости
+            if (distance < pathSettings.travelStopRadius * 0.7f)
             {
-                Vector2 directionFromTarget = (Vector2)transform.position - targetPos;
-                directionFromTarget.Normalize();
-            
-                // Рассчитываем точку отступления
-                Vector2 retreatPoint = targetPos + directionFromTarget * (travelStopRadius * 1.2f);
-                navAgent.PathTo(retreatPoint);
-            
-                Debug.Log($"Бот {name} отступает от цели {target.name}, расстояние: {distToTarget}");
+                ExecuteRetreatFromTarget(targetPos);
             }
-            return;
+            return true;
         }
-    
-        // Если мы находимся в "зоне комфорта" (между travelStopRadius и closeEnoughRadius)
-        // мы не обновляем путь, чтобы предотвратить постоянные перемещения
-        if (distToTarget >= travelStopRadius && distToTarget <= closeEnoughRadius)
+
+        // Зона комфорта - не обновляем путь
+        if (distance >= pathSettings.travelStopRadius && distance <= pathSettings.closeEnoughRadius)
         {
-            // Находимся на нормальном расстоянии, ничего не делаем
-            return;
+            return true;
         }
-    
-        // Если не в режиме избегания и слишком далеко, следуем к цели
-        if (!isAvoiding && distToTarget > closeEnoughRadius)
+
+        return false;
+    }
+
+    /// <summary>
+    /// Выполнение отступления от цели
+    /// </summary>
+    private void ExecuteRetreatFromTarget(Vector2 targetPos)
+    {
+        Vector2 retreatDirection = ((Vector2)transform.position - targetPos).normalized;
+        Vector2 retreatPoint = targetPos + retreatDirection * (pathSettings.travelStopRadius * 1.2f);
+
+        if (navAgent.HasValidPosition)
+        {
+            navAgent.PathTo(retreatPoint);
+        }
+    }
+
+    /// <summary>
+    /// Запрос пути к цели через PathBerserker2d
+    /// </summary>
+    private void RequestPathToTarget(Vector2 targetPos)
+    {
+        if (navAgent.HasValidPosition)
         {
             navAgent.UpdatePath(targetPos);
         }
     }
-    
+
+    /// <summary>
+    /// Попытка прямого пути к цели
+    /// </summary>
     private void TryDirectPathToTarget()
     {
-        if (target != null)
+        if (hasValidTarget && navAgent.HasValidPosition)
         {
             navAgent.UpdatePath(target.position);
-            Debug.Log($"Бот {name} возвращается напрямую к цели {target.name}");
         }
     }
-    
+
+    /// <summary>
+    /// Проверка блокирующих союзников
+    /// </summary>
     private void CheckForBlockingAllies()
     {
-        if (target == null) return;
-        
-        // Находим блокирующего союзника
-        GameObject ally = FindBlockingTeammate();
-        
-        if (ally != null)
+        allyCheckTimer = 0f;
+
+        if (!hasValidTarget || teammates == null) return;
+
+        GameObject blockingAlly = FindBlockingTeammate();
+
+        if (blockingAlly != null)
         {
-            // Союзник найден, переходим в режим обхода
-            blockingAlly = ally;
-            Vector2 avoidancePoint = CalculateAvoidancePoint(blockingAlly.transform.position);
-            
-            isAvoiding = true;
-            avoidanceTimer = 0f;
-            navAgent.UpdatePath(avoidancePoint);
-            
-            Debug.Log($"Бот {name} избегает {blockingAlly.name}");
+            InitiateAllyAvoidance(blockingAlly);
         }
     }
-    
+
+    /// <summary>
+    /// Инициация избегания союзника
+    /// </summary>
+    private void InitiateAllyAvoidance(GameObject ally)
+    {
+        currentObstacle = ally;
+        avoidanceDestination = CalculateAvoidancePoint(ally.transform.position, false);
+
+        isAvoidingAlly = true;
+        avoidanceTimer = 0f;
+
+        if (navAgent.HasValidPosition)
+        {
+            navAgent.UpdatePath(avoidanceDestination);
+        }
+    }
+
+    /// <summary>
+    /// Проверка ближайших врагов для избегания
+    /// </summary>
+    private void CheckForNearbyEnemies()
+    {
+        enemyCheckTimer = 0f;
+
+        if (!avoidanceSettings.enableEnemyAvoidance || enemies == null) return;
+
+        GameObject nearestEnemy = FindNearestThreat();
+
+        if (nearestEnemy != null)
+        {
+            InitiateEnemyAvoidance(nearestEnemy);
+        }
+    }
+
+    /// <summary>
+    /// Поиск ближайшей угрозы среди врагов
+    /// </summary>
+    private GameObject FindNearestThreat()
+    {
+        Vector2 myPosition = transform.position;
+        GameObject nearestEnemy = null;
+        float nearestDistance = avoidanceSettings.enemyDetectionDistance;
+
+        foreach (GameObject enemy in enemies)
+        {
+            if (enemy == null) continue;
+
+            float distance = Vector2.Distance(myPosition, enemy.transform.position);
+
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestEnemy = enemy;
+            }
+        }
+
+        return nearestEnemy;
+    }
+
+    /// <summary>
+    /// Инициация избегания врага
+    /// </summary>
+    private void InitiateEnemyAvoidance(GameObject enemy)
+    {
+        currentObstacle = enemy;
+        avoidanceDestination = CalculateAvoidancePoint(enemy.transform.position, true);
+
+        isAvoidingEnemy = true;
+        avoidanceTimer = 0f;
+
+        if (navAgent.HasValidPosition)
+        {
+            navAgent.UpdatePath(avoidanceDestination);
+        }
+    }
+
+    /// <summary>
+    /// Поиск блокирующего союзника
+    /// </summary>
     private GameObject FindBlockingTeammate()
     {
-        if (teammates.Count == 0 || target == null) 
+        if (teammates == null || teammates.Count == 0 || !hasValidTarget)
             return null;
-        
+
         Vector2 myPosition = transform.position;
         Vector2 goalPosition = target.position;
-        Vector2 directionToGoal = goalPosition - myPosition;
-        float distanceToGoal = directionToGoal.magnitude;
-        
-        // Если цель очень близко, не нужно избегать
-        //if (distanceToGoal < travelStopRadius * 2f) 
-        //    return null;
-            
-        directionToGoal /= distanceToGoal; // Нормализация
-        
+        Vector2 pathDirection = (goalPosition - myPosition).normalized;
+
         foreach (GameObject ally in teammates)
         {
-            if (ally == null || ally == gameObject) 
-                continue;
-                
-            Vector2 allyPosition = ally.transform.position;
-            
-            // Расстояние до союзника
-            float distanceToAlly = Vector2.Distance(myPosition, allyPosition);
-            
-            // Если союзник слишком далеко, пропускаем
-            if (distanceToAlly > allyDetectionDistance * 2f)
-                continue;
-                
-            // Вычисляем проекцию союзника на линию пути
-            float projection = Vector2.Dot(allyPosition - myPosition, directionToGoal);
-            
-            // Игнорируем союзников позади нас или за целью
-            //if (projection <= 0 || projection >= distanceToGoal * 0.95f) 
-            //    continue;
-                
-            // Вычисляем точку проекции на линии пути
-            Vector2 projectedPoint = myPosition + directionToGoal * projection;
-            
-            // Расстояние от союзника до линии пути
-            float distanceFromPath = Vector2.Distance(allyPosition, projectedPoint);
-            
-            // Если союзник достаточно близко к пути
-            if (distanceFromPath < allyDetectionDistance)
+            if (ally == null || ally == gameObject) continue;
+
+            if (IsAllyBlockingPath(ally, myPosition, pathDirection))
             {
                 return ally;
             }
         }
-        
+
         return null;
     }
-    
-    private Vector2 CalculateAvoidancePoint(Vector2 allyPosition)
+
+    /// <summary>
+    /// Проверка блокирует ли союзник путь
+    /// </summary>
+    private bool IsAllyBlockingPath(GameObject ally, Vector2 myPosition, Vector2 pathDirection)
     {
-        if (target == null)
-            return transform.position;
-            
+        Vector2 allyPosition = ally.transform.position;
+        float distanceToAlly = Vector2.Distance(myPosition, allyPosition);
+
+        // Союзник слишком далеко
+        if (distanceToAlly > avoidanceSettings.allyDetectionDistance * 2f)
+            return false;
+
+        // Проекция союзника на путь
+        float projection = Vector2.Dot(allyPosition - myPosition, pathDirection);
+
+        // Союзник позади нас
+        if (projection <= 0) return false;
+
+        // Расстояние от союзника до линии пути
+        Vector2 projectedPoint = myPosition + pathDirection * projection;
+        float distanceFromPath = Vector2.Distance(allyPosition, projectedPoint);
+
+        return distanceFromPath < avoidanceSettings.allyDetectionDistance;
+    }
+
+    /// <summary>
+    /// Расчет точки обхода препятствия
+    /// </summary>
+    private Vector2 CalculateAvoidancePoint(Vector2 obstaclePosition, bool isEnemy)
+    {
+        if (!hasValidTarget) return transform.position;
+
         Vector2 myPosition = transform.position;
         Vector2 targetPosition = target.position;
-        
-        // Направление к цели
-        Vector2 dirToTarget = (targetPosition - myPosition).normalized;
-        
-        // Расстояние между мной и целью
-        float distanceToTarget = Vector2.Distance(myPosition, targetPosition);
-        
-        // Перпендикулярный вектор для обхода
-        Vector2 perpendicularDir = new Vector2(-dirToTarget.y, dirToTarget.x);
-        
-        // Определяем, с какой стороны обходить
-        Vector2 toAlly = allyPosition - myPosition;
-        if (Vector2.Dot(toAlly, perpendicularDir) < 0)
-            perpendicularDir = -perpendicularDir;
-        
-        // Точка обхода: около 45 градусов от прямого направления
-        // Создаем гибрид между боковым и вперед направлениями
-        Vector2 avoidDir = (dirToTarget + perpendicularDir).normalized;
-        
-        // Рассчитываем точку обхода на расстоянии, пропорциональном от союзника до цели
-        float avoidDistance = Mathf.Min(avoidanceOffset, distanceToTarget * 0.5f);
-        Vector2 avoidancePoint = allyPosition + avoidDir * avoidDistance;
-        
+        Vector2 directionToTarget = (targetPosition - myPosition).normalized;
+
+        // Выбираем дистанцию избегания в зависимости от типа препятствия
+        float avoidanceDistance = isEnemy ?
+            avoidanceSettings.enemyAvoidanceDistance :
+            avoidanceSettings.avoidanceOffset;
+
+        // Перпендикулярное направление для обхода
+        Vector2 perpendicularDirection = new Vector2(-directionToTarget.y, directionToTarget.x);
+
+        // Определяем сторону обхода
+        Vector2 toObstacle = obstaclePosition - myPosition;
+        if (Vector2.Dot(toObstacle, perpendicularDirection) < 0)
+        {
+            perpendicularDirection = -perpendicularDirection;
+        }
+
+        // Комбинируем направление к цели и перпендикулярное направление
+        Vector2 avoidanceDirection = (directionToTarget + perpendicularDirection).normalized;
+
+        // Рассчитываем точку обхода
+        Vector2 avoidancePoint = obstaclePosition + avoidanceDirection * avoidanceDistance;
+
+        // Для врагов добавляем дополнительное смещение от цели
+        if (isEnemy)
+        {
+            Vector2 awayFromTarget = (myPosition - targetPosition).normalized;
+            avoidancePoint += awayFromTarget * (avoidanceDistance * 0.3f);
+        }
+
         return avoidancePoint;
     }
-    
-    // Метод для проверки и отталкивания от близких союзников
-    private void CheckForTooCloseAllies()
+
+    /// <summary>
+    /// Обработка проверки близости при простое агента
+    /// </summary>
+    private void HandleIdleProximityCheck()
     {
-        if (teammates == null || teammates.Count == 0) 
-            return;
-        
-        Vector2 myPosition = transform.position;
-        GameObject tooCloseAlly = null;
-        float closestDistance = float.MaxValue;
-    
-        // Ищем ближайшего союзника, который стоит слишком близко
-        foreach (GameObject ally in teammates)
-        {
-            if (ally == null || ally == gameObject) 
-                continue;
-            
-            float distance = Vector2.Distance(myPosition, ally.transform.position);
-        
-            // Если союзник ближе минимального расстояния
-            if (distance < allyDetectionDistance * 0.7f && distance < closestDistance)
-            {
-                tooCloseAlly = ally;
-                closestDistance = distance;
-            }
-        }
-    
-        // Если нашли слишком близкого союзника
+        GameObject tooCloseAlly = FindTooCloseAlly();
+
         if (tooCloseAlly != null)
         {
-            Vector2 directionFromAlly = myPosition - (Vector2)tooCloseAlly.transform.position;
-        
-            // Если направление нулевое (находимся в той же точке), создаем случайное направление
-            if (directionFromAlly.magnitude < 0.1f)
-            {
-                directionFromAlly = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-            }
-        
-            directionFromAlly.Normalize();
-        
-            // Вычисляем точку отхода
-            Vector2 retreatPoint = myPosition + directionFromAlly * allyDetectionDistance * 1.5f;
-        
-            // Создаем путь отхода
-            navAgent.PathTo(retreatPoint);
-            Debug.Log($"Бот {name} отходит от слишком близкого союзника {tooCloseAlly.name}");
+            ExecuteProximityRetreat(tooCloseAlly);
         }
     }
-    
-    // Методы настройки
+
+    /// <summary>
+    /// Поиск слишком близкого союзника
+    /// </summary>
+    private GameObject FindTooCloseAlly()
+    {
+        if (teammates == null || teammates.Count == 0) return null;
+
+        Vector2 myPosition = transform.position;
+        GameObject closestAlly = null;
+        float closestDistance = avoidanceSettings.allyDetectionDistance * 0.7f;
+
+        foreach (GameObject ally in teammates)
+        {
+            if (ally == null || ally == gameObject) continue;
+
+            float distance = Vector2.Distance(myPosition, ally.transform.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestAlly = ally;
+            }
+        }
+
+        return closestAlly;
+    }
+
+    /// <summary>
+    /// Выполнение отступления от близкого союзника
+    /// </summary>
+    private void ExecuteProximityRetreat(GameObject ally)
+    {
+        Vector2 myPosition = transform.position;
+        Vector2 allyPosition = ally.transform.position;
+        Vector2 retreatDirection = (myPosition - allyPosition).normalized;
+
+        // Обработка случая нулевого направления
+        if (retreatDirection.magnitude < 0.1f)
+        {
+            retreatDirection = new Vector2(
+                UnityEngine.Random.Range(-1f, 1f),
+                UnityEngine.Random.Range(-1f, 1f)
+            ).normalized;
+        }
+
+        Vector2 retreatPoint = myPosition + retreatDirection * (avoidanceSettings.allyDetectionDistance * 1.5f);
+
+        if (navAgent.HasValidPosition)
+        {
+            navAgent.PathTo(retreatPoint);
+        }
+    }
+
+    /// <summary>
+    /// Обновление настроек из BotManager (вызывается BotManager при создании бота)
+    /// </summary>
+    public void UpdateSettingsFromBotManager()
+    {
+        InitializeFromBotManager();
+        CacheTeamLists();
+    }
+
+    /// <summary>
+    /// Устаревшие методы настройки для обратной совместимости
+    /// </summary>
+    [System.Obsolete("Use BotManager configuration instead")]
     public void SetFollowingParameters(float closeEnough, float stopRadius, float updateRate, float predictionTime)
     {
-        closeEnoughRadius = closeEnough;
-        travelStopRadius = stopRadius;
-        updateFrequency = updateRate;
-        targetPredictionTime = predictionTime;
+        // Метод оставлен для обратной совместимости, но настройки теперь берутся из BotManager
     }
-    
+
+    [System.Obsolete("Use BotManager configuration instead")]
     public void SetAvoidanceParameters(float detection, float offset, float interval, float maxAvoidTime)
     {
-        allyDetectionDistance = detection;
-        avoidanceOffset = offset;
-        avoidanceCheckInterval = interval;
-        maxAvoidanceTime = maxAvoidTime;
+        // Метод оставлен для обратной совместимости, но настройки теперь берутся из BotManager
     }
-    
+
+    /// <summary>
+    /// Визуализация для отладки
+    /// </summary>
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying) return;
-        
+        if (!Application.isPlaying || avoidanceSettings == null || pathSettings == null) return;
+
+        DrawDetectionRadii();
+        DrawTargetInfo();
+        DrawAvoidanceInfo();
+        DrawPathInfo();
+    }
+
+    /// <summary>
+    /// Отрисовка радиусов обнаружения
+    /// </summary>
+    private void DrawDetectionRadii()
+    {
+        Vector3 position = transform.position;
+
         // Радиус обнаружения союзников
-        Gizmos.color = enableAvoidance ? Color.cyan : Color.gray;
-        Gizmos.DrawWireSphere(transform.position, allyDetectionDistance);
-        
-        // Дистанция остановки
-        if (target != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(target.position, travelStopRadius);
-        }
-        
-        // Отображаем блокирующего союзника и путь обхода
-        if (isAvoiding && blockingAlly != null)
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(position, avoidanceSettings.allyDetectionDistance);
+
+        // Радиус обнаружения врагов
+        if (avoidanceSettings.enableEnemyAvoidance)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, blockingAlly.transform.position);
-            
-            // Точка обхода
-            if (navAgent.PathGoal.HasValue)
-            {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(navAgent.PathGoal.Value, 0.3f);
-                Gizmos.DrawLine(transform.position, navAgent.PathGoal.Value);
-            }
+            Gizmos.DrawWireSphere(position, avoidanceSettings.enemyDetectionDistance);
         }
+    }
+
+    /// <summary>
+    /// Отрисовка информации о цели
+    /// </summary>
+    private void DrawTargetInfo()
+    {
+        if (!hasValidTarget) return;
+
+        Vector3 targetPos = target.position;
+
+        // Дистанция остановки
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(targetPos, pathSettings.travelStopRadius);
+
+        // Дистанция "достаточно близко"
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(targetPos, pathSettings.closeEnoughRadius);
+
+        // Линия к цели
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(transform.position, targetPos);
+    }
+
+    /// <summary>
+    /// Отрисовка информации об избегании
+    /// </summary>
+    private void DrawAvoidanceInfo()
+    {
+        if (!IsInAvoidanceMode() || currentObstacle == null) return;
+
+        // Линия к препятствию
+        Gizmos.color = isAvoidingEnemy ? Color.red : Color.gray;
+        Gizmos.DrawLine(transform.position, currentObstacle.transform.position);
+
+        // Точка обхода
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(avoidanceDestination, 0.3f);
+        Gizmos.DrawLine(transform.position, avoidanceDestination);
+    }
+
+    /// <summary>
+    /// Отрисовка информации о пути
+    /// </summary>
+    private void DrawPathInfo()
+    {
+        if (navAgent == null || !navAgent.PathGoal.HasValue) return;
+
+        // Текущая цель пути
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(navAgent.PathGoal.Value, 0.2f);
     }
 }

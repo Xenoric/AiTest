@@ -22,6 +22,17 @@ public class BotManager : MonoBehaviour
         public float pathRecalculationInterval = 0.5f;
         public float avoidanceOffset = 2.0f;
         public float maxAvoidanceTime = 3.0f;
+
+        [Header("Enemy Avoidance")]
+        public float enemyDetectionDistance = 3.0f;
+        public float enemyAvoidanceDistance = 4.0f;
+        public float enemyCheckInterval = 0.2f;
+        public bool enableEnemyAvoidance = true;
+
+        [Header("PathBerserker2d Integration")]
+        public float obstacleAvoidanceRadius = 1.0f;
+        public float pathfindingUpdateInterval = 0.3f;
+        public bool useAdvancedPathfinding = true;
     }
 
     [System.Serializable]
@@ -139,22 +150,9 @@ public class BotManager : MonoBehaviour
            
             // Добавляем наш улучшенный фоловер с избеганием
             CustomFollower follower = bot.AddComponent<CustomFollower>();
-            
-            // Настраиваем параметры следования
-            follower.SetFollowingParameters(
-                pathSettings.closeEnoughRadius,
-                pathSettings.travelStopRadius, 
-                pathSettings.updateFrequency,
-                pathSettings.targetPredictionTime
-            );
-            
-            // Настраиваем параметры избегания
-            follower.SetAvoidanceParameters(
-                avoidanceSettings.allyDetectionDistance,
-                avoidanceSettings.avoidanceOffset,
-                avoidanceSettings.pathRecalculationInterval,
-                avoidanceSettings.maxAvoidanceTime
-            );
+
+            // Обновляем настройки из BotManager
+            follower.UpdateSettingsFromBotManager();
             
             // Добавление в список команды
             teamBots.Add(bot);
@@ -281,5 +279,37 @@ public class BotManager : MonoBehaviour
             team2Bots.Remove(bot);
             Debug.Log($"Бот {bot.name} удален из команды 2");
         }
+    }
+
+    // Получение вражеских ботов для указанного бота
+    public List<GameObject> GetEnemyBots(GameObject bot)
+    {
+        if (team1Bots.Contains(bot))
+            return team2Bots;
+        else if (team2Bots.Contains(bot))
+            return team1Bots;
+
+        return new List<GameObject>();
+    }
+
+    // Получение настроек для бота
+    public AvoidanceSettings GetAvoidanceSettings(GameObject bot)
+    {
+        if (team1Bots.Contains(bot))
+            return team1.useTeamSpecificSettings ? team1.avoidanceSettings : commonAvoidanceSettings;
+        else if (team2Bots.Contains(bot))
+            return team2.useTeamSpecificSettings ? team2.avoidanceSettings : commonAvoidanceSettings;
+
+        return commonAvoidanceSettings;
+    }
+
+    public PathFollowingSettings GetPathSettings(GameObject bot)
+    {
+        if (team1Bots.Contains(bot))
+            return team1.useTeamSpecificSettings ? team1.pathSettings : commonPathSettings;
+        else if (team2Bots.Contains(bot))
+            return team2.useTeamSpecificSettings ? team2.pathSettings : commonPathSettings;
+
+        return commonPathSettings;
     }
 }
