@@ -1,0 +1,4742 @@
+PathBerserker2d Documentation
+Core Concepts
+
+NavSurface
+NavSurface is the core component of PathBerserker2d. You can have as many as you want of them. Each encodes it's children's collider data in a pathable form. This process is called bake.
+In this section will go over what data a NavSurface stores and what that data is used for.
+Line Segments
+NavSurface's store data organized in line segments. On bake, each collider is reduced to a set of such segments. Movement on a line segment from one point to another is trivial. The NavAgent just has to move in whatever direction the goal lies.
+ 
+Lets imagine a NavSurface with a rectangular sprite and collider as a child. We'd like to somehow pathfind on this sprite.
+ 
+At bake time, the rectangle sprite's BoxCollider2d is reduced to 4 line segments. With just these 4 line segments, we could already do some pathfinding. But only if the NavAgents goal lies on the same segment as the agent itself, a path could actually be found.
+But what if the goal is on a different segment? In the original collider the segments where connected at their ends. Wouldn't it be cool, if they also where connected for pathfinding purposes?
+Corner Links
+Links connect two segments with each other. An agent can traverse such a link to get from one place to another. Links can also connect two points on the same segment.
+Lets introduce a link that solves the segment connection problem, the corner link. They link one segment end with another segment start, if the segments where connected in the collider. As such, they have zero length. The cost of traversal is instead calculated by the angle between both segments. Corner links are placed automatically when a NavSurface gets loaded.
+ 
+With the corner links added two all 4 corners the NavAgent can now path to any point on the rectangle. But what if there was an obstacle that prevented all but small NavAgents to pass through?
+Clearance
+ 
+Somehow the clearance for each position on the segment needs to be known to solve this issue. Since there are infinitely many position infinitely small apart from each other on every segment, the clearance values need to be discrete to store them. In PathBerserker2d every segment is divided into cells of configurable size. Every cell stores the lowest clearance over the span it occupies. This happens automatically at bake. It won't be updated at runtime. When pathfinding, those cell values are used to figure out, if a NavAgent could move from one point on a segment to another without hitting its head.
+Interaction between NavSurfaces
+You might be wondering why you should use multiple NavSurfaces and not just one for all colliders. There are two reasons to use multiple NavSurfaces. One, NavSurface can be loaded and unload at runtime individually at runtime. This come in handy, if for example you want to load pieces of your level from prefabs at runtime.
+The second reason to use multiple NavSurfaces is to support moving platforms. The pathfinding data stored in a NavSurface can't be changed outside baking, which would be required for moving platforms. But the data is stored relative to the position of the NavSurface component itself. Just like the child colliders of a NavSurface are relative to the position of their parent and move when their parent is moved. So moving colliders won't be reflected in the pathfinding graph, moving an entire NavSurface will be. Thus, moving platforms should always be their own NavSurface.
+Limitations when using multiple NavSurface
+There are some limitations to the interaction of multiple NavSurfaces worth knowing.
+For one, the baking process only considers child colliders. Hence, colliders of other NavSurfaces won't contribute to cell clearance calculations.
+NavSurfaces can also only be moved. Rotating or scaling them won't be reflected in the pathfinding data.
+NavTags
+NavTags are a build-in way of marking certain sections of segments and links with tags.
+Lets imagine the top of our rectangle is very hot and will grill all non heat shielded NavAgents that traverse it. It would be great, if the pathfinder could avoid choosing a path that traverse the top side. But for that it needs to know that the top side is special.
+ 
+Thats what NavAreaMarkers are for. They mark a part or the whole segment with a NavTag of your choice. The NavAgent in turn has a cost multiplier for each of them. This allows you to make some NavTags cheap to traverse, others more costly and some impossible to traverse.
+NavAreaMarker are applied at runtime and thus can be moved and effect multiple NavSurfaces. Links are not effected by NavAreaMarkers. You have to mark them manually.
+They can also be used for other purposes. You could maybe change animation when walking on something hot. Or you could use them to determine what foot step sounds to play. (There is a demo scene for the footsteps thing included.)
+NavLinks
+Till now, our NavAgent was stuck on its Rectangle and couldn't move to other, potentially more appealing platforms. Thats the point where you as level designer has to put some work in. You have the ability to place NavLink or NavLinkClusters to connect points on segments.
+NavLinks and NavLinkClusters are mapped at runtime and thus can be moved and connect different NavSurfaces.
+ 
+Both have some of the same requirements for traversal as a segment, a clearance and a NavTag. Additionally, a link also has a link-type. These types are meant as hints to the NavAgent on how to traverse them. The NavAgent will for example traverse a ladder-link differently then a jump-link.
+What differentiates NavLink from NavCluster links is, that a NavLink is just a standard link between two points, while a NavLinkCluster is a bit more complicated. A NavLinkCluster can have as many points as you like. Each of those points is then connected to all others. This is useful to model a link with multiple entries and exits, like an elevator or ladder link might have.
+
+
+NavAgent's build-in movement
+PathBerserker comes with 2 components, which implement NavAgent movement. These are: "TransformBasedMovement" and "CorgiBasedMovement". A NavAgent without either one of these components attached will still be able to pathfind, but won't move along the path.
+To use "CorgiBasedMovement", you must own CorgiEngine (https://corgi-engine.moremountains.com/) and have it imported. More about PathBerserkers Corgi integration here: Corgi
+TransformBasedMovement
+TransformBasedMovement is Pathberserker's own movement solution. It works by directly manipulating the transform of a NavAgent and allows for very precise movement. It's main drawback is, that there is no physics interaction between a NavAgent and its environment. There is nothing stopping a NavAgent from moving through a collider.
+TransformBasedMovement implements movement for segments and links. Segments, which represent movement on the ground are traversed by simple lerping between start and goal.
+Links are traversed depending on their type. Following are the build-in link types.
+•	Corner
+The agent rotates to align with the next segment's normal.
+•	Fall
+The agent accelerates towards the link's goal.
+•	Jump
+The agent moves with a constant x-velocity, while its y position follows a sine-wave. This gives the jump characteristic upwards then downwards movement. The sine-wave's amplitude is based on this distance of the jump.
+•	Teleport
+The agent's position is instantly set to the links goal.
+•	Climb
+Climbing happens in 3 phases. First the agent moves on the x axis to the link's transform position. Then the agent moves on the y axis towards the link's goal y value. Finally the agent moves again on the x axis towards the link's goal x value. This and elevator are the only two link types that care about the link's x position important.
+•	Elevator
+Much like climb, except that the agent does not move on the y axis on its own, but instead waits for the elevator to bring it to the correct y level.
+Overriding the build-in movement
+You are free to implement your own movement handler, if the build-in's don't fit your usecase. For inspiration, please look at the source code for TransformBasedMovement and CorgiBasedMovement.
+The NavAgent has an internal pointer, that keeps track of where the NavAgent is on its calculated path. A movement handler must implement moving the NavAgent to its current PathSubGoal and then call either CompleteSegmentTraversal or CompleteLinkTraversal to advance the NavAgents internal path pointer to the next subgoal.
+A custom movement handler can make use of the following NavAgent events.
+•	OnStartLinkTraversal Called only once, after a NavAgent starts to traverse a link. Use it to initialize variables needed to execute the link traversal.
+•	OnLinkTraversal Called every update, when a NavAgent is on a link. Add your link traversal logic here. Call CompleteLinkTraversal when you have completed the link traversal, to let the NavAgent move to the next PathSubGoal.
+•	OnStartSegmentTraversal Called only once, after a NavAgent starts to traverse a segment. Use it to initialize variables needed to execute the segment traversal. -OnSegmentTraversal Called every update, when a NavAgent is on a segment. Add your segment traversal logic here. Call CompleteSegmentTraversal when you have completed the Segment traversal, to let the NavAgent move to the next PathSubGoal.
+
+
+
+
+PathBerserker2d.AdjustRotation Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Adjust the NavAgents rotation to match the segments' rotation.
+    /// </summary>
+    public class AdjustRotation : MonoBehaviour
+    {
+        [SerializeField]
+        public NavAgent agent;
+
+        /// <summary>
+        /// Speed at which the agent is rotated.
+        /// </summary>
+        [SerializeField, Tooltip("Speed at which the agent is rotated.")]
+        public float rotationSpeed = 20;
+
+        private void Update()
+        {
+            if (!agent.IsOnLink || agent.CurrentPathSegment?.link?.LinkTypeName != "corner")
+            {
+                this.transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, this.agent.CurrentSegmentNormal), Time.deltaTime * rotationSpeed);
+            }
+        }
+
+        private void Reset()
+        {
+            agent = GetComponent<NavAgent>();
+        }
+    }
+}
+
+PathBerserker2d.BaseNavLink Class
+using System;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Common basis for NavLink and NavLinkCluster.
+    /// </summary>
+    public abstract class BaseNavLink : MonoBehaviour, INavLinkInstanceCreator
+    {
+        public int LinkType
+        {
+            get { return linkType; }
+            set {
+                if (value < 0 || value >= PathBerserker2dSettings.NavLinkTypeNames.Length)
+                    throw new ArgumentOutOfRangeException($"{value} is not a valid link type.");
+                linkType = value;
+            }
+        }
+        public string LinkTypeName
+        {
+            get { return PathBerserker2dSettings.NavLinkTypeNames[linkType]; }
+            set { linkType = PathBerserker2dSettings.GetLinkTypeFromName(value); }
+        }
+        public float Clearance
+        {
+            get { return clearance; }
+            set { clearance = value; }
+        }
+        public float AvgWaitTime
+        {
+            get { return avgWaitTime; }
+            set { avgWaitTime = value; }
+        }
+        public float CostOverride
+        {
+            get { return costOverride; }
+            set { costOverride = value; }
+        }
+        public GameObject GameObject => gameObject;
+        public int NavTag
+        {
+            get { return navTag; }
+            set { navTag = PathBerserker2dSettings.EnsureNavTagExists(value); }
+        }
+        public float MaxTraversableDistance
+        {
+            get { return maxTraversableDistance; }
+            set { maxTraversableDistance = value; }
+        }
+
+        public int PBComponentId { get; protected set; }
+
+        [Tooltip("Cost of traversing this link. If this is <= 0 the distance between start and goal is used instead.")]
+        [SerializeField]
+        protected float costOverride = -1;
+
+        [SerializeField]
+        protected int linkType = 1;
+
+        [Tooltip("Maximum height an agent can be to traverse this link.")]
+        [SerializeField]
+        protected float clearance = 2;
+
+        [SerializeField]
+        protected int navTag = 0;
+
+        [Tooltip("Average time an agent has to wait before starting to traverse this link. This is purely to tune the pathfinding algorithm.")]
+        [SerializeField]
+        protected float avgWaitTime = 0;
+
+        [Tooltip("Maximum distances between start and goal, that is considered traversable. If this distance is exceeded (e.g. on a moving platform) an agent will wait to traverse this link.")]
+        [SerializeField]
+        protected float maxTraversableDistance = 0;
+
+        /// <summary>
+        /// Should this link be automatically mapped. If not, you have to call UpdateMapping() yourself.
+        /// </summary>
+        [SerializeField, Tooltip("Should this link be automatically mapped. If not, you have to call UpdateMapping() yourself.")]
+        public bool autoMap = true;
+
+        protected virtual void Awake()
+        {
+            PBComponentId = PBWorld.GeneratePBComponentId();
+        }
+
+        protected virtual void OnValidate()
+        {
+            linkType = PathBerserker2dSettings.EnsureNavLinkTypeExists(linkType);
+            navTag = PathBerserker2dSettings.EnsureNavTagExists(navTag);
+        }
+
+        /// <summary>
+        /// MUST BE THREAD SAFE!
+        /// Calculates the cost of traversing from start to goal.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="goal"></param>
+        /// <returns></returns>
+        public float TravelCosts(Vector2 start, Vector2 goal)
+        {
+            float costOverride = this.costOverride;
+            if (costOverride >= 0)
+                return costOverride + avgWaitTime;
+            else
+                return Mathf.Max(maxTraversableDistance, Vector2.Distance(start, goal)) + avgWaitTime;
+        }
+    }
+}
+
+PathBerserker2d.DynamicObstacle Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Attach to GameObject to mark it as dynamic.
+    /// Dynamic objects are ignored while baking a NavSurface.
+    /// </summary>
+    public class DynamicObstacle : MonoBehaviour
+    {
+        // ignored for baking
+    }
+}
+
+PathBerserker2d.Elevator Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// An Elevator that vertically moves to a series of y positions.
+    /// </summary>
+    /// <remarks>
+    /// ## Requirements
+    /// <list>
+    ///     <item>
+    ///     Levels need to sorted from highest Y level at index 0 to lowest Y level at last index.
+    ///     </item>
+    ///     <item>
+    ///     Needs to be the child of a NavLinkCluster.
+    ///     Manages this NavLinkCluster to only allow traversal on links that match the y level the elevator is at.
+    ///     </item>
+    /// </list>
+    /// </remarks>
+    public class Elevator : MonoBehaviour
+    {
+        [Tooltip("Different y-levels the elevator will stop at. NEEDS TO BE ORDERED FROM HIGHEST Y TO LOWEST Y.")]
+        [SerializeField]
+        Transform[] levels = null;
+
+        [SerializeField]
+        float speed = 1;
+
+        [Tooltip("Time in seconds spend pausing on each level.")]
+        [SerializeField]
+        float waitTimeOnLevel = 3;
+
+        [SerializeField]
+        bool startMovingDown = true;
+
+        [Tooltip("Corresponding link. NEEDS TO BE THIS SCRIPTS PARENT.")]
+        [SerializeField]
+        NavLinkCluster navLinkCluster = null;
+
+        int state = 0;
+        float waitStartTime;
+        int nextLevel = 0;
+
+        // Start is called before the first frame update
+        void Awake()
+        {
+            if (levels.Length <= 1)
+            {
+                Debug.LogError("Elevator needs at least 2 levels to function.");
+                this.enabled = false;
+            }
+
+            float prevY = float.MaxValue;
+            foreach (var l in levels)
+            {
+                if (prevY < l.position.y)
+                {
+                    Debug.LogError("Elevator levels need to be ordered from top to bottom y-level.");
+                    this.enabled = false;
+                    return;
+                }
+                prevY = l.position.y;
+            }
+            if (navLinkCluster != null && GetComponentInParent<NavLinkCluster>() != navLinkCluster)
+            {
+                Debug.LogError("An elevator must be the child of the assigned cluster link.");
+            }
+
+            FindNextLevel();
+            state = startMovingDown ? 1 : 0;
+        }
+
+        private void OnEnable()
+        {
+            LeavesLevel();
+        }
+
+        /// <summary>
+        /// Find the level the elevator should visit next
+        /// </summary>
+        private void FindNextLevel()
+        {
+            float y = transform.position.y;
+            for (int i = 0; i < levels.Length; i++)
+            {
+                if (levels[i].position.y < y)
+                {
+                    if (startMovingDown)
+                    {
+                        nextLevel = i;
+                    }
+                    else
+                    {
+                        if (i == 0)
+                        {
+                            startMovingDown = true;
+                            nextLevel = i;
+                        }
+                        else
+                        {
+                            nextLevel = i - 1;
+                        }
+                    }
+                    return;
+                }
+            }
+            startMovingDown = false;
+            nextLevel = levels.Length - 1;
+        }
+
+        void Update()
+        {
+            switch (state)
+            {
+                case 0:
+                    // move up to destination
+                    transform.position += Vector3.up * Time.deltaTime * speed;
+                    if (transform.position.y >= levels[nextLevel].position.y)
+                    {
+                        var v = transform.position;
+                        v.y = levels[nextLevel].position.y;
+                        transform.position = v;
+
+                        state = 2;
+                        waitStartTime = Time.time;
+                        ReachedLevel();
+                    }
+                    break;
+                case 1:
+                    // move down to destination
+                    transform.position += Vector3.down * Time.deltaTime * speed;
+                    if (transform.position.y <= levels[nextLevel].position.y)
+                    {
+                        var v = transform.position;
+                        v.y = levels[nextLevel].position.y;
+                        transform.position = v;
+
+                        state = 3;
+                        waitStartTime = Time.time;
+                        ReachedLevel();
+                    }
+                    break;
+                case 2:
+                    // wait at destination up
+                    if (Time.time - waitStartTime > waitTimeOnLevel)
+                    {
+                        nextLevel--;
+                        if (nextLevel < 0)
+                        {
+                            nextLevel = levels.Length - 2;
+                            state = 1;
+                        }
+                        else
+                        {
+                            state = 0;
+                        }
+                        LeavesLevel();
+                    }
+                    break;
+                case 3:
+                    // wait at destination down
+                    if (Time.time - waitStartTime > waitTimeOnLevel)
+                    {
+                        nextLevel++;
+                        if (nextLevel >= levels.Length)
+                        {
+                            nextLevel = 1;
+                            state = 0;
+                        }
+                        else
+                        {
+                            state = 1;
+                        }
+                        LeavesLevel();
+                    }
+                    break;
+            }
+        }
+
+        void ReachedLevel()
+        {
+            if (navLinkCluster != null)
+            {
+                // set the links at our y level traversable
+                navLinkCluster.SetLinksTraversable((start, goal) =>
+                {
+                    return Mathf.Abs(start.y - levels[nextLevel].position.y) < 0.1f ||
+                    Mathf.Abs(goal.y - levels[nextLevel].position.y) < 0.1f;
+                });
+            }
+        }
+
+        void LeavesLevel()
+        {
+            if (navLinkCluster != null)
+            {
+                // set all links to be untraversable as we aren't at any level
+                navLinkCluster.SetLinksTraversable((start, goal) => false);
+            }
+        }
+    }
+}
+
+
+PathBerserker2d.Follower Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Makes a NavAgent follow another.
+    /// </summary>
+    [RequireComponent(typeof(NavAgent))]
+    public class Follower : MonoBehaviour
+    {
+        [SerializeField]
+        public NavAgent navAgent = null;
+        [SerializeField]
+        public Transform target = null;
+
+        /// <summary>
+        /// Radius when agent should start moving towards the target. Should be >= travelStopRadius
+        /// </summary>
+        [SerializeField, Tooltip("Radius when agent should start moving towards the target. Should be >= travelStopRadius")]
+        public float closeEnoughRadius = 3;
+
+        /// <summary>
+        /// Radius when agent should stop moving towards the target.
+        /// </summary>
+        [SerializeField, Tooltip("Radius when agent should stop moving towards the target")]
+        public float travelStopRadius = 1;
+
+        /// <summary>
+        /// Using the targets velocity, predicts the targets position in the future and uses this prediction as pathfinding goal. Useful for fast moving enemies. Only works when the target has a Rigidbody2d component or a component that implements IVelocityProvider. (NavAgent does not!)
+        /// </summary>
+        [SerializeField]
+        [Tooltip("Using the targets velocity, predicts the targets position in the future and uses this prediction as pathfinding goal. Useful for fast moving enemies. Only works when the target has a Rigidbody2d component or a component that implements IVelocityProvider. (NavAgent does not!)")]
+        public float targetPredictionTime = 0;
+
+        private void Awake()
+        {
+            // Гарантируем, что NavAgent всегда будет доступен
+            if (navAgent == null)
+            {
+                navAgent = GetComponent<NavAgent>();
+            }
+        }
+
+        void Update()
+        {
+            if (target == null || navAgent == null)
+                return;
+
+            Vector2 targetPos = GetTargetPosition();
+            float distToTarget = Vector2.Distance(transform.position, targetPos);
+
+            if (distToTarget > closeEnoughRadius && 
+                !(navAgent.PathGoal.HasValue && Vector2.Distance(navAgent.PathGoal.Value, targetPos) < travelStopRadius))
+            {
+                if (!navAgent.UpdatePath(targetPos) && targetPredictionTime > 0)
+                {
+                    navAgent.UpdatePath(target.position);
+                }
+            }
+            else if (distToTarget < travelStopRadius)
+            {
+                navAgent.Stop();
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, closeEnoughRadius);
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, travelStopRadius);
+        }
+
+        private void OnValidate()
+        {
+            closeEnoughRadius = Mathf.Max(travelStopRadius, closeEnoughRadius);
+        }
+
+        private void Reset()
+        {
+            navAgent = GetComponent<NavAgent>();
+        }
+
+        // Метод для получения позиции цели с учетом предсказания движения
+        private Vector2 GetTargetPosition()
+        {
+            if (targetPredictionTime <= 0)
+                return target.position;
+
+            // Попытка получить velocity от IVelocityProvider или Rigidbody2D
+            Vector2 velocity = Vector2.zero;
+            
+            // Проверка на Rigidbody2D
+            Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                velocity = rb.velocity;
+            }
+            
+            // Расчет предсказанной позиции
+            return (Vector2)target.position + velocity * targetPredictionTime;
+        }
+    }
+}
+
+PathBerserker2d.FootStepSounds Class
+using System;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Play foot steps depending on the NavTags at the agents current position.
+    /// </summary>
+    public class FootStepSounds : MonoBehaviour
+    {
+        public AudioClip[] FootStepSoundClips
+        {
+            get => footstepSounds;
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                if (value.Length != PathBerserker2dSettings.NavTags.Length)
+                    throw new ArgumentException($"FootStepSoundClips needs to be an array of length equal to the amount of NavTags ({PathBerserker2dSettings.NavTags.Length}).");
+
+                footstepSounds = value;
+            }
+        }
+
+        [SerializeField]
+        public AudioSource audioSource = null;
+
+        [SerializeField]
+        public NavAgent agent = null;
+
+        /// <summary>
+        /// Delay between playing of footstep sounds.
+        /// </summary>
+        [SerializeField]
+        public float footStepDelay = 1f;
+
+        /// <summary>
+        /// Used when no NavTag specific footStep was found, or if the current segment has no NavTag.
+        /// </summary>
+        [SerializeField]
+        public AudioClip defaultFootstep = null;
+
+        /// <summary>
+        /// Footsteps to use for each NavTag.
+        /// </summary>
+        [SerializeField]
+        AudioClip[] footstepSounds = null;
+
+        private float lastFootStepTime;
+
+        void Update()
+        {
+            // time to play next step? Is agent moving on segment?
+            if (Time.time - lastFootStepTime >= footStepDelay && agent.IsMovingOnSegment)
+            {
+                lastFootStepTime = Time.time;
+                int navTagV = agent.CurrentNavTagVector;
+
+                AudioClip chosenClip = defaultFootstep;
+                // chose the first step sound with matching NavTag
+                for (int i = 0; i < footstepSounds.Length; i++)
+                {
+                    if ((navTagV & (1 << i)) != 0)
+                    {
+                        chosenClip = footstepSounds[i];
+                        break;
+                    }
+                }
+                audioSource.PlayOneShot(chosenClip);
+            }
+        }
+
+        private void OnValidate()
+        {
+            if (footstepSounds == null)
+            {
+                footstepSounds = new AudioClip[PathBerserker2dSettings.NavTags.Length];
+            }
+            if (footstepSounds.Length != PathBerserker2dSettings.NavTags.Length)
+            {
+                System.Array.Resize(ref footstepSounds, PathBerserker2dSettings.NavTags.Length);
+            }
+        }
+
+        private void Reset()
+        {
+            agent = GetComponent<NavAgent>();
+        }
+    }
+}
+
+
+PathBerserker2d.Geometry Class
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    public static class Geometry
+    {
+        public static float DistancePointLineSegment(Vector2 p, Vector2 a, Vector2 b)
+        {
+            return Vector2.Distance(p, ProjectPointOnLineSegment(p, a, b));
+        }
+
+        /// <summary>
+        /// Finds closest point to p on line a -> b
+        /// </summary>
+        public static Vector2 ProjectPointOnLineSegment(Vector2 p, Vector2 a, Vector2 b)
+        {
+            Vector2 dir = b - a;
+            float l2 = dir.sqrMagnitude;
+            if (l2 == 0.0)
+                return a;
+
+            float t = Mathf.Clamp01(Vector2.Dot(p - a, dir) / l2);
+            Vector2 projection = a + t * dir;
+            return projection;
+        }
+
+        /// <summary>
+        /// Project point on line.
+        /// </summary>
+        /// <param name="p">Point to proejct</param>
+        /// <param name="a">Point on line</param>
+        /// <param name="dir">Line tangent. Must be normalized!</param>
+        /// <returns>Closets point on line to p</returns>
+        public static Vector2 ProjectPointOnLine(Vector2 p, Vector2 a, Vector2 dir)
+        {
+            float t = Vector2.Dot(p - a, dir);
+            return a + t * dir;
+        }
+
+        public static bool IsPointOnPositiveSideOfLine(Vector2 point, Vector2 linePointA, Vector2 normal)
+        {
+            return Vector2.Dot(point - linePointA, normal) >= 0;
+        }
+
+        /// <summary>
+        /// Returns a rect that encapsulates the passed in rect after being transformed.
+        /// </summary>
+        public static Rect TransformBoundingRect(Rect bounds, Matrix4x4 transformation)
+        {
+            // bounds -> extract 2 diagonal corners
+            // transform corners
+            Vector2 a = transformation.MultiplyPoint3x4(bounds.min);
+            Vector2 b = transformation.MultiplyPoint3x4(bounds.max);
+            Vector2 c = transformation.MultiplyPoint3x4(new Vector2(bounds.xMin, bounds.yMax));
+            Vector2 d = transformation.MultiplyPoint3x4(new Vector2(bounds.xMax, bounds.yMin));
+
+            // create new box containing corners
+            Vector2 min = Vector2.Min(d, Vector2.Min(c, Vector2.Min(a, b)));
+            Vector2 max = Vector2.Max(d, Vector2.Max(c, Vector2.Max(a, b)));
+
+            return new Rect(min, max - min);
+        }
+
+        public static Rect EnlargeRect(Rect rect, float amount)
+        {
+            return new Rect(rect.position - Vector2.one * amount, rect.size + Vector2.one * amount * 2);
+        }
+    }
+}
+
+PathBerserker2d.GoalWalker Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Make Agent walk to specified goal, if it isn't there already. 
+    /// </summary>
+    class GoalWalker : MonoBehaviour
+    {
+        [SerializeField]
+        public NavAgent navAgent;
+        [SerializeField]
+        Transform goal = null;
+
+        void Update()
+        {
+            // are we not close enough to our goal and not already moving to its position
+            if (Vector2.Distance(goal.position, navAgent.transform.position) > 0.5f && (navAgent.IsIdle || goal.hasChanged))
+            {
+                goal.hasChanged = false;
+                navAgent.UpdatePath(goal.position);
+            }
+        }
+
+        private void Reset()
+        {
+            navAgent = GetComponent<NavAgent>();
+        }
+    }
+}
+
+PathBerserker2d.INavLinkInstance Interface
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Internal instance of a NavLink.
+    /// </summary>
+    /// <remarks>
+    /// An instance is deliberately kept very basic. It links from a given start to a given goal.
+    /// </remarks>
+    public interface INavLinkInstance
+    {
+        //NavSegmentPositionPointer Start { get; }
+        //NavSegmentPositionPointer Goal { get; }
+        int LinkType { get; }
+        int NavTag { get; }
+
+        bool IsTraversable { get; }
+
+        string LinkTypeName { get; }
+
+        GameObject GameObject { get; }
+
+        float Clearance { get; }
+        int PBComponentId { get; }
+
+        float TravelCosts(Vector2 start, Vector2 goal);
+
+        void OnRemove();
+    }
+}
+
+
+PathBerserker2d.KeepGrounded Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Keeps the agent on moving platforms, by parenting the agent to them.
+    /// </summary>
+    public class KeepGrounded : MonoBehaviour
+    {
+        [SerializeField]
+        public LayerMask movingPlatformLayermask = 0;
+
+        Transform originalParent;
+
+        private void Awake()
+        {
+            originalParent = transform.parent;
+        }
+
+        void FixedUpdate()
+        {
+            var hit = Physics2D.Raycast(transform.position + transform.up * 0.1f, -transform.up, 0.4f, movingPlatformLayermask);
+            if (hit.collider != null)
+            {
+                // we hit a moving platform -> parent
+                transform.SetParent(hit.collider.transform, true);
+            }
+            else
+            {
+                // we didn't hit a moving platform -> unparent
+                transform.SetParent(originalParent, true);
+            }
+        }
+    }
+}
+
+
+PathBerserker2d.MouseWalker Class
+using UnityEngine;
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+using UnityEngine.InputSystem;
+#endif
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Let the NavAgent walk to a mouse click.
+    /// </summary>
+    class MouseWalker : MonoBehaviour
+    {
+        [SerializeField]
+        public NavAgent navAgent;
+
+        void Update()
+        {
+            // mouse click occurred?
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+#else
+            if (Input.GetMouseButtonDown(0))
+#endif
+            {
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+                Vector2 pos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+#else
+                Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+#endif
+                if (!navAgent.PathTo(pos))
+                {
+                    if (navAgent.HasValidPosition)
+                        Debug.Log($"{name}: Pathfinding failed.");
+                    else
+                        Debug.Log($"{name}: Agent is not on a NavSurface.");
+                }
+            }
+        }
+
+        private void Reset()
+        {
+            navAgent = GetComponent<NavAgent>();
+        }
+    }
+}
+
+
+PathBerserker2d.MovingPlatform Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Makes a platform move between two points.
+    /// </summary>
+    public class MovingPlatform : MonoBehaviour
+    {
+        [SerializeField]
+        Transform a = null;
+        [SerializeField]
+        Transform b = null;
+        [SerializeField]
+        float speed = 0.5f;
+
+        public Vector2 Velocity { get; private set; }
+
+        bool atob = true;
+
+        private void Update()
+        {
+            if (atob)
+            {
+                Velocity = (b.position - a.position).normalized * speed;
+                transform.Translate(Velocity * Time.deltaTime);
+
+                if ((b.position - a.position).sqrMagnitude < (transform.position - a.position).sqrMagnitude)
+                    atob = false;
+
+            }
+            else
+            {
+                Velocity = (a.position - b.position).normalized * speed;
+                transform.Translate(Velocity * Time.deltaTime);
+
+                if ((b.position - a.position).sqrMagnitude < (transform.position - b.position).sqrMagnitude)
+                    atob = true;
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (a != null && b != null)
+            {
+                Gizmos.color = Color.red;
+
+                DrawArrow(a.position, b.position);
+                DrawArrow(b.position, a.position);
+            }
+        }
+
+        private void DrawArrow(Vector2 start, Vector2 end)
+        {
+            Vector2 dir = end - start;
+            float length = dir.magnitude;
+            dir /= length;
+            Vector2 baseA = start + dir * (length - 0.1f);
+            Gizmos.DrawLine(start, baseA);
+
+            Vector2 normal = new Vector2(-dir.y, dir.x) * 0.1f;
+            Gizmos.DrawLine(baseA - normal, baseA + normal);
+            Gizmos.DrawLine(baseA - normal, end);
+            Gizmos.DrawLine(baseA + normal, end);
+        }
+    }
+}
+
+
+PathBerserker2d.MultiGoalWalker Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Let the agent walk to the closest of the given goals.
+    /// </summary>
+    public class MultiGoalWalker : MonoBehaviour
+    {
+        [SerializeField]
+        public NavAgent navAgent;
+        [SerializeField]
+        Transform[] goals = null;
+        [SerializeField]
+        public bool activateOnStart = true;
+
+        void Start()
+        {
+            if (activateOnStart)
+            {
+                MoveToClosestGoal();
+            }
+        }
+
+        private void Reset()
+        {
+            navAgent = GetComponent<NavAgent>();
+        }
+
+        /// <summary>
+        /// Starts moving to closest of this.goals.
+        /// </summary>
+        public void MoveToClosestGoal()
+        {
+            Vector2[] vs = new Vector2[goals.Length];
+            for (int i = 0; i < goals.Length; i++)
+                vs[i] = goals[i].position;
+            navAgent.PathTo(vs);
+        }
+
+        /// <summary>
+        /// Starts moving to closest of supplied goals.
+        /// </summary>
+        public void MoveToClosestGoal(Transform[] goals)
+        {
+            Vector2[] vs = new Vector2[goals.Length];
+            for (int i = 0; i < goals.Length; i++)
+                vs[i] = goals[i].position;
+            navAgent.PathTo(vs);
+        }
+    }
+}
+
+PathBerserker2d.NavAgent Class
+using UnityEngine;
+using System;
+using System.Collections.Generic;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Represents a pathfinding entity.
+    /// </summary>
+    /// <remarks>
+    /// This components handles the interaction with the asynchronous pathfinding system.
+    /// It assumes the agent is a point located at <c>transform.position</c>. 
+    /// Automatic movement will directly modify the transform this script is attached to. See \ref navagent_movement "NavAgent's build-in movement" for more detail on movement.
+    /// ## States
+    /// At heart the NavAgent is a state machine with the following states:
+    /// <list type="bullet">
+    ///     <item>
+    ///         <c>Idle</c>\n
+    ///         <description>
+    ///         In this state the agent does nothing and is ready to path to a new location.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <c>Planning</c>\n
+    ///         <description>
+    ///         The agent has made a <see cref="PathRequest">path request</see> and is now waiting for its result.
+    ///         A call to <see cref="PathTo"/> for example would make the agent switch to this state.
+    ///         If the path calculation succeeded, the agent switches into the <c>FollowPath</c> state.
+    ///         If it didn't succeed however, the agent will switch back into the <c>Idle</c> state.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <c>FollowPath</c>\n
+    ///         <description>
+    ///         The agent will follow the a previously calculated path. Depending on whether <see cref="autoSegmentMovement"/> or <see cref="autoLinkMovement"/> is set,
+    ///         the path will be followed automatically. The agent has build-in ways to traverse the build-in link types. They don't make use of the physics system.
+    ///         The path will be recalculated at a set interval determined by <see cref="autoRepathIntervall"/>. This is to ensure the path is up to date with changes in the world.
+    ///         No reactions to changes in the world between recalculations is possible.
+    ///
+    ///         Following a path is further subdivided into three states:
+    ///         <list>
+    ///             <item>
+    ///                <c>Segment movement</c>\n
+    ///                <description>
+    ///                The agent moves on a line segment.
+    ///                If you move the agent manually, call <see cref="CompleteSegmentTraversal"/> to switch to the next state.
+    ///                </description>
+    ///             </item>
+    ///             <item>
+    ///                <c>Wait for link</c>\n
+    ///                <description>
+    ///                This state is only entered if after the agent finshes moving on a segment, the link it wants to take is currently not traversable.
+    ///                The agent will wait for the link to become traversable again.
+    ///                </description>
+    ///             </item>
+    ///             <item>
+    ///                <c>Traverse link</c>\n
+    ///                <description>
+    ///                The agent will move on the link.
+    ///                If you move the agent manually, call <see cref="CompleteLinkTraversal"/> to begin traversing the next segment.
+    ///                </description>
+    ///             </item>
+    ///         </list>
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <c>LostPath</c>\n
+    ///         <description>
+    ///         The agent was previously in the <c>FollowPath</c> state, but <see cref="LostPath"/> was called.
+    ///         In this state, the agent will periodically attempt to find a path to its last goal.
+    ///         This is useful, for if the agent unexpectedly was moved of its previously followed path, it can still attempt to reach its goal. 
+    ///         This state is only entered, when in state <c>FollowPath</c> and <see cref="LostPath"/> is called. 
+    ///         </description>
+    ///     </item>
+    /// </list>
+    /// ## Pathfinding properties
+    /// A NavAgent has a few properties relevant to the pathfinder.
+    /// <list>
+    ///     <item>
+    ///         <see cref="height"/>\n
+    ///         <description>
+    ///         Only segments and links with enough free space are considered.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <see cref="maxSlopeAngle"/>\n
+    ///         <description>
+    ///         Only segments that don't exceed this angle are considered traversable.
+    ///         0° = ground, 90° = straight walls and 180° = ceiling.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <see cref="linkTraversalCostMultipliers"/>\n
+    ///         <description>
+    ///         For each link one multiplier from this array is applied to its traversal costs.
+    ///         With multiplier values <= 0 you can completely exclude certain link types from traversal.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <see cref="navTagTraversalCostMultipliers"/>\n
+    ///         <description>
+    ///         Links and parts of segments can be tagged with a NavTag. NavTag with index 0 is considered the default and applied to all segments
+    ///         that don't have another NavTag.
+    ///         As with <see cref="linkTraversalCostMultipliers"/> multiplier values <= 0 completely exclude NavTags from traversal.
+    ///         </description>
+    ///     </item>
+    /// </list>
+    /// </remarks>
+    [AddComponentMenu("PathBerserker2d/Nav Agent")]
+    [ScriptExecutionOrder(-50)]
+    public class NavAgent : MonoBehaviour
+    {
+        public enum State
+        {
+            /// Agent is doing nothing.
+            Idle,
+            /// Agent is following a path.
+            FollowPath,
+        }
+
+        private enum MovementState
+        {
+            OnSegment,
+            OnLink,
+            WaitForLinkOnSegment,
+        }
+
+        public State CurrentStatus => status;
+        public bool IsIdle => status == State.Idle && currentPathRequest?.Status == PathRequest.RequestState.Draft;
+        public bool IsFollowingAPath => status == State.FollowPath;
+
+        public float Height => height;
+        public float MaxSlopeAngle => maxSlopeAngle;
+        public bool IsOnLink => IsFollowingAPath && movementState == MovementState.OnLink;
+        public bool IsMovingOnSegment => IsFollowingAPath && movementState == MovementState.OnSegment;
+        public bool IsWaitingForLink => IsFollowingAPath && movementState == MovementState.WaitForLinkOnSegment;
+
+        /// <summary>
+        /// If true, either IsMovingOnSegment is true, or the agent is waiting to traverse an untraversable link.
+        /// </summary>
+        public bool IsOnSegment => IsFollowingAPath && movementState != MovementState.OnLink;
+
+        /// <summary>
+        /// Check, if the current mapped position of the agent is valid. The mapped position can only be valid, if the agent is close to the ground. (Close, not necessarily directly on the ground)
+        /// </summary>
+        public bool HasValidPosition => !currentMappedPosition.IsInvalid();
+
+        /// <summary>
+        /// True, if Stop() was called and agent hasn't yet stopped
+        /// </summary>
+        public bool IsStopping => stopRequested;
+
+        /// <summary>
+        /// True, if the agent is on the last segment of its path. 
+        /// </summary>
+        public bool IsOnGoalSegment => IsOnSegment && !Path.HasNext;
+
+        /// <summary>
+        /// Link of the path segment the agent is on, or null.
+        /// </summary>
+        [Obsolete("Use CurrentPathSegment.link")]
+        public INavLinkInstance CurrentLink => currentPath?.Current.link ?? null;
+
+        /// <summary>
+        /// Link type of the path segment the agent is on, or ""
+        /// </summary>
+        [Obsolete("Use CurrentPathSegment.link.LinkTypeName")]
+        public string CurrentLinkType => currentPath?.Current.link?.LinkTypeName ?? "";
+
+        /// <summary>
+        /// Link start of the path segment the agent is on, or Vector2.zero. Can change each frame, if the link start is on a moving platform.
+        /// </summary>
+        [Obsolete("Use CurrentPathSegment.LinkStart")]
+        public Vector2 CurrentLinkStart => currentPath?.Current.LinkStart ?? Vector2.zero;
+
+        /// <summary>
+        /// Segment normal of the path segment the agent is or normal of the currently mapped position, or Vector2.up
+        /// </summary>
+        public Vector2 CurrentSegmentNormal => IsFollowingAPath ? currentPath.Current.Normal : (currentMappedPosition.IsValid() ? currentMappedPosition.Normal : Vector2.up);
+
+        /// <summary>
+        /// Current path segment if agent follows a path or null.
+        /// </summary>
+        public PathSegment CurrentPathSegment => currentPath?.Current;
+
+        /// <summary>
+        /// Segment normal of the next segment on the path, or Vector2.zero
+        /// </summary>
+        [Obsolete("Use CurrentPathSegment.Next.Normal")]
+        public Vector2 NextSegmentNormal => currentPath?.NextSegment?.Normal ?? Vector2.zero;
+
+        /// <summary>
+        /// Current subgoal the agent is moving towards. May either be a link start or a link end. If it lies on a moving platform, the value may change from frame to frame.
+        /// </summary>
+        public Vector2 PathSubGoal
+        {
+            get
+            {
+                if (IsFollowingAPath)
+                {
+                    if (movementState == MovementState.OnLink)
+                        return currentPath.Current.LinkEnd;
+                    else
+                        return currentPath.Current.LinkStart;
+                }
+                return Vector2.zero;
+            }
+        }
+        /// <summary>
+        /// Overall goal of the path the agent is on
+        /// </summary>
+        public Vector2? PathGoal => currentPath?.Goal;
+
+        /// <summary>
+        /// Shorthand for transform.position
+        /// </summary>
+        public Vector2 Position
+        {
+            get => transform.position;
+            set => transform.position = new Vector3(value.x, value.y, transform.position.z);
+        }
+
+        /// <summary>
+        /// Combination of all NavTags at the position of the agent.
+        /// </summary>
+        public int CurrentNavTagVector => IsFollowingAPath ? currentPath.Current.GetTagVector(Position) : (currentMappedPosition.cluster?.GetNavTagVector(currentMappedPosition.t) ?? 0);
+
+        /// <summary>
+        /// Time agent spend on link. Does not include waiting for link to become traversable.
+        /// </summary>
+        public float TimeOnLink { get; private set; }
+
+
+        public delegate void FailedToFindPathDelegate(NavAgent agent);
+
+        /// <summary>
+        /// Fired when agent begins moving on a link.
+        /// </summary>
+        public event Action<NavAgent> OnStartLinkTraversal;
+
+        /// <summary>
+        /// Fired when agent is moving on a link.
+        /// </summary>
+        public event Action<NavAgent> OnLinkTraversal;
+
+        /// <summary>
+        /// Fired when agent start moving on a segment.
+        /// </summary>
+        public event Action<NavAgent> OnStartSegmentTraversal;
+
+        /// <summary>
+        /// Fired when agent is moving on a segment.
+        /// </summary>
+        public event Action<NavAgent> OnSegmentTraversal;
+
+        /// <summary>
+        /// Fired when the agent fails to find a path
+        /// </summary>
+        public event Action<NavAgent> OnFailedToFindPath;
+
+        /// <summary>
+        /// Fired when agent stops after Stop() or ForceStop() was called. For ForceStop() this happens instantly. For Stop() this happens after the agent stopped.
+        /// </summary>
+        public event Action<NavAgent> OnStop;
+
+        /// <summary>
+        /// Fired when agent reaches its current goal.
+        /// </summary>
+        public event Action<NavAgent> OnReachedGoal;
+
+        /// <summary>
+        /// Called when the agent starts following a new path.
+        /// NOTE: Also called, after successfully recalculating a path, even if the path itself does not change.
+        /// </summary>
+        public event Action<NavAgent> OnStartFollowingNewPath;
+
+        internal Path Path => currentPath;
+        internal int NavTagMask => navTagMask;
+
+
+
+        [Header("Pathplanning")]
+        [SerializeField]
+        // protect! should not be changeable, unless not making a path request
+        private float height = 1;
+        [SerializeField]
+        // protect! should not be changeable, unless not making a path request
+        // 90 = doesnt matter
+        [Range(0, 180)]
+        [Tooltip("Maximum slope the agent can walk on. 180 = unlimited")]
+        private float maxSlopeAngle = 180;
+
+        /// <summary>
+        /// Delay in seconds between recalculations of current path. This enables the agent to react to changes in the world. Higher values are better for performance.
+        /// </summary>
+        [Tooltip("Interval at which an agent will recalculate its current path to react to world changes in seconds. Higher value improves performance.")]
+        [SerializeField]
+        float autoRepathIntervall = 1f;
+        [Tooltip("Maximum distance an agent can be from the start of a calculated path, to start following it. If the distance is to large, the path is thrown out.")]
+        [SerializeField]
+        float maximumDistanceToPathStart = 0.7f;
+
+        [SerializeField]
+        float[] linkTraversalCostMultipliers;
+
+        /// <summary>
+        /// If true and no path exists between start and goal, the NavAgent will try to find a path to the closest reachable position instead. Does not work with multiple targets!
+        /// </summary>
+        [Tooltip("If true and no path exists between start and goal, will try to find a path to the closest reachable position instead. Does not work with multiple targets!")]
+        [SerializeField]
+        bool allowCloseEnoughPath = false;
+
+        [Obsolete("Moved to out and into a separate component. Only for migration purposes.", true)]
+        [Tooltip("Speed on segments in unit/s.")]
+        [SerializeField]
+        public float movementSpeed = 5;
+
+
+        [Obsolete("Moved to out and into a separate component. Only for migration purposes.", true)]
+        [Tooltip("Speed on corner links in degrees/s.")]
+        [SerializeField]
+        public float cornerSpeed = 100;
+
+        [Obsolete("Moved to out and into a separate component. Only for migration purposes.", true)]
+        [Tooltip("Speed on jump links in unit/s.")]
+        [SerializeField]
+        public float jumpSpeed = 5;
+
+        [Obsolete("Moved to out and into a separate component. Only for migration purposes.", true)]
+        [Tooltip("Speed on fall links in unit/s.")]
+        [SerializeField]
+        public float fallSpeed = 5;
+
+        [Obsolete("Moved to out and into a separate component. Only for migration purposes.", true)]
+        [Tooltip("Speed on climb links in unit/s.")]
+        [SerializeField]
+        public float climbSpeed = 5;
+
+        [Tooltip("If true, will print debug messages.")]
+        [SerializeField]
+        public bool enableDebugMessages = false;
+
+
+        /// <summary>
+        /// Traversal cost multipliers for nav tags. A value less or equal to 0 prohibits the agent from traversing that tag.
+        /// </summary>
+        [SerializeField]
+        float[] navTagTraversalCostMultipliers;
+
+
+        [SerializeField, ReadOnly]
+        private State status;
+
+        [SerializeField, HideInInspector]
+        private int navTagMask;
+
+        internal NavSegmentPositionPointer currentMappedPosition;
+        internal PathRequest currentPathRequest;
+
+        private Path currentPath = null;
+        private PathRequest repathPathRequest;
+        private float lastRepathTime;
+        private MovementState movementState;
+        private bool traversedLinkSinceLastRepath;
+        private bool traversedLinkSinceLastPath;
+        private bool stopRequested;
+
+        #region UNITY_METHODS
+        private void OnEnable()
+        {
+            status = State.Idle;
+            currentPathRequest = new PathRequest(this);
+            repathPathRequest = new PathRequest(this);
+        }
+
+        private void Start()
+        {
+            UpdateMappedPosition();
+        }
+
+        private void OnValidate()
+        {
+            if (linkTraversalCostMultipliers == null)
+                linkTraversalCostMultipliers = new float[0];
+            if (navTagTraversalCostMultipliers == null)
+                navTagTraversalCostMultipliers = new float[0];
+
+            if (linkTraversalCostMultipliers.Length != PathBerserker2dSettings.NavLinkTypeNames.Length)
+            {
+                Utility.ResizeWithDefault(ref linkTraversalCostMultipliers, PathBerserker2dSettings.NavLinkTypeNames.Length, 1);
+            }
+            if (navTagTraversalCostMultipliers.Length != PathBerserker2dSettings.NavTags.Length)
+            {
+                Utility.ResizeWithDefault(ref navTagTraversalCostMultipliers, PathBerserker2dSettings.NavTags.Length, 1);
+            }
+
+            navTagMask = GetNavTagMask();
+        }
+
+        private void Update()
+        {
+            UpdateMappedPosition();
+            HandlePathRequest();
+
+            switch (status)
+            {
+                case State.FollowPath:
+                    Repath();
+
+                    if (movementState == MovementState.OnLink)
+                    {
+                        //check if link still exists
+                        if (CurrentPathSegment.link == null)
+                        {
+                            // link was destroyed. Wait for repath
+                            break;
+                        }
+
+                        TimeOnLink += Time.deltaTime;
+                        OnLinkTraversal?.Invoke(this);
+                    }
+                    else if (movementState == MovementState.OnSegment)
+                    {
+                        if (stopRequested)
+                        {
+                            status = State.Idle;
+                            stopRequested = false;
+                            OnStop?.Invoke(this);
+                        }
+                        else
+                        {
+                            OnSegmentTraversal?.Invoke(this);
+                        }
+                    }
+                    else
+                    {
+                        if (currentPath.Current.link.IsTraversable)
+                        {
+                            StartTraversingLink();
+                        }
+                    }
+                    break;
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Repositions the agent at the nearest segment the agent could be standing at. Segments the agent could not be at do to its tag or slope will be ignored.
+        /// </summary>
+        /// <returns>True, if warping was successful</returns>
+        public bool WarpToNearestSegment(float maximumWarpDistance = 10)
+        {
+            if (!currentMappedPosition.IsInvalid())
+            {
+                // already close enough
+                this.Position = currentMappedPosition.Position;
+                return true;
+            }
+
+            NavSegmentPositionPointer p;
+            if (PBWorld.TryMapPoint(Position, maximumWarpDistance, this, out p))
+            {
+                this.Position = p.Position;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Starts the process of pathfinding to the closest of the given goals.
+        /// NOTE: Do not call this method every frame. Calculating a path takes longer than a frame, so the agent will never start moving.
+        /// </summary>
+        /// <seealso cref="UpdatePath(Vector2[])"/>
+        /// <param name="goals">Goals to pathfind to.</param>
+        /// <returns>True, if the at least 1 goal and the agents own position could be mapped. This does not mean, that a path towards a goal exists.</returns>
+        public bool PathTo(params Vector2[] goals)
+        {
+            Stop();
+            return UpdatePath(goals);
+        }
+
+        /// <summary>
+        /// Starts the process of pathfinding to the given goal.
+        /// NOTE: Do not call this method every frame. Calculating a path takes longer than a frame, so the agent will never start moving.
+        /// </summary>
+        /// <seealso cref="UpdatePath(Vector2)"/>
+        /// <param name="goals">Goals to pathfind to.</param>
+        /// <returns>True, if the at least 1 goal and the agents own position could be mapped. This does not mean, that a path towards a goal exists.</returns>
+        public bool PathTo(Vector2 goal)
+        {
+            Stop();
+            return UpdatePath(goal);
+        }
+
+        /// <summary>
+        /// Starts the process of pathfinding to the closest given goal.
+        /// NOTE: Do not call this method every frame. Calculating a path takes longer than a frame, so the agent will never start moving.
+        /// </summary>
+        /// <returns>True, the agents own position could be mapped. This does not mean, that a path towards the goal exists.</returns>
+        private bool PathTo(IList<NavSegmentPositionPointer> goalPs)
+        {
+            Stop();
+            return UpdatePath(goalPs);
+        }
+
+        /// <summary>
+        /// Starts the process of pathfinding to the closest of the given goals. Will continue moving until the calculations for the new path are completed.
+        /// NOTE: Do not call this method every frame. Calculating a path takes longer than a frame, so the agent will never start moving.
+        /// </summary>
+        /// <seealso cref="PathTo(Vector2[])"/>
+        /// <param name="goals">Goals to pathfind to.</param>
+        /// <returns>True, if the at least 1 goal and the agents own position could be mapped. This does not mean, that a path towards a goal exists.</returns>
+        public bool UpdatePath(params Vector2[] goals)
+        {
+            if (currentMappedPosition.IsInvalid())
+                return false;
+
+            List<NavSegmentPositionPointer> goalPs = new List<NavSegmentPositionPointer>(goals.Length);
+            NavSegmentPositionPointer p;
+            for (int i = 0; i < goals.Length; i++)
+            {
+                float maxDist = Vector2.Distance(Position, goals[i]) + 0.1f;
+                if (PBWorld.TryMapPoint(goals[i], maxDist, out p) && (allowCloseEnoughPath || CouldBeLocatedAt(p)))
+                {
+                    goalPs.Add(p);
+                }
+            }
+            return UpdatePath(goalPs);
+        }
+
+        /// <summary>
+        /// Starts the process of pathfinding to the given goal. Will continue moving until the calculations for the new path are completed.
+        /// NOTE: Do not call this method every frame. Calculating a path takes longer than a frame, so the agent will never start moving.
+        /// </summary>
+        /// <seealso cref="PathTo(Vector2)"/>
+        /// <param name="goals">Goals to pathfind to.</param>
+        /// <returns>True, if the at least 1 goal and the agents own position could be mapped. This does not mean, that a path towards a goal exists.</returns>
+        public bool UpdatePath(Vector2 goal)
+        {
+            if (currentMappedPosition.IsInvalid())
+                return false;
+
+            float maxDist = Vector2.Distance(Position, goal) + 0.1f;
+            NavSegmentPositionPointer p;
+            if (!PBWorld.TryMapPoint(goal, maxDist, out p) || (!allowCloseEnoughPath && !CouldBeLocatedAt(p)))
+                return false;
+
+            return UpdatePath(new NavSegmentPositionPointer[] { p });
+        }
+
+        /// <summary>
+        /// Simple distance check between agent and CurrentSubGoal.
+        /// </summary>
+        /// <returns>True, if distance is less than maxDist</returns>
+        public bool HasReachedCurrentSubGoal(float maxDist = 0.05f)
+        {
+            Vector2 delta = PathSubGoal - Position;
+            float distance = delta.magnitude;
+            return distance < maxDist;
+        }
+
+        /// <summary>
+        /// Starts the process of pathfinding to the closest given goal. Will continue moving until the calculations for the new path are completed.
+        /// </summary>
+        /// <returns>True, the agents own position could be mapped. This does not mean, that a path towards the goal exists.</returns>
+        private bool UpdatePath(IList<NavSegmentPositionPointer> goalPs)
+        {
+            if (currentPathRequest.Status == PathRequest.RequestState.Pending)
+                return false;
+
+            if (goalPs.Count == 0)
+                return false;
+
+            if (currentMappedPosition.IsInvalid())
+                return false;
+
+            currentPathRequest.start = currentMappedPosition;
+            currentPathRequest.goals = goalPs;
+            PBWorld.PathTo(currentPathRequest);
+            traversedLinkSinceLastPath = false;
+            return true;
+        }
+
+        /// <summary>
+        /// Start pathfinding to a random position on the NavGraph. It cannot grantee that this position is reachable. Does the agent might not move after this is called.
+        /// </summary>
+        /// <returns></returns>
+        public bool SetRandomDestination()
+        {
+            if (currentMappedPosition.IsInvalid())
+                return false;
+
+            Vector2 goal = PBWorld.GetRandomPointOnGraph();
+            return PathTo(goal);
+        }
+
+
+        /// <summary>
+        /// If you implement link traversal yourself, call this to complete a link traversal.
+        /// </summary>
+        public void CompleteLinkTraversal()
+        {
+            if (IsOnLink)
+            {
+                currentPath.MoveNext();
+                StartTraversingSegment();
+            }
+        }
+
+        /// <summary>
+        /// If you implement segment traversal yourself, call this to complete a segment traversal.
+        /// </summary>
+        public void CompleteSegmentTraversal()
+        {
+            if (movementState == MovementState.OnSegment)
+            {
+                if (currentPath.HasNext)
+                {
+                    if (CurrentPathSegment.link.IsTraversable)
+                    {
+                        StartTraversingLink();
+                    }
+                    else
+                    {
+                        movementState = MovementState.WaitForLinkOnSegment;
+                    }
+                }
+                else
+                {
+                    status = State.Idle;
+                    OnReachedGoal?.Invoke(this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines, if in this agent is allowed to traverse the given link.
+        /// </summary>
+        public bool CanTraverseLink(INavLinkInstance link)
+        {
+            int linkType = link.LinkType;
+            return linkType == -1 || (GetLinkTraversalMultiplier(linkType) > 0 && height <= link.Clearance);
+        }
+
+        /// <summary>
+        /// Get the traversal cost multiplier for a given link type.
+        /// </summary>
+        public float GetLinkTraversalMultiplier(int linkType)
+        {
+            return linkTraversalCostMultipliers[linkType];
+        }
+
+        /// <summary>
+        /// Get the traversal cost multiplier for a given nav tag.
+        /// </summary>
+        public float GetNavTagTraversalMultiplier(int navTag)
+        {
+            return navTagTraversalCostMultipliers[navTag] <= 0 ? float.PositiveInfinity : navTagTraversalCostMultipliers[navTag];
+        }
+
+        /// <summary>
+        /// Whether the agents current position contains the given NavTag. NOTE: Does not work, if the agent is not currently moving on a path.
+        /// </summary>
+        /// <returns>True, if current position has supplied NavTag.</returns>
+        public bool IsOnSegmentWithTag(int navTag)
+        {
+            if (IsOnSegment)
+                return (CurrentNavTagVector & (1 << navTag)) != 0;
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Stops the current path following at the first opportunity. Link traversal will be completed before the agent stops.
+        /// </summary>
+        public void Stop()
+        {
+            stopRequested = true;
+            if (currentPathRequest.Status == PathRequest.RequestState.Pending)
+                currentPathRequest = new PathRequest(this);
+        }
+
+        /// <summary>
+        /// Stops the current path following instantly. Agent might stop wihle traversing a link (e.g. while jumping in mid air)
+        /// </summary>
+        public void ForceStop()
+        {
+            status = State.Idle;
+            currentPathRequest = new PathRequest(this);
+            OnStop?.Invoke(this);
+        }
+
+        /// <summary>
+        /// Tries to map the "other" and checks if the agent is mapped to the same segment. 
+        /// If "other" can't be mapped this will return null. 
+        /// Agents on a link will always return false.
+        /// If this agent currently can't be mapped this will return null.
+        /// </summary>
+        /// <param name="other"></param>
+        public bool? IsOnSameSegmentAs(Vector2 other)
+        {
+            if (IsOnLink)
+                return false;
+
+            NavSegmentPositionPointer p;
+            if (!PBWorld.TryMapPoint(other, out p) || currentMappedPosition.IsInvalid())
+                return null;
+            return currentMappedPosition.surface == p.surface && currentMappedPosition.cluster == p.cluster;
+        }
+
+        /// <summary>
+        /// Enumerates the points on the currently followed path. Corner links will result in the same point being enumerated twice in a row. First point will be the agents current position.
+        /// </summary>
+        public IEnumerable<Vector2> PathPoints()
+        {
+            if (!IsFollowingAPath)
+                yield break;
+
+            yield return Position;
+
+            var seg = currentPath.Current;
+            if (IsOnSegment)
+                yield return seg.LinkStart;
+
+            if (seg.Next != null)
+            {
+                yield return seg.LinkEnd;
+
+                seg = seg.Next;
+                while (seg.Next != null)
+                {
+                    yield return seg.LinkStart;
+                    yield return seg.LinkEnd;
+                    seg = seg.Next;
+                }
+
+                yield return seg.LinkStart;
+            }
+        }
+
+
+
+        /// <summary>
+        /// Creates a pathrequest for this agent using the specified start and goal. The PathRequest is for your own use. The agent will take no further action. Use it to plan theoretical paths, without the agent moving. See also PBWorld.PathTo()
+        /// </summary>
+        /// <returns>A PathRequest or null, if start or goal couldn't be mapped.</returns>
+        public PathRequest CreatePathRequest(Vector2 start, Vector2 goal)
+        {
+            float maxDist = Vector2.Distance(Position, goal) + 0.1f;
+            NavSegmentPositionPointer startPointer;
+            if (!PBWorld.TryMapPoint(start, maxDist, this, out startPointer))
+                return null;
+
+            NavSegmentPositionPointer goalPointer;
+            if (!PBWorld.TryMapPoint(goal, maxDist, out goalPointer) || (!allowCloseEnoughPath && !CouldBeLocatedAt(goalPointer)))
+                return null;
+
+            PathRequest request = new PathRequest(this);
+            request.start = startPointer;
+            request.goals = new[] { goalPointer };
+
+            return request;
+        }
+
+        /// <summary>
+        /// Convenience function that will return if the agent could reach the given point from it's current location. It runs synchronously which is not optimal for performance.
+        /// </summary>
+        public bool CanReach(Vector2 goal)
+        {
+            var pr = CreatePathRequest(Position, goal);
+            PBWorld.PathTo(pr);
+
+            while (pr.Status != PathRequest.RequestState.Finished && pr.Status != PathRequest.RequestState.Failed)
+            {
+                // fast spinning
+            }
+            return pr.Status == PathRequest.RequestState.Finished;
+        }
+
+        private int GetNavTagMask()
+        {
+            int navTagMask = 0;
+            for (int i = 0; i < navTagTraversalCostMultipliers.Length; i++)
+            {
+                if (navTagTraversalCostMultipliers[i] <= 0)
+                    navTagMask |= 1 << i;
+            }
+            return ~navTagMask;
+        }
+
+        internal bool CanTraverseSegment(Vector2 segNormal, float minClearance)
+        {
+            return Vector2.Angle(Vector2.up, segNormal) <= maxSlopeAngle && minClearance >= height;
+        }
+
+        internal bool CouldBeLocatedAt(NavSegmentPositionPointer positionPointer)
+        {
+            return Vector2.Angle(Vector2.up, positionPointer.Normal) <= maxSlopeAngle && positionPointer.cluster.GetClearanceAlongSegment(positionPointer.t) >= height && (positionPointer.cluster.GetNavTagVector(positionPointer.t) & ~navTagMask) == 0;
+        }
+
+        private void StartTraversingLink()
+        {
+            movementState = MovementState.OnLink;
+            traversedLinkSinceLastRepath = true;
+            traversedLinkSinceLastPath = true;
+            TimeOnLink = 0;
+            OnStartLinkTraversal?.Invoke(this);
+        }
+
+        private void StartTraversingSegment()
+        {
+            movementState = MovementState.OnSegment;
+            OnStartSegmentTraversal?.Invoke(this);
+        }
+
+        private void UpdateMappedPosition()
+        {
+            // probably not on ground when on link
+            if (IsOnLink)
+            {
+                // make sure to set the path to invalid
+                currentMappedPosition = NavSegmentPositionPointer.Invalid;
+                return;
+            }
+            //if (Time.time >= timeToRemapPosition)
+            //{
+            // timeToRemapPosition = Time.time + 0.2f + UnityEngine.Random.value * 0.1f;
+
+            PBWorld.TryMapAgent(Position, currentMappedPosition, this, out currentMappedPosition);
+
+            // edge case fix
+            // happens if the navagent is on a corner and mapping disagrees with path
+            if (IsFollowingAPath && currentMappedPosition.cluster != currentPath.Current.cluster)
+            {
+                if (currentMappedPosition.t <= 0.05f)
+                {
+                    currentMappedPosition = new NavSegmentPositionPointer(currentMappedPosition.surface, currentPath.Current.cluster, 0);
+                }
+                else if (currentMappedPosition.t >= currentMappedPosition.cluster.Length - 0.05f)
+                {
+                    currentMappedPosition = new NavSegmentPositionPointer(currentMappedPosition.surface, currentPath.Current.cluster, currentPath.Current.cluster.Length);
+                }
+            }
+        }
+
+        private void Repath()
+        {
+            switch (repathPathRequest.Status)
+            {
+                case PathRequest.RequestState.Draft:
+                    if (IsOnSegment && !currentMappedPosition.IsInvalid() && Time.time - lastRepathTime >= Mathf.Max(0.1f, autoRepathIntervall))
+                    {
+                        repathPathRequest.start = currentMappedPosition;
+                        repathPathRequest.goals = currentPathRequest.goals;
+
+                        PBWorld.PathTo(repathPathRequest);
+
+                        lastRepathTime = Time.time;
+                        traversedLinkSinceLastRepath = false;
+                    }
+                    break;
+                case PathRequest.RequestState.Failed:
+                    if (repathPathRequest.FailReason == PathRequest.RequestFailReason.NoPathFromStartToGoal
+                        || repathPathRequest.FailReason == PathRequest.RequestFailReason.WorldWasDestroyed)
+                    {
+                        Stop();
+                        OnFailedToFindPath?.Invoke(this);
+                    }
+
+                    repathPathRequest.Reset();
+                    break;
+                case PathRequest.RequestState.Finished:
+                    if (!traversedLinkSinceLastRepath && currentPathRequest.goals == repathPathRequest.goals)
+                    {
+                        StartFollowingPath(repathPathRequest);
+                    }
+
+                    repathPathRequest.Reset();
+                    break;
+            }
+        }
+
+        private void HandlePathRequest()
+        {
+            switch (currentPathRequest.Status)
+            {
+                case PathRequest.RequestState.Failed:
+
+                    if (!allowCloseEnoughPath)
+                    {
+                        Stop();
+
+                        if (currentPathRequest.Status == PathRequest.RequestState.Failed && enableDebugMessages)
+                            Debug.Log($"{name}: Pathrequest failed because: {currentPathRequest.FailReason}");
+
+                        OnFailedToFindPath?.Invoke(this);
+                        currentPathRequest.Reset();
+                    }
+                    else if (currentPathRequest.FailReason == PathRequest.RequestFailReason.NoPathFromStartToGoal && !currentPathRequest.closestReachablePosition.IsInvalid())
+                    {
+                        float maxDistance = 10;
+                        float distance = Vector2.Distance(currentPathRequest.closestReachablePosition.Position, Position);
+                        if (distance < maxDistance)
+                        {
+                            UpdatePath(new List<NavSegmentPositionPointer>() { currentPathRequest.closestReachablePosition });
+                        }
+                        OnFailedToFindPath?.Invoke(this);
+                    }
+                    break;
+                case PathRequest.RequestState.Finished:
+                    if (!traversedLinkSinceLastPath)
+                    {
+                        StartFollowingPath(currentPathRequest);
+                        currentPathRequest.Reset();
+                    }
+                    else
+                    {
+                        traversedLinkSinceLastPath = false;
+                        // retry
+                        if (IsOnSegment && !currentMappedPosition.IsInvalid())
+                            PathTo(currentPathRequest.goals);
+                    }
+                    break;
+            }
+        }
+
+        private bool StartFollowingPath(PathRequest request)
+        {
+#if PBDEBUG
+            Debug.Log("Pathrequest succeed. " + request.Path);
+            Debug.Assert(request.Status == PathRequest.RequestState.Finished);
+#endif
+            // check that we are close to the path start
+            if (Vector2.Distance(request.start.Position, Position) > maximumDistanceToPathStart)
+            {
+#if PBDEBUG
+                Debug.Log("Moved to far away from path start. Not using that path");
+#endif
+                request.Fail(PathRequest.RequestFailReason.ToFarFromStart);
+                return false;
+            }
+
+            stopRequested = false;
+            lastRepathTime = Time.time;
+            this.status = State.FollowPath;
+            currentPath = request.Path;
+
+            StartTraversingSegment();
+
+            OnStartFollowingNewPath?.Invoke(this);
+            return true;
+        }
+    }
+}
+
+
+
+PathBerserker2d.NavAreaMarker Class
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Marks all segments within an area with a specific NavTag.
+    /// </summary>
+    [RequireComponent(typeof(RectTransform))]
+    [AddComponentMenu("PathBerserker2d/Nav Area Marker")]
+    [HelpURL("https://oribow.github.io/PathBerserker2dDemo/Documentation/classPathBerserker2d_1_1NavAreaMarker.html")]
+    public class NavAreaMarker : MonoBehaviour
+    {
+        public int NavTag
+        {
+            get => navTag;
+            set
+            {
+                navTag = PathBerserker2dSettings.EnsureNavTagExists(value);
+            }
+        }
+        public Color MarkerColor => PathBerserker2dSettings.GetNavTagColor(navTag);
+
+        [SerializeField]
+        int navTag = 0;
+
+        [Tooltip("Minimum angle between the segment tangent and up. Use this to only mark segments with certain angles.")]
+        [SerializeField, Range(0, 360)]
+        float minAngle = 0;
+
+        [Tooltip("Maximum angle between the segment tangent and up. Use this to only mark segments with certain angles.")]
+        [SerializeField, Range(0, 360)]
+        float maxAngle = 360;
+
+        /// <summary>
+        /// Updates the modified marked area after a continuous time period of no movement.
+        /// </summary>
+        [Tooltip("Updates the modified marked area after a continuous time period of no movement.")]
+        [SerializeField]
+        public float updateAfterTimeOfNoMovement = 0.2f;
+
+        /// <summary>
+        /// Updates the modified marked area after this amount of time passed.
+        /// </summary>
+        [Tooltip("Updates the modified marked area after this amount of time passed.")]
+        [SerializeField]
+        public float updateAfterTime = 1;
+
+        public int PBComponentId { get; }
+
+        private RectTransform rectTransform;
+        private List<NavAreaMarkerInstance> instances;
+        private float lastMovementTime;
+        private float isDirtySince;
+        private bool isDirty = false;
+
+        #region UNITY
+        private void OnEnable()
+        {
+            rectTransform = GetComponent<RectTransform>();
+            instances = new List<NavAreaMarkerInstance>();
+            transform.hasChanged = false;
+            AddToGraph();
+        }
+
+        private void OnDisable()
+        {
+            RemoveFromGraph();
+        }
+
+        private void Update()
+        {
+            if (transform.hasChanged)
+            {
+                if (!isDirty)
+                    isDirtySince = Time.time;
+
+                isDirty = true;
+                transform.hasChanged = false;
+                lastMovementTime = Time.time;
+            }
+
+            if (isDirty && 
+                (Time.time - lastMovementTime > updateAfterTimeOfNoMovement
+                || Time.time - isDirtySince > updateAfterTime))
+            {
+                AddToGraph();
+                lastMovementTime = float.MaxValue;
+            }
+        }
+
+        private void OnValidate()
+        {
+            navTag = PathBerserker2dSettings.EnsureNavTagExists(navTag);
+            updateAfterTimeOfNoMovement = Mathf.Max(0, updateAfterTimeOfNoMovement);
+            updateAfterTime = Mathf.Max(0, updateAfterTime);
+        }
+
+        private void Reset()
+        {
+            // only modify sizeDelta, if its at default value
+            var rt = GetComponent<RectTransform>();
+            if (rt.sizeDelta == new Vector2(100, 100))
+                rt.sizeDelta = Vector2.one;
+        }
+        #endregion
+
+        /// <summary>
+        /// Updates area of effect mapping. Call after modifying NavAreaMarker transform.
+        /// Alternatively, instead of calling this function, set transform.hasChanged to true.
+        /// </summary>
+        public void UpdateMappings()
+        {
+            AddToGraph();
+            lastMovementTime = float.MaxValue;
+        }
+
+        private void AddToGraph()
+        {
+            isDirty = false;
+            if (instances.Count > 0)
+                RemoveFromGraph();
+
+            var r = rectTransform.rect;
+            Vector2 scaleFactor = rectTransform.lossyScale * r.size * 0.5f;
+            Vector2 center = r.center;
+
+            r.min = center - scaleFactor + (Vector2)rectTransform.position;
+            r.max = center + scaleFactor + (Vector2)rectTransform.position;
+
+            var results = PBWorld.BoxCastWithStaged(r, rectTransform.rotation.eulerAngles.z, minAngle, maxAngle);
+
+            foreach (var pointer in results)
+            {
+                var instance = new NavAreaMarkerInstance(this, pointer);
+                PBWorld.NavGraph.AddSegmentModifier(instance);
+                instances.Add(instance);
+            }
+        }
+
+        private void RemoveFromGraph()
+        {
+            foreach (var instance in instances)
+            {
+                PBWorld.NavGraph.RemoveSegmentModifier(instance);
+            }
+            instances.Clear();
+        }
+    }
+
+    internal class NavAreaMarkerInstance
+    {
+        public int NavTag => original.NavTag;
+        public float T => position.t;
+        public float Length => position.length;
+
+        public NavSubsegmentPointer position;
+        public int PBComponentId => original.PBComponentId;
+
+        NavAreaMarker original;
+
+        public NavAreaMarkerInstance(NavAreaMarker original)
+        {
+            this.original = original;
+        }
+
+        public NavAreaMarkerInstance(NavAreaMarker original, NavSubsegmentPointer position)
+        {
+            this.original = original;
+            this.position = position;
+        }
+    }
+}
+
+
+PathBerserker2d.NavLink Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// A link from one segment to another.
+    /// </summary>
+    /// <remarks>
+    /// NavLink gets added to the pathfinder at runtime.
+    /// It can be loaded and unloaded by enabling / disabling the component
+    /// After being loaded and added to the pathfinder, the position of the link will not be updated.
+    /// For example that means, if your link start position gets mapped to a position on a moving platform, the initial mapping of the link start to the segment won't change.
+    /// The mapped position is relative to the NavSurface containing the moving platform. 
+    /// It will follow the movements of the platform, even though the start marker of the link will not.
+    /// ## Mapping
+    /// You can update the links mapping by calling <see cref="UpdateMapping"/> 
+    ///
+    /// Internally, when moving the start and end marker around in scene view while the game is playing,  <see cref="UpdateMapping"/> is called.
+    /// That means you can move the markers around and the link will update its mapping.
+    /// If you move them around by any other means however, you have to call <see cref="UpdateMapping"/> afterwards.
+    /// ## Visualization
+    /// Everything visualization related is purely for you and is not meant to accessed at runtime.
+    /// Visualizations like bezier or projectile are meant to allow you to figure out a good clearance value.
+    /// ## Traversable
+    /// When a link is marked bidirectional, internally two links get added to the pathfinder. One for each direction.
+    /// Both links traversable can be set separately with <see cref="SetStartToGoalLinkTraversable"/> and <see cref="SetGoalToStartLinkTraversable"/>.
+    ///
+    /// **Not being traversable should always be temporary.** In the sense of, **"this link is not traversable right now, but will be in the future"**.
+    /// NavAgents will wait indefinitely for the link to become traversable again.
+    /// You can adjust AvgWaitTime to increase the cost of such not alway traversable links.
+    /// The pathfinder will add it to the cost of traversal.
+    /// The pathfinder does not care if a link is marked as traversable or not. It only cares about the cost of traversal.
+    /// If you want to disable a link for a longer time, consider disabling the link component. Then it will be unloaded and not considered for any pathfinding.
+    /// </remarks>
+    [AddComponentMenu("PathBerserker2d/Nav Link")]
+    public sealed class NavLink : BaseNavLink
+    {
+        public enum VisualizationType
+        {
+            Linear = 0,
+            QuadradticBezier = 1,
+            Projectile = 2,
+            Teleport = 3,
+            None = 4,
+            TransformBasedMovement = 5
+        }
+
+        public Vector2 GoalWorldPosition
+        {
+            get
+            {
+                return transform.TransformPoint(goal);
+            }
+            set
+            {
+                goal = transform.InverseTransformPoint(value);
+            }
+        }
+        public Vector2 StartWorldPosition
+        {
+            get
+            {
+                return transform.TransformPoint(start);
+            }
+            set
+            {
+                start = transform.InverseTransformPoint(value);
+            }
+        }
+        public Vector2 StartLocalPosition
+        {
+            get
+            {
+                return start;
+            }
+            set
+            {
+                start = value;
+            }
+        }
+        public Vector2 GoalLocalPosition
+        {
+            get
+            {
+                return goal;
+            }
+            set
+            {
+                goal = value;
+            }
+        }
+
+        public VisualizationType CurrentVisualizationType { get { return visualizationType; } }
+
+        public bool IsBidirectional
+        {
+            get { return isBidirectional; }
+            set
+            {
+                if (isBidirectional != value && !value)
+                {
+                    linkGoalToStart.RemoveFromWorld();
+                }
+                isBidirectional = value;
+            }
+        }
+
+        public bool IsAddedToWorld => linkStartToGoal?.IsAdded ?? false;
+
+        internal float HorizontalSpeed => horizontalSpeed;
+        internal float TraversalAngle => traversalAngle;
+        internal Vector2 BezierControlPoint { get => bezierControlPoint; set => bezierControlPoint = value; }
+
+        [Header("Location")]
+        [SerializeField]
+        Vector2 start = Vector2.left * 2;
+        [SerializeField]
+        Vector2 goal = Vector2.right * 2;
+        [SerializeField]
+        bool isBidirectional = true;
+        [SerializeField]
+        VisualizationType visualizationType = VisualizationType.TransformBasedMovement;
+        [SerializeField]
+        float traversalAngle = 0;
+        [SerializeField]
+        float horizontalSpeed = 1;
+        [SerializeField, HideInInspector]
+        Vector2 bezierControlPoint = Vector2.up * 3;
+
+        private NavLinkInstance linkStartToGoal;
+        private NavLinkInstance linkGoalToStart;
+
+        #region UNITY
+        private void OnEnable()
+        {
+            if (linkStartToGoal == null)
+                linkStartToGoal = new NavLinkInstance(this);
+            if (linkGoalToStart == null)
+                linkGoalToStart = new NavLinkInstance(this);
+
+            AutoUpdateMapping();
+        }
+
+        private void OnDisable()
+        {
+            linkStartToGoal.RemoveFromWorld();
+            linkGoalToStart.RemoveFromWorld();
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            if (linkGoalToStart != null && (!linkGoalToStart.IsAdded || linkStartToGoal != null))
+            {
+                AutoUpdateMapping();
+
+                if (!isBidirectional)
+                    linkGoalToStart.RemoveFromWorld();
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Update the mapping for both link instances. Call after link positions have been changed. 
+        /// </summary>
+        public void UpdateMapping()
+        {
+            NavSegmentPositionPointer navStart, navGoal;
+            if (PBWorld.TryMapPointWithStaged(StartWorldPosition, out navStart)
+                && PBWorld.TryMapPointWithStaged(GoalWorldPosition, out navGoal))
+            {
+                linkStartToGoal.UpdateMapping(navStart, navGoal, StartWorldPosition, GoalWorldPosition);
+                linkGoalToStart.UpdateMapping(navGoal, navStart, GoalWorldPosition, StartWorldPosition);
+
+                linkStartToGoal.AddToWorld();
+                if (isBidirectional) linkGoalToStart.AddToWorld();
+            }
+            else
+            {
+                linkStartToGoal.RemoveFromWorld();
+                linkGoalToStart.RemoveFromWorld();
+            }
+        }
+
+        /// <summary>
+        /// Set the link instance from start point to goal traversable.
+        /// </summary>
+        public void SetStartToGoalLinkTraversable(bool traversable)
+        {
+            this.linkStartToGoal.IsTraversable = traversable;
+        }
+
+        /// <summary>
+        /// Set the link instance from goal point to start traversable. This link only exist, if the link is bidirectional.
+        /// </summary>
+        public void SetGoalToStartLinkTraversable(bool traversable)
+        {
+            this.linkGoalToStart.IsTraversable = traversable;
+        }
+
+        private void AutoUpdateMapping()
+        {
+            if (autoMap)
+                UpdateMapping();
+        }
+    }
+}
+
+
+PathBerserker2d.NavLinkCluster Class
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Creates links to interconnect a collection.
+    /// </summary>
+    /// <remarks>
+    /// Consists of a list of points. 
+    /// At runtime a link is generated for each point to connect it with each other point.
+    /// This is a convenience component. It drastically reduces the amount of work required to setup an elevator or ladder for example.
+    ///
+    /// Otherwise it functions and behaves the same as a NavLink.
+    /// Reference the documentation for NavLink for further details.
+    /// </remarks>
+    [AddComponentMenu("PathBerserker2d/Nav Link Cluster")]
+    public sealed class NavLinkCluster : BaseNavLink
+    {
+        internal enum PointTraversalType
+        {
+            Exit,
+            Entry,
+            Both
+        }
+
+        internal LinkPoint[] LinkPoints => linkPoints;
+
+        [SerializeField]
+        internal LinkPoint[] linkPoints = new LinkPoint[] { new LinkPoint(Vector2.left * 2), new LinkPoint(Vector2.right * 2) };
+
+        private List<NavLinkInstance> linkInstances;
+
+        #region UNITY
+        private void OnEnable()
+        {
+            if (linkInstances == null)
+                linkInstances = new List<NavLinkInstance>();
+
+            if (autoMap)
+                UpdateMapping();
+        }
+
+        private void OnDisable()
+        {
+            foreach (var li in linkInstances)
+                li.RemoveFromWorld();
+        }
+        #endregion
+
+        /// <summary>
+        /// Update the mapping for all link instances. Call after link positions have been changed.
+        /// </summary>
+        public void UpdateMapping()
+        {
+            NavSegmentPositionPointer navStart, navGoal;
+            int instanceCounter = 0;
+            foreach (var startPoint in linkPoints)
+            {
+                if (startPoint.traversalType == PointTraversalType.Exit)
+                    continue;
+
+                Vector2 worldStart = transform.TransformPoint(startPoint.point);
+                foreach (var goalPoint in linkPoints)
+                {
+                    if (goalPoint.traversalType == PointTraversalType.Entry || goalPoint.point == startPoint.point)
+                        continue;
+
+                    Vector2 worldGoal = transform.TransformPoint(goalPoint.point);
+                    if (instanceCounter >= linkInstances.Count)
+                    {
+                        linkInstances.Add(new NavLinkInstance(this));
+                    }
+                    var linkInstance = linkInstances[instanceCounter++];
+
+                    if (PBWorld.TryMapPointWithStaged(worldStart, out navStart)
+                        && PBWorld.TryMapPointWithStaged(worldGoal, out navGoal))
+                    {
+                        linkInstance.UpdateMapping(navStart, navGoal, worldStart, worldGoal);
+                        linkInstance.AddToWorld();
+                    }
+                    else
+                    {
+                        linkInstance.RemoveFromWorld();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set link instances to be traversable based on their start and end points.
+        /// </summary>
+        /// <param name="traversableFunc">Determines whether to enable or disable the given link instance. Link instance is given as its start and goal position.</param>
+        public void SetLinksTraversable(System.Func<Vector2, Vector2, bool> traversableFunc)
+        {
+            foreach (var link in linkInstances)
+            {
+                if (link.IsAdded)
+                    link.IsTraversable = traversableFunc(link.Start.Position, link.Goal.Position);
+            }
+        }
+
+        [System.Serializable]
+        internal struct LinkPoint
+        {
+            [SerializeField]
+            public Vector2 point;
+            [SerializeField]
+            public PointTraversalType traversalType;
+
+            public LinkPoint(Vector2 point)
+            {
+                this.point = point;
+                this.traversalType = PointTraversalType.Both;
+            }
+        }
+    }
+}
+
+
+PathBerserker2d.NavSegment
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    [System.Serializable]
+    internal class NavSegment : LineSegmentWithClearance, System.IEquatable<NavSegment>
+    {
+        public NavSurface Owner { get { return owner; } }
+
+        [SerializeField]
+        private NavSurface owner;
+
+        public NavSegment(NavSurface owner, Vector2 start, Vector2 dirNorm, float length, float[] cellClearances) : base(start, dirNorm, length, cellClearances)
+        {
+            this.owner = owner;
+        }
+
+        public bool Equals(NavSegment other)
+        {
+            return ReferenceEquals(other, this);
+        }
+
+        public override string ToString()
+        {
+            return $"NavSegment({Start} -{Tangent}> {End})";
+        }
+    }
+}
+
+
+PathBerserker2d.NavSegmentPointer Struct
+using System;
+using System.Collections.Generic;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Points to a segment.
+    /// </summary>
+    public struct NavSegmentPointer : IEquatable<NavSegmentPointer>
+    {
+        public static NavSegmentPointer Invalid { get { return new NavSegmentPointer(null, 0); } }
+
+        public readonly int proxyDataIndex;
+        public readonly NavSurface surface;
+
+        public NavSegmentPointer(NavSurface surface, int proxyDataIndex)
+        {
+            this.surface = surface;
+            this.proxyDataIndex = proxyDataIndex;
+        }
+
+        public static bool operator ==(NavSegmentPointer a, NavSegmentPointer b)
+        {
+            return a.surface == b.surface && a.proxyDataIndex == b.proxyDataIndex;
+        }
+
+        public static bool operator !=(NavSegmentPointer a, NavSegmentPointer b)
+        {
+            return a.surface != b.surface || a.proxyDataIndex != b.proxyDataIndex;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is NavSegmentPointer && Equals((NavSegmentPointer)obj);
+        }
+
+        public bool Equals(NavSegmentPointer other)
+        {
+            return proxyDataIndex == other.proxyDataIndex &&
+                   EqualityComparer<NavSurface>.Default.Equals(surface, other.surface);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1340906973;
+            hashCode = hashCode * -1521134295 + proxyDataIndex.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<NavSurface>.Default.GetHashCode(surface);
+            return hashCode;
+        }
+    }
+}
+
+
+PathBerserker2d.NavSegmentPositionPointer Struct
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Points to a position on a segment.
+    /// </summary>
+    public struct NavSegmentPositionPointer : IEquatable<NavSegmentPositionPointer>
+    {
+        public static NavSegmentPositionPointer Invalid { get { return new NavSegmentPositionPointer(null, null, 0); } }
+
+        public Vector2 Position => cluster.owner.LocalToWorld.MultiplyPoint3x4(cluster.GetPositionAlongSegment(t));
+        public Vector2 Normal => surface.LocalToWorldMatrix.MultiplyVector(cluster.Normal);
+
+        internal readonly float t;
+        internal readonly NavGraphNodeCluster cluster;
+        internal readonly NavSurface surface;
+        // used to detect if the surface has changed
+        internal readonly int bakeIteration;
+
+        internal NavSegmentPositionPointer(NavSurface surface, NavGraphNodeCluster cluster, float t)
+        {
+            this.surface = surface;
+            this.cluster = cluster;
+            this.t = t;
+            this.bakeIteration = surface != null ? surface.BakeIteration : -1;
+        }
+
+        public static bool operator ==(NavSegmentPositionPointer a, NavSegmentPositionPointer b)
+        {
+            return a.surface == b.surface && a.cluster == b.cluster && a.t == b.t;
+        }
+
+        public static bool operator !=(NavSegmentPositionPointer a, NavSegmentPositionPointer b)
+        {
+            return a.surface != b.surface || a.cluster != b.cluster || a.t != b.t;
+        }
+
+        [Obsolete("Use the property Position instead.")]
+        public Vector2 GetPosition()
+        {
+            return cluster.owner.LocalToWorld.MultiplyPoint3x4(cluster.GetPositionAlongSegment(t));
+        }
+
+        public bool IsInvalid()
+        {
+            return surface == null || bakeIteration != surface.BakeIteration;
+        }
+
+        public bool IsValid()
+        {
+            return surface != null && surface.BakeIteration == bakeIteration;
+        }
+
+        public bool Equals(NavSegmentPositionPointer other)
+        {
+            return other != null && t == other.t &&
+                   cluster == other.cluster &&
+                   surface == other.surface;
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                var p = (NavSegmentPositionPointer)obj;
+                return Equals(p);
+            }
+        }
+
+        public override string ToString()
+        {
+            if (IsInvalid())
+                return $"NSP is invalid";
+            return $"NSP points at " + Position;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1774642579;
+            hashCode = hashCode * -1521134295 + t.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<NavGraphNodeCluster>.Default.GetHashCode(cluster);
+            hashCode = hashCode * -1521134295 + EqualityComparer<NavSurface>.Default.GetHashCode(surface);
+            hashCode = hashCode * -1521134295 + bakeIteration.GetHashCode();
+            return hashCode;
+        }
+    }
+}
+
+
+PathBerserker2d.NavSubsegmentPointer Struct
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Points to a subsection on a segment. It has a start point on the target segment and a length.
+    /// </summary>
+    public struct NavSubsegmentPointer : IEquatable<NavSubsegmentPointer>
+    {
+        public static NavSubsegmentPointer Invalid { get { return new NavSubsegmentPointer(null, 0, 0, 0); } }
+
+        public readonly float t;
+        public readonly float length;
+        public readonly int proxyDataIndex;
+        public readonly NavSurface surface;
+        public readonly int bakeIteration;
+
+        public NavSubsegmentPointer(NavSurface surface, int proxyDataIndex, float t, float length)
+        {
+            this.surface = surface;
+            this.proxyDataIndex = proxyDataIndex;
+            this.t = t;
+            this.length = length;
+            this.bakeIteration = surface != null ? surface.BakeIteration : -1;
+        }
+
+        public static bool operator ==(NavSubsegmentPointer a, NavSubsegmentPointer b)
+        {
+            return a.surface == b.surface && a.proxyDataIndex == b.proxyDataIndex && a.t == b.t && a.length == b.length;
+        }
+
+        public static bool operator !=(NavSubsegmentPointer a, NavSubsegmentPointer b)
+        {
+            return a.surface != b.surface || a.proxyDataIndex != b.proxyDataIndex || a.t != b.t || a.length != b.length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is NavSubsegmentPointer && Equals((NavSubsegmentPointer)obj);
+        }
+
+        public bool Equals(NavSubsegmentPointer other)
+        {
+            return t == other.t &&
+                   length == other.length &&
+                   proxyDataIndex == other.proxyDataIndex &&
+                   EqualityComparer<NavSurface>.Default.Equals(surface, other.surface);
+        }
+
+        public bool IsInvalid()
+        {
+            return surface == null || bakeIteration != surface.BakeIteration;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1731056371;
+            hashCode = hashCode * -1521134295 + t.GetHashCode();
+            hashCode = hashCode * -1521134295 + length.GetHashCode();
+            hashCode = hashCode * -1521134295 + proxyDataIndex.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<NavSurface>.Default.GetHashCode(surface);
+            return hashCode;
+        }
+    }
+}
+
+
+PathBerserker2d.NavSegmentSubstractor Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Marks with its RectTransform an area to remove segments from.
+    /// </summary>
+    [RequireComponent(typeof(RectTransform))]
+    public class NavSegmentSubstractor : MonoBehaviour
+    {
+        /// <summary>
+        /// Minimum angle between the segment tangent and up. Use this to only remove segments with certain angles.
+        /// </summary>
+        [Tooltip("Minimum angle between the segment tangent and up. Use this to only remove segments with certain angles.")]
+        [SerializeField, Range(0, 360)]
+        public float fromAngle = 0;
+
+        /// <summary>
+        /// Maximum angle between the segment tangent and up. Use this to only remove segments with certain angles.
+        /// </summary>
+        [Tooltip("Maximum angle between the segment tangent and up. Use this to only remove segments with certain angles.")]
+        [SerializeField, Range(0, 360)]
+        public float toAngle = 360;
+    }
+}
+
+
+PathBerserker2d.NavSurface Class
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// A collection of line segments to traverse on.
+    /// </summary>
+    /// <remarks>
+    /// NavSurfaces are independent collections of segments. At runtime their data gets added to the pathfinder.
+    /// You can load and unload NavSurfaces at runtime. This allows you to setup Prefabs with navigation data and stream them in at runtime.
+    /// Loading and unloading is as simple as enabling and disabling a NavSurface script.
+    /// ## Baking
+    /// The bake process **only consideres colliders that are children of the NavSurface**.
+    /// This also extends to the clearance calculation of segment cells.
+    /// Baking is currently limited to editor mode only. You can't bake at runtime.
+    /// ## Transformations
+    /// All baked postion data is relative to the current NavSurface transformation.
+    /// Segments in calculated paths remain relative to the NavSurface of origin. 
+    /// If you pathfind on a NavSurface and then move it, the path will reflect that transformation, without any extra calculations.
+    ///
+    /// See also \ref cc_navagent "Core concepts: NavAgent".
+    /// <remarks/>
+    [ScriptExecutionOrder(-55)]
+    [AddComponentMenu("PathBerserker2d/Nav Surface")]
+    public class NavSurface : MonoBehaviour, INavSegmentCreationParamProvider
+    {
+        internal const int CurrentBakeVersion = 2;
+
+        public Rect WorldBounds => Geometry.EnlargeRect(Geometry.TransformBoundingRect(localBoundingRect, LocalToWorldMatrix), PathBerserker2dSettings.PointMappingDistance);
+
+        public float MaxClearance => maxClearance;
+
+        public float MinClearance => minClearance;
+
+        public float CellSize => cellSize;
+
+        public LayerMask ColliderMask
+        {
+            get => includedColliders;
+            set => includedColliders = value;
+        }
+
+        /// <summary>
+        /// Length of all segments combined
+        /// </summary>
+        public float TotalLineLength => totalLineLength;
+
+        /// <summary>
+        /// Segments exceeding this angle are removed from the bake output. Should equal the highest slope angle of your NavAgents.
+        /// </summary>
+        public float MaxSlopeAngle => maxSlopeAngle;
+
+        /// <summary>
+        /// Parameter for the line simplifier (Ramer-Douglas-Peucker). Higher values reduce overall segment count at the expense of fitting the original collider shape.
+        /// </summary>
+        public float SmallestDistanceYouCareAbout => smallestDistanceYouCareAbout;
+
+        /// <summary>
+        /// Segments shorter than this will be removed from the bake output.
+        /// </summary>
+        public float MinSegmentLength => minSegmentLength;
+
+        /// <summary>
+        /// Gets fired after a BakeJob initiated by a call to Bake() completes.
+        /// THIS DOES NOT mean that the changes are already available to the pathfinder. That will happen later.
+        /// Use OnReadyToPathfind for that instead. This only really tells you when you may start a new bake.
+        /// </summary>
+        public event Action OnBakingCompleted;
+
+        /// Called after the NavSurface has been added to the pathfinder. Usually sometime after OnBakingCompleted has been called. Only know are the changes from baking actually visible in the pathfinder.
+        /// IF THERE ARE MULTIPLE NavSurface Components on this GameObject you are ass out. These events will fire for both of them always. Don't put 2 NavSurfaces on the same GameObject!
+        public event Action OnReadyToPathfind;
+
+        /// Called after the NavSurface is removed from the pathfinder. Usually after the NavSurface is deleted OR REBAKED! Removing the old NavSurface data to replace it with new baked data will trigger this event. When this event is called, you can be sure that the old data NavData is no longer in use for anything.
+        /// IF THERE ARE MULTIPLE NavSurface Components on this GameObject you are ass out. These events will fire for both of them always. Don't put 2 NavSurfaces on the same GameObject!
+        public event Action OnRemovedFromPathfinding;
+
+        internal List<NavSegment> NavSegments => navSegments;
+        internal NavSurfaceBakeJob BakeJob { get; private set; }
+        internal bool hasDataChanged;
+        internal int BakeVersion => bakeVersion;
+        internal int BakeIteration => bakeIteration;
+        internal int PBComponentId { get; private set; }
+
+        [Header("Bake Settings")]
+        [Tooltip("Maximum height that gets checked for potential obstructions. Should equal the height of your largest NavAgent.")]
+        [SerializeField]
+        float maxClearance = 1.8f;
+
+        [Tooltip("Parts of segments with less unobstructed space will be erased. Should equal the height of your smallest NavAgent.")]
+        [SerializeField]
+        float minClearance = 0.1f;
+
+        [Tooltip("Size of a single segment part. Smaller numbers increase the accuracy of obstruction calculations at the expense of both bake and runtime performance.")]
+        [SerializeField]
+        float cellSize = 0.1f;
+
+        [Tooltip("Colliders to consider for the bake process.")]
+        [SerializeField]
+        LayerMask includedColliders = ~0;
+
+
+        [Tooltip("Use only colliders from gameobjects marked static.")]
+        [SerializeField]
+        bool onlyStaticColliders = false;
+
+        [Tooltip("Segments exceeding this angle are removed from the bake output. Should equal the highest slope angle of your NavAgents.")]
+        [SerializeField]
+        [Range(0, 180)]
+        float maxSlopeAngle = 180f;
+
+        [Tooltip("Parameter for the line simplifier (Ramer-Douglas-Peucker). Higher values reduce overall segment count at the expense of fitting the original collider shape.")]
+        [SerializeField]
+        float smallestDistanceYouCareAbout = 0.1f;
+
+        [Tooltip("Segments shorter than this will be removed from the bake output.")]
+        [SerializeField]
+        float minSegmentLength = 0.1f;
+
+        [SerializeField]
+        private List<NavSegment> navSegments = new List<NavSegment>();
+
+        [SerializeField, HideInInspector]
+        private Rect localBoundingRect;
+        [SerializeField, HideInInspector]
+        private float totalLineLength;
+        [SerializeField, HideInInspector]
+        // version of bake algorithm this surface was last baked with
+        private int bakeVersion = 0;
+        [SerializeField, HideInInspector]
+        // number of distinct bakes
+        private int bakeIteration = 0;
+
+        Matrix4x4 localToWorldMat;
+
+        #region Unity_Methods
+        private void Awake()
+        {
+            UpdateLocalMatrix();
+            PBComponentId = PBWorld.GeneratePBComponentId();
+            PBWorld.NavGraphChangeSource.OnGraphChange += NavGraphChangeSource_OnGraphChange;
+        }
+
+        private void OnEnable()
+        {
+            if (navSegments != null && navSegments.Count > 0)
+            {
+                PBWorld.NavGraph.AddNavSurface(this);
+            }
+        }
+
+        private void OnDisable()
+        {
+            PBWorld.NavGraph.RemoveNavSurface(this);
+        }
+
+        private void OnValidate()
+        {
+            if (minClearance <= 0)
+                minClearance = 0.1f;
+            if (maxClearance <= minClearance)
+                maxClearance = minClearance + 0.1f;
+            if (cellSize <= 0)
+                cellSize = 0.1f;
+
+            BakeJob = new NavSurfaceBakeJob(this);
+            hasDataChanged = true;
+        }
+
+        private void Update()
+        {
+            UpdateLocalMatrix();
+        }
+
+        #endregion
+
+        public Vector2 LocalToWorld(Vector2 pos)
+        {
+            return LocalToWorldMatrix.MultiplyPoint3x4(pos);
+        }
+
+        public Matrix4x4 LocalToWorldMatrix
+        {
+            get
+            {
+                return localToWorldMat;
+            }
+        }
+
+        internal Matrix4x4 LocalToWorldMatrixEditor
+        {
+            get
+            {
+                return Matrix4x4.TRS(transform.position, Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z), Vector3.one); ;
+            }
+        }
+
+        public Vector2 WorldToLocal(Vector2 pos)
+        {
+            return WorldToLocalMatrix.MultiplyPoint3x4(pos);
+        }
+
+        public Matrix4x4 WorldToLocalMatrix => LocalToWorldMatrix.inverse;
+
+        /// <summary>
+        /// Updates NavSurface baked data. Baking largely runs in a different thread. This function should be run as a Coroutine. NavSurface will be removed from World first and added back, when baking is completed.
+        /// Calling this function before the previous bake job completed, will abort the previous job.
+        /// </summary>
+        public IEnumerator Bake()
+        {
+            PBWorld.NavGraph.RemoveNavSurface(this);
+            StartBakeJob();
+
+            while (!BakeJob.IsFinished)
+            {
+                yield return null;
+            }
+            UpdateInternalData(BakeJob.navSegments, BakeJob.bounds);
+            PBWorld.NavGraph.AddNavSurface(this);
+
+            OnBakingCompleted?.Invoke();
+        }
+
+        internal void StartBakeJob()
+        {
+            UpdateLocalMatrix();
+            if (BakeJob == null)
+                BakeJob = new NavSurfaceBakeJob(this);
+            else
+                BakeJob.AbortJoin();
+
+            var subtractors = GetComponentsInChildren<NavSegmentSubstractor>();
+            Tuple<Rect, Vector2>[] substractorRects = new Tuple<Rect, Vector2>[subtractors.Length];
+            for (int i = 0; i < subtractors.Length; i++)
+            {
+                var rT = subtractors[i].GetComponent<RectTransform>();
+                var rect = rT.rect;
+                Vector2 scaleFactor = rT.lossyScale * rect.size * 0.5f;
+                Vector2 center = rect.center;
+
+                rect.min = center - scaleFactor + (Vector2)rT.position;
+                rect.max = center + scaleFactor + (Vector2)rT.position;
+
+                substractorRects[i] = new Tuple<Rect, Vector2>(rect, new Vector2(subtractors[i].fromAngle, subtractors[i].toAngle));
+            }
+
+            var filter = new ColliderLayerFilter(includedColliders, onlyStaticColliders);
+            var allColliders = filter.Filter(this.GetComponentsInChildren<Collider2D>()).ToArray();
+
+            var it = new IntersectionTester(this, WorldToLocalMatrix);
+            Polygon[][] polygons = new Polygon[allColliders.Length][];
+            for (int i = 0; i < allColliders.Length; i++)
+            {
+                var col = allColliders[i];
+                polygons[i] = it.ColliderToPolygon(col);
+            }
+
+            BakeJob.Start(polygons, it, substractorRects, WorldToLocalMatrix);
+        }
+
+        internal NavSegment GetSegment(int index)
+        {
+            return navSegments[index];
+        }
+
+        internal void UpdateInternalData(List<NavSegment> segments, Rect bounds)
+        {
+            if (segments == null)
+            {
+                Debug.LogError("Updating NavSurface failed. Got null as segments");
+                return;
+            }
+
+            this.localBoundingRect = Geometry.TransformBoundingRect(bounds, WorldToLocalMatrix);
+
+            this.totalLineLength = 0;
+            foreach (var seg in segments)
+                totalLineLength += seg.Length;
+
+            this.navSegments = segments;
+            bakeVersion = CurrentBakeVersion;
+            hasDataChanged = true;
+            bakeIteration++;
+        }
+
+        /// <summary>
+        /// Filters and rethrows change events that have this NavSurface as target. It's a convenience feature.
+        /// You may also just subscribe to PBWorld.NavGraphChangeSource.OnGraphChange and filter the changes yourself.
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void NavGraphChangeSource_OnGraphChange(NavGraphChange arg1, int srcCompId)
+        {
+            if (srcCompId == PBComponentId)
+            {
+                switch (arg1)
+                {
+                    case NavGraphChange.NavSurfaceAdded:
+                        OnReadyToPathfind?.Invoke();
+                        break;
+                    case NavGraphChange.NavSurfaceRemoved:
+                        OnRemovedFromPathfinding?.Invoke();
+                        break;
+                    default:
+                        // this could happen if there is another component on this gameobject which the change event was directed at. Just ignore it.
+                        break;
+                }
+            }
+        }
+
+        private void UpdateLocalMatrix()
+        {
+            localToWorldMat = Matrix4x4.TRS(transform.position, Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z), Vector3.one);
+        }
+    }
+}
+
+
+PathBerserker2d.Path Class
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// A path ready to be traversed
+    /// </summary>
+    public class Path : IEnumerator<PathSegment>
+    {
+        public PathSegment Current { get; private set; }
+        object IEnumerator.Current => Current;
+
+        public PathSegment NextSegment { get { return Current.Next; } }
+        public bool HasNext { get { return Current.Next != null; } }
+
+        public Vector2 Goal => lastSeg.LinkStart;
+        public Vector2 Start => start;
+        public readonly float totalCosts;
+
+        private readonly PathSegment firstSeg;
+        private readonly PathSegment lastSeg;
+        private readonly int segmentCount;
+        private readonly Vector2 start;
+        private int remainingSegmentCount;
+
+        internal Path(PathSegment firstSeg, PathSegment lastSeg, Vector2 start, int segCount, float totalCosts)
+        {
+            this.firstSeg = firstSeg;
+            this.lastSeg = lastSeg;
+            this.Current = firstSeg;
+            this.segmentCount = segCount;
+            this.remainingSegmentCount = segCount;
+            this.totalCosts = totalCosts;
+            this.start = start;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Path (VertCount: {0}, Costs: {1})", segmentCount, totalCosts);
+        }
+
+        public void Dispose()
+        {
+
+        }
+
+        /// <summary>
+        /// Advanced the path by 1 segment.
+        /// </summary>
+        public bool MoveNext()
+        {
+            if (Current.Next != null)
+            {
+                Current = Current.Next;
+                remainingSegmentCount--;
+                return true;
+            }
+            return false;
+        }
+
+        public void Reset()
+        {
+            remainingSegmentCount = segmentCount;
+            Current = firstSeg;
+        }
+
+        /// <summary>
+        /// Creates a list of all path points. Current enumerator progress is ignored.
+        /// List starts with path start and ends with path goal. Corner links will result in the same point being enumerated twice in a row.
+        /// </summary>
+        public List<Vector2> AllPathPoints()
+        {
+            List<Vector2> pathPoints = new List<Vector2>(segmentCount * 2 + 2);
+            pathPoints.Add(Start);
+
+            var seg = firstSeg;
+            while (seg.Next != null)
+            {
+                pathPoints.Add(seg.LinkStart);
+                pathPoints.Add(seg.LinkEnd);
+                seg = seg.Next;
+            }
+            pathPoints.Add(Goal);
+            return pathPoints;
+        }
+
+        /// <summary>
+        /// Creates a list of all path points, starting from current segment.
+        /// List starts with current.linkstart and ends with path goal. If these points are equivalent, only goal will be returned. Corner links will result in the same point being enumerated twice in a row.
+        /// </summary>
+        public List<Vector2> RemainingPathPoints()
+        {
+            List<Vector2> pathPoints = new List<Vector2>(remainingSegmentCount * 2 + 2);
+            pathPoints.Add(Current.LinkStart);
+
+            var seg = Current;
+            while (seg.Next != null)
+            {
+                pathPoints.Add(seg.LinkStart);
+                pathPoints.Add(seg.LinkEnd);
+                seg = seg.Next;
+            }
+
+            if (Current.Next != null)
+                pathPoints.Add(Goal);
+            return pathPoints;
+        }
+    }
+}
+
+
+PathBerserker2d.PathBerserker2dSettings Class
+using System;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Contains all project wide settings for PathBerserker2d.
+    /// </summary>
+    /// <remarks>
+    /// Find it at *Edit/Project Settings/PathBerserker2d*
+    /// </remarks>
+    public class PathBerserker2dSettings : ScriptableObject
+    {
+        public const string GlobalSettingsFolder = "Assets/PathBerserker2d/Resources";
+        public const string GlobalSettingsFile = "PathBerserker2dSettings";
+
+        internal readonly static string[] buildinNavLinkTypeNames = new string[] {
+            "corner", // -1
+            "jump",
+            "fall",
+            "teleport",
+            "climb",
+            "elevator"
+        };
+
+        internal static PathBerserker2dSettings instance;
+
+        /// <summary>
+        /// Should unselected links be drawn? Only relevant when not in play mode.
+        /// </summary>
+        public static bool DrawUnselectedLinks { get { return instance.drawUnselectedLinks; } }
+
+        /// <summary>
+        /// Array of all link type names
+        /// </summary>
+        public static string[] NavLinkTypeNames { get { return instance.navLinkTypeNames; } }
+
+        /// <summary>
+        /// Array of all NavTag colors
+        /// </summary>
+        public static Color[] NavLinkTypeColors { get { return instance.navLinkTypeColors; } }
+
+        /// <summary>
+        /// Array of all NavTag names
+        /// </summary>
+        public static string[] NavTags { get { return instance.navTags; } }
+
+        /// <summary>
+        /// Array of all NavTag colors
+        /// </summary>
+        public static Color[] NavTagColors { get { return instance.navTagColors; } }
+
+        /// <summary>
+        /// Should unselected surfaces be drawn? Only relevant when not in play mode.
+        /// </summary>
+        public static bool DrawUnselectedSurfaces { get { return instance.drawUnselectedSurfaces; } }
+
+        /// <summary>
+        /// Should unselected substractors be drawn? Only relevant when not in play mode.
+        /// </summary>
+        public static bool DrawUnselectedSubstractors { get { return instance.drawUnselectedSubstractors; } }
+
+        /// <summary>
+        /// Should unselected area markers be drawn? Only relevant when not in play mode.
+        /// </summary>
+        public static bool DrawUnselectedAreaMarkers { get { return instance.drawUnselectedAreaMarkers; } }
+
+        /// <summary>
+        /// Maximum distance a point will try to be mapped to the NavGraph. Used in performance critical functions (e.g. mapping a NavAgents position) and should be as small as possible.
+        /// </summary>
+        public static float PointMappingDistance { get { return instance.pointMappingDistance; } }
+
+        /// <summary>
+        /// Time between NavGraph updates. NavGraph queues changes to apply them in batch at this interval. Lower values will lower performance.
+        /// </summary>
+        public static float InitiateUpdateInterval { get { return instance.initiateUpdateInterval; } }
+
+        /// <summary>
+        /// Amount of threads used for pathfinding. NOTE: WebGL doesn't support threads. If you build for WebGL this number is meaningless.
+        /// </summary>
+        public static int PathfinderThreadCount
+        {
+            get
+            {
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                    return 1;
+                return instance.pathfinderThreadCount;
+            }
+        }
+
+        /// <summary>
+        /// Draw the NavGraph while in play mode?
+        /// </summary>
+        public static bool DrawGraphWhilePlaying { get { return instance.drawGraphWhilePlaying; } }
+
+        /// <summary>
+        /// Maximum distance to search for the nearest NavGraph position to a point. Used in functions to e.g. map a mouse cursor click to a nav position. Make it as large as you want.
+        /// </summary>
+        [System.Obsolete]
+        public static float ClosestToSegmentMaxDistance { get { return instance.closestToSegmentMaxDistance; } }
+
+        /// <summary>
+        /// Line width of NavGraph/NavSurface visualization.
+        /// </summary>
+        public static float NavSurfaceLineWidth { get { return instance.navSurfaceLineWidth; } }
+
+        /// <summary>
+        /// Line width of NavAreaMarker visualization (only visible in playmode)
+        /// </summary>
+        public static float NavAreaMarkerLineWidth { get { return instance.navAreaMarkerLineWidth; } }
+
+        /// <summary>
+        /// Whether to convert a PolygonCollider2d to a polygon with CreateMesh() or by reading its first Path.
+        /// </summary>
+        public static bool UsePolygonCollider2dPathsForBaking { get { return instance.usePolygonCollider2dPathsForBaking; } }
+
+        /// <summary>
+        /// Converts a link type name to its corresponding integer. Throws an ArgumentException if name is not a valid link type name.
+        /// </summary>
+        public static int GetLinkTypeFromName(string name)
+        {
+            var names = NavLinkTypeNames;
+            for (int i = 0; i < names.Length; i++)
+            {
+                if (name == names[i])
+                    return i;
+            }
+            throw new ArgumentException(name + "is not a valid link type name. (case sensitive!)");
+        }
+
+        [Tooltip("Maximum distance a point will try to be mapped to the NavGraph. Used in performance critical functions (e.g. mapping a NavAgents position) and should be as small as possible.")]
+        [Header("Pathfinding")]
+        [SerializeField, HideInInspector]
+        private float pointMappingDistance = 0.1f;
+
+        [SerializeField, HideInInspector]
+        private int pathfinderThreadCount = 1;
+
+        [Tooltip("Time between NavGraph updates. NavGraph queues changes to apply them in batch at this interval. Lower values will lower performance.")]
+        [SerializeField, HideInInspector]
+        private float initiateUpdateInterval = 0.1f;
+
+        [Tooltip("Maximum distance to search for the nearest NavGraph position to a point. Used in functions to e.g. map a mouse cursor click to a nav position. Make it as large as you want.")]
+        [SerializeField, HideInInspector]
+        private float closestToSegmentMaxDistance = 20;
+
+        [Header("NavLinks")]
+        [SerializeField, HideInInspector]
+        private string[] navLinkTypeNames = new string[] { };
+        [SerializeField, HideInInspector]
+        private Color[] navLinkTypeColors = new Color[] { };
+
+        [Header("NavSegments")]
+        [SerializeField, HideInInspector]
+        private string[] navTags = new string[] { "default" };
+        [SerializeField, HideInInspector]
+        private Color[] navTagColors = new Color[] { Color.clear };
+
+        [Tooltip("Should unselected links be drawn? Only relevant when not in play mode.")]
+        [Header("Visualization")]
+        [SerializeField, HideInInspector]
+        private bool drawUnselectedLinks = true;
+
+        [Tooltip("Should unselected surfaces be drawn? Only relevant when not in play mode.")]
+        [SerializeField, HideInInspector]
+        private bool drawUnselectedSurfaces = true;
+
+        [Tooltip("Should unselected substractors be drawn? Only relevant when not in play mode.")]
+        [SerializeField, HideInInspector]
+        private bool drawUnselectedSubstractors = true;
+
+        [Tooltip("Should unselected area markers be drawn? Only relevant when not in play mode.")]
+        [SerializeField, HideInInspector]
+        private bool drawUnselectedAreaMarkers = true;
+
+        [Tooltip("Draw the NavGraph while in play mode?")]
+        [SerializeField, HideInInspector]
+        private bool drawGraphWhilePlaying = true;
+
+        [Tooltip("Line width of NavGraph/NavSurface visualization")]
+        [SerializeField, HideInInspector]
+        private float navSurfaceLineWidth = 0.04f;
+
+        [Tooltip("Line width of NavAreaMarker visualization (only visible in playmode)")]
+        [SerializeField, HideInInspector]
+        private float navAreaMarkerLineWidth = 0.04f;
+
+        [Tooltip("Whether to convert a PolygonCollider2d to a polygon with CreateMesh() or by reading its first Path.")]
+        [SerializeField, HideInInspector]
+        private bool usePolygonCollider2dPathsForBaking = false;
+
+        internal void OnValidate()
+        {
+            ValidateLinkTypeNames();
+            pointMappingDistance = Mathf.Max(0.001f, pointMappingDistance);
+            pathfinderThreadCount = Mathf.Max(1, pathfinderThreadCount);
+            initiateUpdateInterval = Mathf.Max(0.1f, initiateUpdateInterval);
+
+            navTags[0] = "default";
+            navTagColors[0] = Color.clear;
+            if (navTags.Length > 32)
+            {
+                System.Array.Resize(ref navTags, 32);
+            }
+            if (navTagColors.Length != navTags.Length)
+            {
+                int oldLength = navTagColors.Length;
+                System.Array.Resize(ref navTagColors, navTags.Length);
+                for (int i = oldLength; i < navTags.Length; i++)
+                    navTagColors[i] = DifferentColors.GetColor(i);
+            }
+        }
+
+        internal void ValidateLinkTypeNames()
+        {
+            if (navLinkTypeNames.Length < buildinNavLinkTypeNames.Length)
+            {
+                navLinkTypeNames = new string[buildinNavLinkTypeNames.Length];
+            }
+            if (navLinkTypeNames.Length > 32)
+            {
+                System.Array.Resize(ref navLinkTypeNames, 32);
+            }
+            if (navLinkTypeColors.Length != navLinkTypeNames.Length)
+            {
+                int oldLength = navLinkTypeColors.Length;
+                System.Array.Resize(ref navLinkTypeColors, navLinkTypeNames.Length);
+                for (int i = oldLength; i < navLinkTypeNames.Length; i++)
+                    navLinkTypeColors[i] = DifferentColors.GetColor(i);
+            }
+
+            for (int i = 0; i < buildinNavLinkTypeNames.Length; i++)
+            {
+                navLinkTypeNames[i] = buildinNavLinkTypeNames[i];
+            }
+        }
+
+        /// <summary>
+        /// Get the human readable name of a specific link type.
+        /// </summary>
+        public static string GetLinkTypeName(int linkType)
+        {
+            return instance.navLinkTypeNames[linkType];
+        }
+
+        /// <summary>
+        /// Get color associated with specific link type.
+        /// </summary>
+        public static Color GetLinkTypeColor(int linkType)
+        {
+            return instance.navLinkTypeColors[linkType];
+        }
+
+        /// <summary>
+        /// Set the color of a specific NavLinkType.
+        /// </summary>
+        internal static void SetLinkTypeColor(int navTag, Color color)
+        {
+            instance.navLinkTypeColors[navTag] = color;
+        }
+
+        /// <summary>
+        /// Get the assigned color of a specific NavTag.
+        /// </summary>
+        public static Color GetNavTagColor(int navTag)
+        {
+            return instance.navTagColors[navTag];
+        }
+
+        /// <summary>
+        /// If the NavTag does not exists, returns 0
+        /// </summary>
+        public static int EnsureNavTagExists(int navTag)
+        {
+            if (navTag < 0 || navTag >= NavTags.Length)
+                return 0;
+            return navTag;
+        }
+
+        /// <summary>
+        /// Set the color of a specific NavTag.
+        /// </summary>
+        internal static void SetNavTagColor(int navTag, Color color)
+        {
+            instance.navTagColors[navTag] = color;
+        }
+
+        /// <summary>
+        /// If the linkType does not exists, returns 0
+        /// </summary>
+        public static int EnsureNavLinkTypeExists(int linkType)
+        {
+            if (linkType < 0 || linkType >= NavLinkTypeNames.Length)
+                return 1;
+            return linkType;
+        }
+    }
+}
+
+
+PathBerserker2d.Pathfinder Class
+using Priority_Queue;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    internal class Pathfinder
+    {
+        FastPriorityQueue<PathValues> openList = new FastPriorityQueue<PathValues>(1000);
+        HashSet<NavGraphNode> closedList = new HashSet<NavGraphNode>();
+        NavGraph navGraph;
+        int pathValueId;
+
+        float maxHeuristicAllowed;
+        NavSegmentPositionPointer closestReachablePosition;
+        NavAgent agent;
+
+        public Pathfinder(NavGraph navGraph, int pathValueId)
+        {
+            this.navGraph = navGraph;
+            this.pathValueId = pathValueId;
+        }
+
+        public void ProcessPathRequest(PathRequest request)
+        {
+            Path path = null;
+            this.agent = request.client;
+
+            navGraph.graphLock.AcquireReaderLock(-1);
+            try
+            {
+                NavGraphNodeCluster startCluster;
+                if (!navGraph.TryGetClusterAt(request.start, out startCluster))
+                {
+                    request.Fail(PathRequest.RequestFailReason.MappedStartChanged);
+                    return;
+                }
+                NavGraphNode nvStart = new NavGraphNode(pathValueId + 1, startCluster, request.start.t);
+                closestReachablePosition = request.start;
+
+                IList<NavGraphNode> nvGoals = new List<NavGraphNode>(request.goals.Count);
+                NavGraphNodeCluster goalCluster;
+                for (int iGoal = 0; iGoal < request.goals.Count; iGoal++)
+                {
+                    if (navGraph.TryGetClusterAt(request.goals[iGoal], out goalCluster))
+                    {
+                        nvGoals.Add(new NavGraphNode(pathValueId + 1, goalCluster, request.goals[iGoal].t));
+                        goalCluster.containsGoal[pathValueId] = true;
+                    }
+                }
+                if (nvGoals.Count == 0)
+                {
+                    request.Fail(PathRequest.RequestFailReason.AllMappedGoalsChanged);
+                    return;
+                }
+
+                if (nvGoals.Count == 1)
+                {
+                    path = this.FindPathSingleGoal(nvStart, nvGoals);
+                }
+                else
+                {
+                    path = this.FindPathMultiGoal(nvStart, nvGoals);
+                }
+                maxHeuristicAllowed = float.MaxValue;
+
+                for (int iGoal = 0; iGoal < nvGoals.Count; iGoal++)
+                {
+                    nvGoals[iGoal].cluster.containsGoal[pathValueId] = false;
+                }
+            }
+            finally
+            {
+                navGraph.graphLock.ReleaseReaderLock();
+            }
+
+            if (path == null)
+            {
+                request.closestReachablePosition = closestReachablePosition;
+                request.Fail(PathRequest.RequestFailReason.NoPathFromStartToGoal);
+            }
+            else
+            {
+                request.Fulfill(path);
+            }
+
+        }
+
+        private Path FindPathSingleGoal(NavGraphNode start, IList<NavGraphNode> goals)
+        {
+            Vector2 goalPos = goals[0].WPosition();
+            Path path = null;
+            float closestH = float.MaxValue;
+
+        Restart:
+            foreach (var conn in start.cluster.EnumerateReachableNavVerts(start.t, agent, goals, pathValueId))
+            {
+                Expand(conn, start, goalPos);
+            }
+            UpdateClosestPositionToGoal(start, goalPos, ref closestH);
+
+#if PBDEBUG
+            int iterationCount = 0;
+#endif
+            while (openList.Count > 0)
+            {
+#if PBDEBUG
+                iterationCount++;
+#endif
+                var vert = openList.Dequeue();
+                var node = vert.node;
+                /*GizmosQueue.Instance.Enqueue(1, () =>
+                {
+                    Gizmos.color = Color.yellow;
+                    Vector3 v = vert.WPosition();
+                    v.z = 5;
+                    DebugDrawingExtensions.DrawCircle(v, 0.1f);
+                });*/
+                if (node.IsGoal)
+                {
+                    // reached goal !!
+                    if (vert.costSoFar < 0)
+                    {
+                        Debug.LogError("Path found with negative values. This breaks pathfinding. Found path will be thrown away.");
+                        return path;
+                    }
+
+                    float v = CheckHeuristicValidity(start, node);
+                    if (v != 0)
+                    {
+                        // heuristic was violated! start over. 
+#if PBDEBUG
+                        Debug.Log("Heuristic was violated. Retrying with upper bound.");
+#endif
+                        maxHeuristicAllowed = v;
+                        openList.Clear();
+                        closedList.Clear();
+
+                        goto Restart;
+                    }
+
+                    path = GatherPath(start, node);
+                    break;
+                }
+
+                closedList.Add(node);
+
+                UpdateClosestPositionToGoal(node, goalPos, ref closestH);
+
+                foreach (var conn in vert.node.GetConnections(agent, goals, pathValueId))
+                {
+                    Expand(conn, node, goalPos);
+                }
+            }
+
+            openList.Clear();
+            closedList.Clear();
+#if NOPE_DEBUG
+            if (path != null)
+                Debug.Log(string.Format(
+                    "Found in {0} iteration the path: {1}", iterationCount, path));
+            else
+            {
+                Debug.Log(string.Format(
+                    "Found no path in {0} iteration.", iterationCount));
+            }
+#endif
+
+            return path;
+        }
+
+        private Path FindPathMultiGoal(NavGraphNode start, IList<NavGraphNode> goals)
+        {
+            Path path = null;
+
+            foreach (var conn in start.cluster.EnumerateReachableNavVerts(start.t, agent, goals, pathValueId))
+            {
+                ExpandZeroH(conn, start);
+            }
+
+#if PBDEBUG
+            int iterationCount = 0;
+#endif
+            while (openList.Count > 0)
+            {
+#if PBDEBUG
+                iterationCount++;
+#endif
+                var vert = openList.Dequeue();
+                var node = vert.node;
+                if (node.IsGoal)
+                {
+                    // reached goal !!
+                    if (vert.costSoFar < 0)
+                    {
+                        Debug.LogError("Path found with negative values. This breaks pathfinding. Found path will be thrown away.");
+                        return path;
+                    }
+
+                    path = GatherPath(start, node);
+                    break;
+                }
+
+                closedList.Add(node);
+                foreach (var conn in node.GetConnections(agent, goals, pathValueId))
+                {
+                    ExpandZeroH(conn, node);
+                }
+            }
+
+            openList.Clear();
+            closedList.Clear();
+#if PBDEBUG
+            if (path != null)
+                Debug.Log(string.Format(
+                    "Found in {0} iteration the path: {1}", iterationCount, path));
+            else
+            {
+                Debug.Log(string.Format(
+                    "Found no path in {0} iteration.", iterationCount));
+            }
+#endif
+            return path;
+        }
+
+        private void Expand(NavConnection conn, NavGraphNode vert, Vector2 goalPos)
+        {
+            if (float.IsPositiveInfinity(conn.traversalCosts) || closedList.Contains(conn.end))
+                return;
+
+
+            float costSoFar = vert.pathValues[pathValueId].costSoFar + conn.traversalCosts;
+            var pathValue = conn.end.pathValues[pathValueId];
+
+            bool isOpen = openList.Contains(pathValue);
+            if (isOpen && pathValue.costSoFar <= costSoFar)
+            {
+                // we know about this vert and have a faster way of accessing it
+                return;
+            }
+
+            pathValue.parent = vert;
+            pathValue.costSoFar = costSoFar;
+
+            float estimate = conn.end.HeuristicalCostsToGoal(vert.cluster.owner.WorldToLocal.MultiplyPoint3x4(goalPos));
+            if (estimate > maxHeuristicAllowed)
+                estimate = maxHeuristicAllowed;
+            pathValue.estimatedFutherPath = estimate;
+            float totalCosts = costSoFar + estimate;
+            if (isOpen)
+            {
+                openList.UpdatePriority(pathValue, totalCosts);
+            }
+            else
+            {
+                openList.Enqueue(pathValue, totalCosts);
+            }
+        }
+
+        private void ExpandZeroH(NavConnection conn, NavGraphNode vert)
+        {
+            if (float.IsPositiveInfinity(conn.traversalCosts) || closedList.Contains(conn.end))
+                return;
+
+            float costSoFar = vert.pathValues[pathValueId].costSoFar + conn.traversalCosts;
+            var pathValue = conn.end.pathValues[pathValueId];
+
+            bool isOpen = openList.Contains(pathValue);
+            if (isOpen && pathValue.costSoFar <= costSoFar)
+            {
+                // we know about this vert and have a faster way of accessing it
+                return;
+            }
+
+            pathValue.parent = vert;
+            pathValue.costSoFar = costSoFar;
+
+            if (isOpen)
+            {
+                openList.UpdatePriority(pathValue, costSoFar);
+            }
+            else
+            {
+                openList.Enqueue(pathValue, costSoFar);
+            }
+        }
+
+        private Path GatherPath(NavGraphNode startVert, NavGraphNode goalVert)
+        {
+            int segCount = 1;
+            NavGraphNode vert = goalVert;
+            PathSegment lastSeg = new PathSegment(goalVert.Position(), Vector2.zero, goalVert.cluster.owner.navSurface, null, vert.cluster);
+            PathSegment prevSeg = lastSeg;
+
+            while ((vert = vert.pathValues[pathValueId].parent) != startVert)
+            {
+                var seg = new PathSegment(
+                    vert.Position(),
+                    vert.LinkTarget.GetPositionAlongSegment(vert.LinkTargetT),
+                    vert.cluster.owner.navSurface,
+                    vert.link,
+                    vert.cluster);
+                seg.Next = prevSeg;
+                prevSeg = seg;
+
+                segCount++;
+            }
+            return new Path(prevSeg, lastSeg, startVert.Position(), segCount, goalVert.pathValues[pathValueId].costSoFar);
+        }
+
+        private float CheckHeuristicValidity(NavGraphNode startVert, NavGraphNode goalVert)
+        {
+            float totalCosts = goalVert.pathValues[pathValueId].costSoFar;
+            NavGraphNode vert = goalVert;
+            while ((vert = vert.pathValues[pathValueId].parent) != startVert)
+            {
+                if (vert.pathValues[pathValueId].estimatedFutherPath > totalCosts)
+                {
+                    return totalCosts;
+                }
+            }
+            return 0;
+        }
+
+        private void UpdateClosestPositionToGoal(NavGraphNode node, Vector2 goalPos, ref float closestH)
+        {
+            float minDist = node.cluster.PointDistance(goalPos);
+            if (minDist < closestH)
+            {
+                closestH = minDist;
+                float t = node.cluster.DistanceOfPointAlongSegment(node.cluster.owner.WorldToLocal.MultiplyPoint3x4(goalPos));
+                if (node.cluster.CanAgentReachPoint(agent, node.t, t))
+                {
+                    closestReachablePosition = new NavSegmentPositionPointer(node.cluster.owner.navSurface, node.cluster, t);
+                }
+            }
+        }
+    }
+}
+
+
+PathBerserker2d.PathRequest Class
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Represents an async path request.
+    /// </summary>
+    public class PathRequest
+    {
+        public enum RequestState {
+            Draft,
+            Pending,
+            Finished,
+            Failed
+        }
+
+        public enum RequestFailReason {
+            CouldntMapStart,
+            CouldntMapGoal,
+            MappedStartChanged,
+            AllMappedGoalsChanged,
+            NoPathFromStartToGoal,
+            WorldWasDestroyed,
+            ToFarFromStart,
+        }
+
+        /// <summary>
+        /// Status of the processing of the request.
+        /// </summary>
+        public RequestState Status{ get { return status; } }
+        /// <summary>
+        /// If the request failed, it will set this field to the cause of failure.
+        /// </summary>
+        public RequestFailReason FailReason { get; private set; }
+        /// <summary>
+        /// If the request succeeded, this is found path.
+        /// </summary>
+        public Path Path { get; private set; }
+
+        /// <summary>
+        /// Start of the requested path
+        /// </summary>
+        public NavSegmentPositionPointer start;
+        /// <summary>
+        /// Goals of the requested path.
+        /// </summary>
+        public IList<NavSegmentPositionPointer> goals;
+        /// <summary>
+        /// NavAgent the calculated path should be usable by.
+        /// </summary>
+        public NavAgent client;
+
+        /// <summary>
+        /// If the request failed, this will contain the closest reachable position found to the goal. This does NOT work when multiple goals where specified.
+        /// </summary>
+        public NavSegmentPositionPointer closestReachablePosition;
+        private volatile RequestState status = RequestState.Draft;
+
+        public PathRequest(NavAgent client)
+        {
+            this.client = client;
+            this.start = client.currentMappedPosition;
+        }
+
+        internal void SetToPending()
+        {
+            status = RequestState.Pending;
+        }
+
+        internal void Reset()
+        {
+            Debug.Assert(status != RequestState.Pending);
+            status = RequestState.Draft;
+        }
+
+        internal void Fulfill(Path path) {
+            this.Path = path;
+            this.status = RequestState.Finished;
+        }
+
+        internal void Fail(RequestFailReason requestFailReason) {
+            this.FailReason = requestFailReason;
+            this.status = RequestState.Failed;
+#if PBDEBUG
+            Debug.Log("Pathrequest failed because " + requestFailReason);
+#endif
+        }
+    }
+}
+
+
+PathBerserker2d.PathSegment Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Encapsulates the movement on a segment to a link and the traversal of that link.
+    /// </summary>
+    /// <remarks>
+    /// Only the last PathSegment does not have a link.
+    /// </remarks>
+    public class PathSegment
+    {
+        public PathSegment Next { get; internal set; }
+        /// <summary>
+        /// World position of the link start. May change from frame to frame, if corresponding NavSurface moves.
+        /// </summary>
+        public Vector2 LinkStart { get { return owner.LocalToWorld(linkStart); } }
+        /// <summary>
+        /// World position of the link end. May change from frame to frame, if corresponding NavSurface moves.
+        /// </summary>
+        public Vector2 LinkEnd { get { return Next.owner.LocalToWorld(linkEnd); } }
+        /// <summary>
+        /// Segments normal. May change from frame to frame, if corresponding NavSurface moves.
+        /// </summary>
+        public Vector2 Normal => owner.LocalToWorldMatrix.MultiplyVector(cluster.Normal);
+        /// <summary>
+        /// Segments tangent. May change from frame to frame, if corresponding NavSurface moves.
+        /// </summary>
+        public Vector2 Tangent => owner.LocalToWorldMatrix.MultiplyVector(cluster.Tangent);
+        /// <summary>
+        /// Point on segment that together with Tangent defines the segments line equation. May change from frame to frame, if corresponding NavSurface moves.
+        /// </summary>
+        public Vector2 Point => owner.LocalToWorldMatrix.MultiplyPoint3x4(cluster.Start);
+
+        public readonly INavLinkInstance link;
+        public readonly NavSurface owner;
+        private Vector2 linkStart;
+        private Vector2 linkEnd;
+        internal NavGraphNodeCluster cluster;
+
+        internal PathSegment(Vector2 linkStart, Vector2 linkEnd, NavSurface owner, INavLinkInstance link, NavGraphNodeCluster cluster)
+        {
+            this.linkStart = linkStart;
+            this.linkEnd = linkEnd;
+            this.owner = owner;
+            this.link = link;
+            this.cluster = cluster;
+        }
+
+        /// <summary>
+        /// Get the NavTag vector at a distance along the segment.
+        /// </summary>
+        /// <param name="t">Distance along segment.</param>
+        /// <returns>Integer with bits set to the existence of the corresponding nav tag at that position.</returns>
+        public int GetTagVector(float t)
+        {
+            return cluster.GetNavTagVector(t);
+        }
+
+        /// <summary>
+        /// Like GetTagVector, but works by projecting the parameter on the segment.
+        /// </summary>
+        /// <returns>Integer with bits set to the existence of the corresponding nav tag at that position.</returns>
+        public int GetTagVector(Vector2 pos)
+        {
+            return cluster.GetNavTagVector(owner.WorldToLocal(pos));
+        }
+
+        /// <summary>
+        /// Projects a position on the segment and returns its distance from the segment start Result may change from frame to frame, if corresponding NavSurface moves.
+        /// </summary>
+        public float DistanceAlongSegment(Vector2 pos)
+        {
+            return Vector2.Dot(cluster.Tangent, owner.WorldToLocal(pos) - cluster.Start);
+        }
+    }
+}
+
+
+PathBerserker2d.PatrolWalker Class
+using System;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Let the NavAgent walk to a series of goals in a loop.
+    /// </summary>
+    public class PatrolWalker : MonoBehaviour
+    {
+        /// <summary>
+        /// Radius at which the agent starts calculating path to next goal on patrol route. Must be >= 0.
+        /// </summary>
+        public float CalcNextPathRad
+        {
+            get => calcNextPathRad;
+            set
+            {
+                if (calcNextPathRad < 0)
+                    throw new ArgumentException("CalcNextPathRad must be greater or equal to 0");
+                calcNextPathRad = value;
+            }
+        }
+
+        public Transform[] PatrolRoute
+        {
+            get => goals;
+            set
+            {
+                this.goals = value;
+                this.currentGoal = 0;
+            }
+        }
+
+        [SerializeField]
+        public NavAgent navAgent;
+        [SerializeField]
+        Transform[] goals = null;
+        [SerializeField]
+        float calcNextPathRad = 0.2f;
+
+        private Transform goal => goals[currentGoal];
+
+        int currentGoal = 0;
+
+        private void Start()
+        {
+            navAgent.PathTo(goal.position);
+        }
+
+        void Update()
+        {
+            if (goals == null)
+                return;
+
+            // close enough move to next
+            float dist = Vector2.Distance(navAgent.Position, goal.position);
+            if (dist < calcNextPathRad)
+            {
+                currentGoal++;
+                if (currentGoal >= goals.Length)
+                {
+                    currentGoal = 0;
+                }
+                navAgent.UpdatePath(goal.position);
+            }
+        }
+
+        private void OnValidate()
+        {
+            calcNextPathRad = Mathf.Max(calcNextPathRad, 0.1f);
+        }
+
+        private void Reset()
+        {
+            navAgent = GetComponent<NavAgent>();
+        }
+
+        /// <summary>
+        /// Added be me
+        /// </summary>
+        public void RefreshPath()
+        {
+            navAgent.PathTo(goal.position);
+        }
+    }
+}
+
+
+PathBerserker2d.PBWorld Class
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Singleton managing the global NavGraph instance. 
+    /// </summary>
+    /// <remarks>
+    /// Is instantiated automatically on scene load.
+    ///
+    /// Use it to access the NavGraph, which is the graph the pathfinder works on.
+    /// </remarks>
+    [ScriptExecutionOrder(-100), AddComponentMenu("")]
+    public class PBWorld : MonoBehaviour
+    {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Initialize()
+        {
+            PathBerserker2dSettings.instance = Resources.Load<PathBerserker2dSettings>(PathBerserker2dSettings.GlobalSettingsFile);
+            var world = new GameObject("PBWorld").AddComponent<PBWorld>();
+            DontDestroyOnLoad(world);
+            instance = world;
+        }
+
+        private static PBWorld instance;
+
+        internal static NavGraph NavGraph { get; set; }
+        public static INavGraphChangeSource NavGraphChangeSource => NavGraph;
+
+        // threading stuff
+        CancellationTokenSource pathfinderThreadCancelationSource;
+        ConcurrentQueue<PathRequest> pathRequestQueue;
+
+        private float lastGraphUpdate = -100;
+
+        #region UNITY_METHODS
+        private void Awake()
+        {
+            SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
+        }
+
+        private void SceneManager_sceneUnloaded(Scene arg0)
+        {
+            // cycle the navgraph one more time to remove all unloaded navgraphs in case the scene is just reloaded
+            NavGraph.ForceApplyChanges();
+        }
+
+        private void OnEnable()
+        {
+            NavGraph = new NavGraph(PathBerserker2dSettings.PathfinderThreadCount);
+
+            // create pathfinder threads
+            pathRequestQueue = new ConcurrentQueue<PathRequest>();
+            pathfinderThreadCancelationSource = new CancellationTokenSource();
+            StartPathfinderThreads();
+        }
+
+        private void Start()
+        {
+            NavGraph.Update();
+        }
+
+        private void OnDisable()
+        {
+            pathfinderThreadCancelationSource.Cancel();
+        }
+
+        private void Update()
+        {
+            if (Time.time - lastGraphUpdate > PathBerserker2dSettings.InitiateUpdateInterval)
+            {
+                NavGraph.Update();
+                lastGraphUpdate = Time.time;
+            }
+        }
+
+        private void Reset()
+        {
+            Debug.LogError("This component should not be added manually. It will be automatically instantiated at runtime.");
+            DestroyImmediate(this);
+        }
+        #endregion
+
+        /// <summary>
+        /// Tries to map a point to a navigation position. The distance a point can be away from the nearest segment is specified by <see cref="PathBerserker2dSettings"/>.<c>PointMappingDistance</c>
+        /// </summary>
+        /// <param name="position">Position to map</param>
+        /// <param name="pointer">Pointer to mapped position or an invalid pointer, if mapping failed.</param>
+        /// <returns>True, if mapping succeeded</returns>
+        public static bool TryMapPoint(Vector2 position, out NavSegmentPositionPointer pointer)
+        {
+            return NavGraph.TryMapPoint(position, out pointer);
+        }
+
+        /// <summary>
+        /// Tries to map a point to a navigation position. The distance a point can be away is determined by searchRadius
+        /// </summary>
+        /// <param name="position">Position to map</param>
+        /// <param name="pointer">Pointer to mapped position or an invalid pointer, if mapping failed.</param>
+        /// <param name="searchRadius">Maxium search distance when trying to map.</param>
+        /// <returns>True, if mapping succeeded</returns>
+        public static bool TryMapPoint(Vector2 position, float searchRadius, out NavSegmentPositionPointer pointer)
+        {
+            return NavGraph.TryMapPoint(position, p => true, searchRadius, out pointer);
+        }
+
+        /// <summary>
+        /// Tries to map a point to a navigation position. The distance a point can be away is determined by searchRadius. Also makes sure that the point is traversable for the supplied NavAgent.
+        /// </summary>
+        /// <param name="position">Position to map</param>
+        /// <param name="pointer">Pointer to mapped position or an invalid pointer, if mapping failed.</param>
+        /// <param name="searchRadius">Maxium search distance when trying to map.</param>
+        /// <param name="agent">Maxium search distance when trying to map.</param>
+        /// <returns>True, if mapping succeeded</returns>
+        public static bool TryMapPoint(Vector2 position, float searchRadius, NavAgent agent, out NavSegmentPositionPointer pointer)
+        {
+            return NavGraph.TryMapPoint(position, p => agent.CouldBeLocatedAt(p), searchRadius, out pointer);
+        }
+
+        /// <summary>
+        /// Tries to map an Agent to a navigation position. Uses last mapping to speed up search. Will only map the agent to a surface it could traverse.
+        /// </summary>
+        /// <param name="position">Position to map</param>
+        /// <param name="lastMapping">Pointer with the previously mapped position. Taken as start for search.</param>
+        /// <returns>True, if mapping succeeded</returns>
+        internal static bool TryMapAgent(Vector2 position, NavSegmentPositionPointer lastMapping, NavAgent agent, out NavSegmentPositionPointer result)
+        {
+            return NavGraph.TryMapAgent(position, lastMapping, agent, out result);
+        }
+
+        internal static bool TryMapPointWithStaged(Vector2 position, out NavSegmentPositionPointer pointer)
+        {
+            return NavGraph.TryMapPointWithStaged(position, out pointer);
+        }
+
+        /// <returns>Random point on NavGraph. Might not be reachable.</returns>
+        public static Vector2 GetRandomPointOnGraph()
+        {
+            return NavGraph.GetRandomPointOnGraph();
+        }
+
+        /// <summary>
+        /// Enqueues a <typeparamref name="PathRequest">. The path will be solved async. Use the PathRequest object to check its status.
+        /// </summary>
+        /// <returns>PathRequest object representing the pathfinding job.</returns>
+        public static void PathTo(PathRequest pathRequest)
+        {
+            pathRequest.SetToPending();
+#if PBDEBUG
+            Debug.Log($"PathRequest from: {pathRequest.start.GetPosition()} to: {pathRequest.goals[0].GetPosition()}");
+#endif
+            instance.pathRequestQueue.Enqueue(pathRequest);
+        }
+
+        /// <summary>
+        /// Get all segments intersecting a rotated box. Segments can additionally be filtered by angle.
+        /// </summary>
+        /// <param name="rect">Intersection rect.</param>
+        /// <param name="rotation">The rotation of the rect around its center.</param>
+        /// <param name="filterFromAngle">Minium angle in degree of returned segments.</param>
+        /// <param name="filterToAngle">Maximum angle in degree of returned segments.</param>
+        public static List<NavSubsegmentPointer> BoxCast(Rect rect, float rotation, float filterFromAngle, float filterToAngle)
+        {
+            filterFromAngle = ClampAngle(filterFromAngle);
+            filterToAngle = ClampAngle(filterToAngle);
+            return NavGraph.BoxCast(rect, rotation, filterFromAngle, filterToAngle);
+        }
+
+        internal static List<NavSubsegmentPointer> BoxCastWithStaged(Rect rect, float rotation, float filterFromAngle, float filterToAngle)
+        {
+            return NavGraph.BoxCastWithStaged(rect, rotation, filterFromAngle, filterToAngle);
+        }
+
+        /// <summary>
+        /// Similar to TryMapPoint, but meant for mapping goal positions. Has a configurable search radius.
+        /// </summary>
+        /// <param name="position">Position to map</param>
+        /// <param name="maxMappingDistance">Maximum distance away from position a mapping is allowed to be.</param>
+        /// <param name="pointer">Mapped pointer</param>
+        /// <returns>True, if successfully mapped.</returns>
+        [Obsolete("Use TryMapPoint instead")]
+        public static bool TryFindClosestPointTo(Vector2 position, float maxMappingDistance, out NavSegmentPositionPointer pointer)
+        {
+            return NavGraph.TryMapPoint(position, (p) => true, maxMappingDistance, out pointer);
+        }
+
+        /// <summary>
+        /// Get the position the <paramref name="pointer"/> is pointing at.
+        /// </summary>
+        internal static NavGraphNodeCluster GetClusterFromPositionPointer(NavSegmentPositionPointer pointer)
+        {
+            NavGraphNodeCluster cluster = null;
+            NavGraph.TryGetClusterAt(pointer, out cluster);
+            return cluster;
+        }
+
+        private static int nextFreeComponentId = 1;
+        internal static int GeneratePBComponentId()
+        {
+            return nextFreeComponentId++;
+        }
+
+        private void StartPathfinderThreads()
+        {
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                PathfinderThread p = new PathfinderThread(pathfinderThreadCancelationSource.Token, pathRequestQueue, NavGraph, 0);
+                StartCoroutine(p.CoroutineRun());
+            }
+            else
+            {
+                for (int i = 0; i < PathBerserker2dSettings.PathfinderThreadCount; i++)
+                {
+                    PathfinderThread p = new PathfinderThread(pathfinderThreadCancelationSource.Token, pathRequestQueue, NavGraph, i);
+                    Thread t = new Thread(p.Run);
+                    t.Start();
+                }
+            }
+        }
+
+        private static float ClampAngle(float angle)
+        {
+            while (angle > 360)
+                angle -= 360;
+            while (angle < 0)
+                angle += 360;
+            return angle;
+        }
+    }
+}
+
+
+PathBerserker2d.RandomWalker Class
+using System.Collections;
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Lets the NavAgent walk to a random point
+    /// </summary>
+    public class RandomWalker : MonoBehaviour
+    {
+        [SerializeField]
+        public NavAgent navAgent;
+
+        /// <summary>
+        /// The random destination my not always be reachable. RetryCount determines the maximum amount of rolls for a random reachable position.
+        /// </summary>
+        [SerializeField, Tooltip("The random destination may not always be reachable. RetryCount determines the maximum amount of rolls each update for a random reachable position.")]
+        public int retryCount = 10;
+
+        /// <summary>
+        /// Will make the agent pick a new random position to walk to, after reaching the previous one. Makes the agent walk between random points, until its set to false.
+        /// </summary>
+        [SerializeField]
+        public bool keepWalkingRandomly = true;
+
+        void Update()
+        {
+            if (keepWalkingRandomly && navAgent.IsIdle)
+            {
+                StartRandomWalk();
+            }
+        }
+
+        private void Reset()
+        {
+            navAgent = GetComponent<NavAgent>();
+        }
+
+        /// <summary>
+        /// Picks a random position and makes the NavAgent walk to it.
+        /// </summary>
+        /// <returns>True, if a random reachable position was found within a maximum of retryCount tries.</returns>
+        public bool StartRandomWalk()
+        {
+            for (int i = 0; i < retryCount && !navAgent.SetRandomDestination(); i++)
+            {
+                
+            }
+
+            return !navAgent.IsIdle;
+        }
+    }
+}
+
+
+PathBerserker2d.TransformBasedMovement Class
+using UnityEngine;
+
+namespace PathBerserker2d
+{
+    /// <summary>
+    /// Moves a NavAgent by manipulating its transform.
+    /// </summary>
+    public class TransformBasedMovement : MonoBehaviour
+    {
+        [System.Flags]
+        public enum FeatureFlags
+        {
+            SegmentMovement = 1,
+            JumpLinks = 2,
+            CornerLinks = 4,
+            FallLinks = 8,
+            TeleportLinks = 16,
+            ClimbLinks = 32,
+            ElevatorLinks = 64,
+            OtherLinks = 128,
+        }
+
+        [Tooltip("Speed on segments in unit/s.")]
+        [SerializeField]
+        public float movementSpeed = 5;
+
+        [Tooltip("Speed on corner links in degrees/s.")]
+        [SerializeField]
+        public float cornerSpeed = 100;
+
+        [Tooltip("Speed on jump links in unit/s.")]
+        [SerializeField]
+        public float jumpSpeed = 5;
+
+        [Tooltip("Speed on fall links in unit/s.")]
+        [SerializeField]
+        public float fallSpeed = 5;
+
+        [Tooltip("Speed on climb links in unit/s.")]
+        [SerializeField]
+        public float climbSpeed = 5;
+
+        /// <summary>
+        /// If false, agent will not be rotated.
+        /// </summary>
+        [Tooltip("Controls whether the default movement handler is allowed to rotate the agent.")]
+        [SerializeField]
+        public bool enableAgentRotation = true;
+
+        /// <summary>
+        /// Sets which links and segments this component will handle. Useful to override an Agents default behavior for a certain link type or segment.
+        /// </summary>
+        [Tooltip("Enable features by setting the flag.")]
+        [SerializeField]
+        public FeatureFlags enabledFeatures = (FeatureFlags)int.MaxValue;
+
+        private float timeOnLink;
+        private float timeToCompleteLink;
+        private Vector2 direction;
+        private int state = 0;
+        private Transform elevatorTrans;
+        private float deltaDistance;
+        private bool handleLinkMovement;
+        private int minNumberOfLinkExecutions;
+        private Vector2 storedLinkStart;
+
+        private void OnEnable()
+        {
+            var agent = GetComponent<NavAgent>();
+            agent.OnStartLinkTraversal += Agent_StartLinkTraversalEvent;
+            agent.OnStartSegmentTraversal += Agent_OnStartSegmentTraversal;
+            agent.OnSegmentTraversal += Agent_OnSegmentTraversal;
+            agent.OnLinkTraversal += Agent_OnLinkTraversal;
+        }
+
+        private void OnDisable()
+        {
+            var agent = GetComponent<NavAgent>();
+            agent.OnStartLinkTraversal -= Agent_StartLinkTraversalEvent;
+            agent.OnStartSegmentTraversal -= Agent_OnStartSegmentTraversal;
+            agent.OnSegmentTraversal -= Agent_OnSegmentTraversal;
+            agent.OnLinkTraversal -= Agent_OnLinkTraversal;
+        }
+
+        private void OnValidate()
+        {
+            if (jumpSpeed <= 0)
+                jumpSpeed = 0.01f;
+            if (fallSpeed <= 0)
+                fallSpeed = 0.01f;
+            if (climbSpeed <= 0)
+                climbSpeed = 0.01f;
+        }
+
+        private void Agent_OnStartSegmentTraversal(NavAgent agent)
+        {
+
+        }
+
+        private void Agent_OnSegmentTraversal(NavAgent agent)
+        {
+            if (!enabledFeatures.HasFlag(FeatureFlags.SegmentMovement))
+                return;
+
+            Vector2 newPos;
+            bool reachedGoal = MoveAlongSegment(agent.Position, agent.PathSubGoal, agent.CurrentPathSegment.Point, agent.CurrentPathSegment.Tangent, Time.deltaTime * movementSpeed, out newPos);
+            agent.Position = newPos;
+            
+            if (reachedGoal)
+            {
+                agent.CompleteSegmentTraversal();
+            }
+        }
+
+        private void Agent_StartLinkTraversalEvent(NavAgent agent)
+        {
+            string linkType = agent.CurrentPathSegment.link.LinkTypeName;
+
+            bool unknownLinkType = linkType != "corner" && linkType != "fall" && linkType != "jump" && linkType != "elevator" && linkType != "teleport" && linkType != "climb";
+
+            handleLinkMovement =
+                (unknownLinkType && enabledFeatures.HasFlag(FeatureFlags.OtherLinks)) || 
+                (linkType == "corner" && enabledFeatures.HasFlag(FeatureFlags.CornerLinks)) ||
+                (linkType == "fall" && enabledFeatures.HasFlag(FeatureFlags.FallLinks)) ||
+                (linkType == "jump" && enabledFeatures.HasFlag(FeatureFlags.JumpLinks)) ||
+                (linkType == "elevator" && enabledFeatures.HasFlag(FeatureFlags.ElevatorLinks)) ||
+                (linkType == "teleport" && enabledFeatures.HasFlag(FeatureFlags.TeleportLinks)) ||
+                (linkType == "climb" && enabledFeatures.HasFlag(FeatureFlags.ClimbLinks));
+
+            if (!handleLinkMovement)
+                return;
+
+            timeOnLink = 0;
+            Vector2 delta = agent.PathSubGoal - agent.CurrentPathSegment.LinkStart;
+            deltaDistance = delta.magnitude;
+            direction = delta / deltaDistance;
+            minNumberOfLinkExecutions = 1;
+            storedLinkStart = agent.CurrentPathSegment.LinkStart;
+
+            float speed = 1;
+            switch (agent.CurrentPathSegment.link.LinkTypeName)
+            {
+                case "corner":
+                    if (!enableAgentRotation)
+                    {
+                        agent.CompleteLinkTraversal();
+                        break;
+                    }
+                    speed = cornerSpeed;
+                    deltaDistance = agent.CurrentPathSegment.link.TravelCosts(Vector2.zero, Vector2.zero);
+                    break;
+                case "fall":
+                    speed = fallSpeed;
+                    break;
+                case "climb":
+                    speed = climbSpeed;
+
+                    Vector2 pos = agent.CurrentPathSegment.link.GameObject.transform.position;
+                    Vector2 dir = agent.CurrentPathSegment.link.GameObject.transform.up;
+
+                    Vector2 start = Geometry.ProjectPointOnLine(agent.CurrentPathSegment.LinkStart, pos, dir);
+                    Vector2 end = Geometry.ProjectPointOnLine(agent.PathSubGoal, pos, dir);
+                    deltaDistance = Vector2.Distance(start, pos) + Vector2.Distance(start, end) + Vector2.Distance(end, agent.PathSubGoal);
+
+                    state = 0;
+                    minNumberOfLinkExecutions = 3;
+                    break;
+                case "jump":
+                    speed = jumpSpeed;
+                    break;
+                case "elevator":
+                    speed = movementSpeed;
+                    state = 0;
+                    minNumberOfLinkExecutions = 4;
+                    elevatorTrans = agent.CurrentPathSegment.link.GameObject.transform;
+                    var childTrans = agent.CurrentPathSegment.link.GameObject.GetComponentsInChildren<Transform>();
+                    foreach (var t in childTrans)
+                    {
+                        if (t.gameObject.layer == 8)
+                        {
+                            elevatorTrans = t;
+                            break;
+                        }
+                    }
+                    break;
+            }
+
+            if (agent.CurrentPathSegment.link.LinkTypeName == "elevator")
+                timeToCompleteLink = float.PositiveInfinity;
+            else
+                timeToCompleteLink = (deltaDistance / speed);
+        }
+
+        private void Agent_OnLinkTraversal(NavAgent agent)
+        {
+            if (!handleLinkMovement)
+                return;
+
+            timeOnLink += Time.deltaTime;
+            timeOnLink = Mathf.Min(timeToCompleteLink, timeOnLink);
+
+            switch (agent.CurrentPathSegment.link.LinkTypeName)
+            {
+                case "corner":
+                    Corner(agent);
+                    break;
+                case "jump":
+                    Jump(agent);
+                    break;
+                case "fall":
+                    Fall(agent);
+                    break;
+                case "teleport":
+                    Teleport(agent);
+                    timeOnLink = timeToCompleteLink + 1;
+                    break;
+                case "climb":
+                    Climb(agent);
+                    break;
+                case "elevator":
+                    Elevator(agent);
+                    break;
+                default:
+                    Jump(agent);
+                    break;
+            }
+
+            minNumberOfLinkExecutions--;
+            if (timeOnLink >= timeToCompleteLink && minNumberOfLinkExecutions <= 0)
+            {
+                agent.CompleteLinkTraversal();
+                return;
+            }
+        }
+
+        private void Corner(NavAgent agent)
+        {
+            var from = Quaternion.LookRotation(Vector3.forward, agent.CurrentPathSegment.Normal);
+            var to = Quaternion.LookRotation(Vector3.forward, agent.CurrentPathSegment.Next.Normal);
+
+
+            agent.transform.rotation = Quaternion.Slerp(
+                from,
+                to,
+                agent.TimeOnLink / (deltaDistance / cornerSpeed));
+        }
+
+        private void Jump(NavAgent agent)
+        {
+            Vector2 newPos = storedLinkStart + direction * timeOnLink * jumpSpeed;
+            newPos.y += deltaDistance * 0.3f * Mathf.Sin(Mathf.PI * timeOnLink / timeToCompleteLink);
+            agent.Position = newPos;
+        }
+
+        private void Fall(NavAgent agent)
+        {
+            Vector2 newPos = storedLinkStart + direction * timeOnLink * fallSpeed;
+            agent.Position = newPos;
+        }
+
+        private void Climb(NavAgent agent)
+        {
+            Vector2 linkPos = agent.CurrentPathSegment.link.GameObject.transform.position;
+            Vector2 linkDir = agent.CurrentPathSegment.link.GameObject.transform.up;
+
+            Vector2 newPos = Vector2.zero;
+            switch (state)
+            {
+                case 0:
+                    Vector2 start = Geometry.ProjectPointOnLine(agent.CurrentPathSegment.LinkStart, linkPos, linkDir);
+                    if (MoveTo(agent.Position, start, climbSpeed * Time.deltaTime, out newPos))
+                    {
+                        state = 1;
+                    }
+                    break;
+                case 1:
+                    Vector2 end = Geometry.ProjectPointOnLine(agent.PathSubGoal, linkPos, linkDir);
+                    if (MoveTo(agent.Position, end, climbSpeed * Time.deltaTime, out newPos))
+                    {
+                        state = 2;
+                    }
+                    break;
+                case 2:
+                    if (MoveTo(agent.Position, agent.PathSubGoal, climbSpeed * Time.deltaTime, out newPos))
+                    {
+                        // force early exit
+                        timeToCompleteLink = 0;
+                    }
+                    break;
+            }
+            agent.Position = newPos;
+        }
+
+        private void Elevator(NavAgent agent)
+        {
+            // 3 phase
+            // 1. move on elevator
+            // 2. wait to reach destination
+            // 3. leave
+
+            Vector2 newPos = agent.Position;
+            switch (state)
+            {
+                case 0:
+                    Vector2 target = elevatorTrans.position;
+                    if (agent.CurrentPathSegment.link.IsTraversable && Mathf.Abs(newPos.y - target.y) < 0.1f)
+                    {
+                        state = 1;
+                        newPos.y = target.y;
+                        direction = Vector2.right * Mathf.Sign(target.x - storedLinkStart.x);
+                    }
+                    break;
+                case 1:
+                    newPos += movementSpeed * direction * Time.deltaTime;
+
+                    float targetX = agent.CurrentPathSegment.link.GameObject.transform.position.x;
+                    if ((newPos.x - targetX) * direction.x >= 0)
+                    {
+                        state = 2;
+                        newPos.x = targetX;
+                    }
+                    break;
+                case 2:
+                    // wait till y matches elevation
+                    // cast ray downwards to move with platform
+                    float targetY = agent.PathSubGoal.y;
+                    if (agent.CurrentPathSegment.link.IsTraversable && Mathf.Abs(newPos.y - targetY) < 0.1f)
+                    {
+                        state = 3;
+                        newPos.y = targetY;
+                        direction = Vector2.right * Mathf.Sign(agent.PathSubGoal.x - newPos.x);
+                        timeOnLink = 0;
+                        timeToCompleteLink = Mathf.Abs(agent.PathSubGoal.x - newPos.x) / movementSpeed;
+                    }
+                    break;
+                case 3:
+                    newPos += movementSpeed * direction * Time.deltaTime;
+                    break;
+            }
+            agent.Position = newPos;
+        }
+
+        private void Teleport(NavAgent agent)
+        {
+            agent.Position = agent.PathSubGoal;
+        }
+
+        private static bool MoveAlongSegment(Vector2 pos, Vector2 goal, Vector2 segPoint, Vector2 segTangent, float amount, out Vector2 newPos)
+        {
+            pos = Geometry.ProjectPointOnLine(pos, segPoint, segTangent);
+            goal = Geometry.ProjectPointOnLine(goal, segPoint, segTangent);
+            return MoveTo(pos, goal, amount, out newPos);
+        }
+
+        private static bool MoveTo(Vector2 pos, Vector2 goal, float amount, out Vector2 newPos)
+        {
+            Vector2 dir = goal - pos;
+            float distance = dir.magnitude;
+            if (distance <= amount)
+            {
+                newPos = goal;
+                return true;
+            }
+
+            newPos = pos + dir * amount / distance;
+            return false;
+        }
+    }
+}
+

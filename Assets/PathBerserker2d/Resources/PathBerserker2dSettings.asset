@@ -37,6 +37,8 @@ MonoBehaviour:
   - grass
   - concrete
   - dirt
+  - enemy
+  - ally
   navTagColors:
   - {r: 0, g: 0, b: 0, a: 0}
   - {r: 0, g: 0.5736413, b: 1, a: 1}
@@ -44,6 +46,8 @@ MonoBehaviour:
   - {r: 0.03921567, g: 0.99607843, b: 0.124506705, a: 1}
   - {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 1}
   - {r: 0.4339623, g: 0.2691755, b: 0, a: 1}
+  - {r: 0, g: 0.34509805, b: 0.49803922, a: 1}
+  - {r: 0.043137256, g: 0.77254903, b: 0.50980395, a: 1}
   drawUnselectedLinks: 1
   drawUnselectedSurfaces: 1
   drawUnselectedSubstractors: 1

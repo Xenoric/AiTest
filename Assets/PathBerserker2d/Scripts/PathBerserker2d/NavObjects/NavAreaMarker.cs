@@ -19,7 +19,7 @@ namespace PathBerserker2d
                 navTag = PathBerserker2dSettings.EnsureNavTagExists(value);
             }
         }
-        public Color MarkerColor => PathBerserker2dSettings.GetNavTagColor(navTag);
+        public Color MarkerColor => PathBerserker2dSettings.GetNavTagColor(NavTag);
 
         [SerializeField]
         int navTag = 0;
@@ -91,7 +91,7 @@ namespace PathBerserker2d
 
         private void OnValidate()
         {
-            navTag = PathBerserker2dSettings.EnsureNavTagExists(navTag);
+            NavTag = PathBerserker2dSettings.EnsureNavTagExists(NavTag);
             updateAfterTimeOfNoMovement = Mathf.Max(0, updateAfterTimeOfNoMovement);
             updateAfterTime = Mathf.Max(0, updateAfterTime);
         }

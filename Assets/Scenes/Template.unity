@@ -2081,15 +2081,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -0.8777504, y: 0.18390799}
-  goal: {x: 0.8777466, y: -0.18390799}
+  start: {x: -0.8574028, y: 0.2788577}
+  goal: {x: 0.7285385, y: -0.20425463}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -4554,7 +4554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -11900,58 +11900,42 @@ MonoBehaviour:
   m_GameObject: {fileID: 200893060}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa1e82f0b188df343b7eb3856711d97a, type: 3}
+  m_Script: {fileID: 11500000, guid: 0cb196692268453695136e34ffb21fca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   botPrefab: {fileID: 500623544544296366, guid: 44d8b2ea3a7d5ff41b6810773074f328, type: 3}
+  botsPerTeam: 4
+  useAvoidanceFollower: 1
   team1:
     spawnPoints:
     - {fileID: 1385673951}
     - {fileID: 1845824831}
     - {fileID: 332136589}
     - {fileID: 15307736}
-    botCount: 4
-    teamColor: {r: 1, g: 0.2165, b: 0, a: 1}
-    useTeamSpecificSettings: 0
-    pathSettings:
-      closeEnoughRadius: 3
-      travelStopRadius: 1
-      updateFrequency: 0.3
-      targetPredictionTime: 0.1
-    avoidanceSettings:
-      allyDetectionDistance: 1.5
-      pathRecalculationInterval: 0.5
-      avoidanceOffset: 2
-      maxAvoidanceTime: 3
+    teamColor: {r: 1, g: 0, b: 0, a: 1}
   team2:
     spawnPoints:
     - {fileID: 533462710}
     - {fileID: 836731614}
     - {fileID: 746928368}
     - {fileID: 369449991}
-    botCount: 4
-    teamColor: {r: 0, g: 0.30666637, b: 1, a: 1}
-    useTeamSpecificSettings: 0
-    pathSettings:
-      closeEnoughRadius: 3
-      travelStopRadius: 1
-      updateFrequency: 0.3
-      targetPredictionTime: 0.1
-    avoidanceSettings:
-      allyDetectionDistance: 1.5
-      pathRecalculationInterval: 0.5
-      avoidanceOffset: 2
-      maxAvoidanceTime: 3
-  commonPathSettings:
-    closeEnoughRadius: 30
-    travelStopRadius: 27
-    updateFrequency: 0.3
-    targetPredictionTime: 0.1
-  commonAvoidanceSettings:
-    allyDetectionDistance: 5
-    pathRecalculationInterval: 0.2
-    avoidanceOffset: 4
-    maxAvoidanceTime: 0
+    teamColor: {r: 0, g: 0.1749525, b: 1, a: 1}
+  closeEnoughRadius: 20
+  travelStopRadius: 20
+  targetPredictionTime: 0.1
+  navTagAvoidanceRadius: 5
+  navTagAvoidanceHeight: 1
+  enemyAvoidanceCost: 1000
+  allyAvoidanceCost: 100
+  pathUpdateInterval: 0.3
+  minDistanceThreshold: 5
+  maxDistanceThreshold: 5
+  optimalDistance: 5
+  lineOfSightDistance: 10
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  lineOfSightCheckInterval: 0.2
 --- !u!1 &204602582
 GameObject:
   m_ObjectHideFlags: 0
@@ -12716,7 +12700,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -14762,7 +14746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -15420,7 +15404,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -17335,7 +17319,7 @@ Camera:
   far clip plane: 100
   field of view: 60
   orthographic: 1
-  orthographic size: 40
+  orthographic size: 80
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -19100,7 +19084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -19278,7 +19262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -22965,6 +22949,64 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &366858117
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 366858118}
+  - component: {fileID: 366858119}
+  m_Layer: 0
+  m_Name: GameObject (14)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &366858118
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366858117}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.098070145, y: 24.987606, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 730115131}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &366858119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366858117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  costOverride: 0
+  linkType: 1
+  clearance: 6
+  navTag: 0
+  avgWaitTime: 0
+  maxTraversableDistance: 0
+  autoMap: 1
+  start: {x: -28.373892, y: 0.10842705}
+  goal: {x: -9.359613, y: 9.934471}
+  isBidirectional: 1
+  visualizationType: 5
+  traversalAngle: 0
+  horizontalSpeed: 1
+  bezierControlPoint: {x: -76.730804, y: 11.566895}
 --- !u!1 &367007934
 GameObject:
   m_ObjectHideFlags: 0
@@ -29543,7 +29585,7 @@ MonoBehaviour:
     height: 116.777695
   totalLineLength: 579.7847
   bakeVersion: 2
-  bakeIteration: 49
+  bakeIteration: 100
 --- !u!1 &372870153
 GameObject:
   m_ObjectHideFlags: 0
@@ -30068,7 +30110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -39755,8 +39797,8 @@ Transform:
   m_GameObject: {fileID: 544186158}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20.6, y: -2, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalPosition: {x: 5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 196794520}
@@ -42533,12 +42575,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
-  avgWaitTime: 0.1
-  maxTraversableDistance: 150
+  avgWaitTime: 0
+  maxTraversableDistance: 0
   autoMap: 1
   start: {x: 8.159485, y: -5.668297}
   goal: {x: -107.27477, y: 25.897448}
@@ -43894,7 +43936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -46315,7 +46357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -46929,6 +46971,64 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &658242415
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 658242416}
+  - component: {fileID: 658242417}
+  m_Layer: 0
+  m_Name: GameObject (16)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &658242416
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 658242415}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.098070145, y: 24.987606, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 730115131}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &658242417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 658242415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  costOverride: 0
+  linkType: 1
+  clearance: 6
+  navTag: 0
+  avgWaitTime: 0
+  maxTraversableDistance: 0
+  autoMap: 1
+  start: {x: -31.52215, y: 0.043498993}
+  goal: {x: 25.509418, y: 0.14658928}
+  isBidirectional: 1
+  visualizationType: 5
+  traversalAngle: 0
+  horizontalSpeed: 1
+  bezierControlPoint: {x: -76.730804, y: 11.566895}
 --- !u!1 &658399989
 GameObject:
   m_ObjectHideFlags: 0
@@ -48627,6 +48727,64 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &698055543
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 698055544}
+  - component: {fileID: 698055545}
+  m_Layer: 0
+  m_Name: GameObject (15)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &698055544
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698055543}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.098070145, y: 24.987606, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 730115131}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &698055545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698055543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  costOverride: 0
+  linkType: 1
+  clearance: 6
+  navTag: 0
+  avgWaitTime: 0
+  maxTraversableDistance: 0
+  autoMap: 1
+  start: {x: -28.373892, y: 0.10842705}
+  goal: {x: 29.921495, y: 0.1304264}
+  isBidirectional: 1
+  visualizationType: 5
+  traversalAngle: 0
+  horizontalSpeed: 1
+  bezierControlPoint: {x: -76.730804, y: 11.566895}
 --- !u!1 &698440613
 GameObject:
   m_ObjectHideFlags: 0
@@ -49271,12 +49429,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
-  avgWaitTime: 0.1
-  maxTraversableDistance: 150
+  avgWaitTime: 0
+  maxTraversableDistance: 0
   autoMap: 1
   start: {x: -15.148544, y: 5.5146017}
   goal: {x: -133.07585, y: 46.08428}
@@ -50647,6 +50805,9 @@ Transform:
   - {fileID: 2034108341}
   - {fileID: 1497392770}
   - {fileID: 967630838}
+  - {fileID: 366858118}
+  - {fileID: 698055544}
+  - {fileID: 658242416}
   - {fileID: 221259522}
   - {fileID: 1745739259}
   m_Father: {fileID: 585201384}
@@ -51407,8 +51568,8 @@ Transform:
   m_GameObject: {fileID: 739994654}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20.5, y: -2, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalPosition: {x: -20.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 871641906}
@@ -54900,7 +55061,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -55078,7 +55239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -55496,15 +55657,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -0.5388069, y: 0.25956726}
-  goal: {x: 0.5388069, y: -0.25956726}
+  start: {x: -0.796772, y: 0.23806763}
+  goal: {x: 0.6964531, y: -0.39571762}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -56598,8 +56759,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
-  linkType: 2
+  costOverride: 0
+  linkType: 1
   clearance: 6
   navTag: 0
   avgWaitTime: 0
@@ -58279,7 +58440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -58293,7 +58454,7 @@ MonoBehaviour:
     traversalType: 2
   - point: {x: 51.119812, y: -14.255667}
     traversalType: 2
-  - point: {x: -37.624275, y: 6.132082}
+  - point: {x: -37.792187, y: 6.1837463}
     traversalType: 2
   - point: {x: -45.972054, y: 16.430862}
     traversalType: 2
@@ -59523,7 +59684,7 @@ Transform:
   m_GameObject: {fileID: 870241209}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.08, y: 34.16, z: 0}
+  m_LocalPosition: {x: 0.5, y: 44.75, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -59541,21 +59702,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
-  linkType: 1
+  costOverride: 0
+  linkType: 2
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
   linkPoints:
-  - point: {x: -13.570286, y: 11.007746}
+  - point: {x: -13.990285, y: 0.4177456}
     traversalType: 2
-  - point: {x: 13.441971, y: 10.999956}
+  - point: {x: 13.021972, y: 0.40995598}
     traversalType: 2
-  - point: {x: 7.9480095, y: 0.6756897}
+  - point: {x: 7.5280094, y: -9.91431}
     traversalType: 2
-  - point: {x: -7.7966843, y: 0.6642494}
+  - point: {x: -8.216684, y: -9.925751}
     traversalType: 2
 --- !u!1 &870405810
 GameObject:
@@ -63000,14 +63161,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -61.434113, y: -20.244663}
+  start: {x: -53.141876, y: -20.345787}
   goal: {x: 61.278755, y: 20.298677}
   isBidirectional: 1
   visualizationType: 5
@@ -63418,7 +63579,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -63680,7 +63841,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -64578,7 +64739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -64586,7 +64747,7 @@ MonoBehaviour:
   maxTraversableDistance: 0
   autoMap: 1
   start: {x: 102.45117, y: 36.71609}
-  goal: {x: -12.192978, y: 5.20557}
+  goal: {x: 9.245483, y: 16.329304}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -65616,15 +65777,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
-  linkType: 1
+  costOverride: 0
+  linkType: 2
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
   start: {x: -7.8952637, y: -5.0914183}
-  goal: {x: 7.895279, y: 5.0914187}
+  goal: {x: 4.8831635, y: 5.128152}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -66469,14 +66630,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -26.545261, y: -0.00057411194}
+  start: {x: 9.15418, y: 9.847546}
   goal: {x: 26.545263, y: 0.00057411194}
   isBidirectional: 1
   visualizationType: 5
@@ -71367,7 +71528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -71381,7 +71542,7 @@ MonoBehaviour:
     traversalType: 2
   - point: {x: 8.711914, y: -7.6521826}
     traversalType: 2
-  - point: {x: -26.821186, y: 24.968227}
+  - point: {x: -27.13118, y: 25.052183}
     traversalType: 2
   - point: {x: 60.040527, y: 4.5432005}
     traversalType: 2
@@ -71919,7 +72080,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -72097,7 +72258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -74565,7 +74726,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -79543,7 +79704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -82880,7 +83041,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -87333,7 +87494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -89071,7 +89232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -89369,7 +89530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -96146,7 +96307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -96584,7 +96745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -99892,7 +100053,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -100790,14 +100951,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -45.648994, y: 6.225173}
+  start: {x: -36.143272, y: 6.022924}
   goal: {x: 118.1125, y: 26.655514}
   isBidirectional: 1
   visualizationType: 5
@@ -103932,7 +104093,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -106114,7 +106275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -106292,8 +106453,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
-  linkType: 2
+  costOverride: 0
+  linkType: 1
   clearance: 6
   navTag: 0
   avgWaitTime: 0
@@ -109473,7 +109634,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -111331,7 +111492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -112563,7 +112724,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -113185,7 +113346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -114047,7 +114208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -114055,7 +114216,7 @@ MonoBehaviour:
   maxTraversableDistance: 0
   autoMap: 1
   start: {x: 47.709064, y: -16.585209}
-  goal: {x: -42.526085, y: -4.3008533}
+  goal: {x: -30.997856, y: -4.4019766}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -115200,15 +115361,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: 0.8563881, y: 0.19962311}
-  goal: {x: -0.8563881, y: -0.19962311}
+  start: {x: 0.60710526, y: 0.12604856}
+  goal: {x: -0.4126091, y: -0.17849112}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -118898,7 +119059,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -121876,7 +122037,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2a77a7bf2e29d438041e3d46dd5667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -122928,7 +123089,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -124870,7 +125031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 1
   clearance: 6
   navTag: 0
@@ -128625,15 +128786,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
   avgWaitTime: 0
   maxTraversableDistance: 0
   autoMap: 1
-  start: {x: -1.0371857, y: 0.26298952}
-  goal: {x: 1.0371857, y: -0.26298904}
+  start: {x: -0.89608, y: 0.39795637}
+  goal: {x: 1.0187836, y: -0.2139101}
   isBidirectional: 1
   visualizationType: 5
   traversalAngle: 0
@@ -129283,7 +129444,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d47b3e0cb42914b8b2ae885bebf30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costOverride: -1
+  costOverride: 0
   linkType: 2
   clearance: 6
   navTag: 0
@@ -138704,8 +138865,8 @@ SpriteRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 487720707}
   - {fileID: 284787230}
+  - {fileID: 487720707}
   - {fileID: 672681197}
   - {fileID: 2958701129358057393}
   - {fileID: 593014672}
